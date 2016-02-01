@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="moodle-block_mycourse_recommendations" default="codechecker">
+    
+    <property name="workspace.dir" value="${env.JENKINS_HOME}/jobs/${phing.project.name}/workspace"/>
+    <property name="moodle.git" value="${workspace.dir}/moodle/"/>
+    <property name="parameter.version" value=""/>
+    <property name="version.dir" value="${workspace.dir}/target/${parameter.version}"/>
+    <property name="config.path" value="${env.JENKINS_HOME}/moodle-config/config-${parameter.version}.php"/>
+    <property name="block_mycourse.install.path" value="${version.dir}/blocks/mycourse_recommendations"/>
+    <property name="project.url" value="https://github.com/julenpardo/moodle-block_mycourse_recommendations"/>
+    <property name="codechecker.url" value="https://github.com/moodlehq/moodle-local_codechecker.git"/>
+    <property name="codechecker.dir" value="${version.dir}/local"/>
+    <property name="codechecker.ruleset" value="${codechecker.dir}/codechecker/moodle/ruleset.xml"/>
+    <property name="success.code" value="0"/>
+
+    <target name="block_mycourse_pull">
+        <mkdir dir="${workspace.dir}/${phing.project.name}"/>
+        <exec command="git init" dir="${workspace.dir}/${phing.project.name}"/>
+        <exec command="git remote add origin ${project.url}"/>
+        <exec command="git pull" dir="${workspace.dir}/${phing.project.name}" outputProperty="block_mycourse_pull.output"/>
+        <echo msg="${block_mycourse_pull.output}"/>
+    </target>
+
+    <target name="block_mycourse_install" depends="block_mycourse_pull">
+        <copy todir="${block_mycourse.install.path}">
+            <fileset dir="${workspace.dir}/${phing.project.name}">
+                <exclude name=".git/"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="moodle_pull">
+        <mkdir dir="${moodle.git}"/>
+        <exec command="git init" dir="${moodle.git}"/>
+        <exec command="git remote add origin https://github.com/moodle/moodle.git" dir="${moodle.git}"/>
+        <exec command="git pull --all" dir="${moodle.git}" outputProperty="moodle_pull.output"/>
+        <echo msg="${moodle_pull.output}"/>
+    </target> 
+
+    <target name="moodle_install" depends="moodle_pull">
+        <exec command="git checkout ${parameter.version}" dir="${moodle.git}" outputProperty="moodle_install.checkout.output"/>
+        <echo msg="${moodle_install.checkout.output}"/>
+        <copy todir="${version.dir}">
+            <fileset dir="${moodle.git}"/>
+        </copy>
+        <copy file="${config.path}" tofile="${version.dir}/config.php" overwrite="true"/>
+    </target>
+
+    <target name="codechecker" depends="block_mycourse_install, moodle_install">
+        <exec command="git clone ${codechecker.url} codechecker" dir="${codechecker.dir}"/>
+        <exec command="phpcs -v --standard=${codechecker.ruleset} ${block_mycourse.install.path}/*.php" returnProperty="codechecker.status" outputProperty="codechecker.output"/>
+        <if>
+            <not>
+                <equals arg1="${codechecker.status}" arg2="${success.code}"/>
+            </not>
+            <then>
+                <fail message="${codechecker.output}"/>
+            </then>
+        </if>
+
+        <echo msg="${codechecker.output}"/>
+    </target>
+
+    <target name="phpunit_init" depends="moodle_install, block_mycourse_install">
+        <copy file="${config.path}" tofile="${version.dir}/config.php" overwrite="true"/>
+        <exec command="php ${version.dir}/admin/tool/phpunit/cli/init.php" dir="${version.dir}"/>
+    </target>
+
+    <target name="phpunit_test" depends="phpunit_init">
+        <exec command="vendor/bin/phpunit ${block_mycourse.install.path}/tests/*" dir="${version.dir}" returnProperty="phpunit.status" outputProperty="phpunit.output"/>
+        <if>
+            <not>
+                <equals arg1="${phpunit.status}" arg2="${success.code}"/>
+            </not>
+            <then>
+                <fail message="${phpunit.output}"/>
+            </then>
+        </if>
+
+        <echo msg="${phpunit.output}"/>
+    </target>
+
+</project>
