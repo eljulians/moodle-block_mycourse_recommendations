@@ -18,8 +18,8 @@
  * Version details.
  *
  * @package    block_mycourse_recommendations
- * @copyright  2015 onwards Iñaki Arenaza (iarenaza@mondragon.edu)
- *             2016 onwards Julen Pardo (julen.pardo@outlook.es)
+ * @copyright  2015 onwards Iñaki Arenaza & Mondragon Unibertsitatea
+ *             2016 onwards Julen Pardo & Mondragon Unibertsitatea
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

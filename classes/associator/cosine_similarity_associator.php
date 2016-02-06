@@ -15,12 +15,19 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Strings for component 'block_mycourse_recommendations', language 'en'.
  *
- * @package   block_mycourse_recommendations
- * @copyright 2015 onwards Iñaki Arenaza & Mondragon Unibertsitatea
- *            2016 onwards Julen Pardo & Mondragon Unibertsitatea
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    block_mycourse_recommendations
+ * @copyright  2016 onwards Julen Pardo & Mondragon Unibertsitatea
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'MYCOURSE Recommendations';
+namespace block_mycourse_recommendations;
+
+use block_mycourse_recommendations\abstract_associator;
+
+class cosine_similarity_associator implements abstract_associator {
+
+    public function find_associations() {
+
+    }
+}

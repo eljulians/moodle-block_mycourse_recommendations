@@ -48,7 +48,7 @@
 
     <target name="codechecker" depends="block_mycourse_install, moodle_install">
         <exec command="git clone ${codechecker.url} codechecker" dir="${codechecker.dir}"/>
-        <exec command="phpcs -v --standard=${codechecker.ruleset} ${block_mycourse.install.path}/*.php" returnProperty="codechecker.status" outputProperty="codechecker.output"/>
+        <exec command="phpcs -v --colors --standard=${codechecker.ruleset} --ignore=*.xml,*.md *" dir="${block_mycourse.install.path}" returnProperty="codechecker.status" outputProperty="codechecker.output"/>
         <if>
             <not>
                 <equals arg1="${codechecker.status}" arg2="${success.code}"/>
