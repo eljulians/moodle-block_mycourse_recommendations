@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="blocks/mycourse_recommendations/db" VERSION="2016020100" COMMENT="XMLDB file for Moodle blocks/mycourse_recommendations"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="block_mycourse_user_sel" COMMENT="The selection of users who will receive the personalized recommendations for the specified course.">
+      <FIELDS>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The id of the user who will receive the personalized recommendations."/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The id of the course where the personalized recommendations will be displayed."/>
+        <FIELD NAME="year" TYPE="int" LENGTH="4" NOTNULL="true" SEQUENCE="false" COMMENT="The year the course belongs to."/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="userid, courseid"/>
+        <KEY NAME="userid_fk" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+        <KEY NAME="courseid_fk" TYPE="foreign" FIELDS="courseid" REFTABLE="course" REFFIELDS="id"/>
+      </KEYS>
+    </TABLE>
+
+    <TABLE NAME="block_mycourse_assoc" COMMENT="Associations between historic and current students.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="current_userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The id of the user belonging to the current course, which will be given the recommendations."/>
+        <FIELD NAME="current_courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The id of the course of the current user."/>
+        <FIELD NAME="historic_userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The id of the historic user, which will be associated to the current user."/>
+        <FIELD NAME="historic_courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The id of the course of the historic user."/>
+        <FIELD NAME="week" TYPE="int" LENGTH="3" NOTNULL="true" SEQUENCE="false" COMMENT="The week the association is calculated at."/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="current_userid_fk" TYPE="foreign" FIELDS="current_userid" REFTABLE="block_mycourse_user_sel" REFFIELDS="userid"/>
+        <KEY NAME="current_courseid_fk" TYPE="foreign" FIELDS="current_courseid" REFTABLE="block_mycourse_user_sel" REFFIELDS="courseid"/>
+        <KEY NAME="historic_userid_fk" TYPE="foreign" FIELDS="historic_userid" REFTABLE="user" REFFIELDS="id"/>
+        <KEY NAME="historic_courseid_fk" TYPE="foreign" FIELDS="historic_courseid" REFTABLE="course" REFFIELDS="id"/>
+      </KEYS>
+    </TABLE>
+
+    <TABLE NAME="block_mycourse_recs" COMMENT="">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="associationid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT=""/>
+        <FIELD NAME="resourceid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The id of the resource recommended to the current user."/>
+        <FIELD NAME="order" TYPE="int" LENGTH="3" NOTNULL="true" SEQUENCE="false" COMMENT="The order in which the recommendations will be displayed, displaying the recommendations in ascendent order."/>
+        <FIELD NAME="followed" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="1 if the recommendation has been followed (clicked); 0 if not."/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="associationid_fk" TYPE="foreign" FIELDS="associationid" REFTABLE="block_mycourse_assoc" REFFIELDS="id"/>
+        <KEY NAME="resourceid_fk" TYPE="foreign" FIELDS="resourceid" REFTABLE="resource" REFFIELDS="id"/>
+      </KEYS>
+    </TABLE>
+  </TABLES>
+</XMLDB>
