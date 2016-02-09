@@ -231,7 +231,7 @@ class database_helper {
         for ($index = 0; $index < $number; $index++) {
             $association = new stdClass();
 
-            $association->current_userid = $current_userids[$index];
+            $association->current_userid = $current_usersids[$index];
             $association->current_courseid = $current_courseid;
             $association->historic_userid = $historic_userids[$index];
             $association->historic_courseid = $historic_courseid;
@@ -273,4 +273,5 @@ class database_helper {
         
         $DB->insert_records('block_mycourse_recs', $recommendations);
     }
+
 }
