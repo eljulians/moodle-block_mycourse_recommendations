@@ -32,8 +32,8 @@ class database_helper {
     public $sql;
 
     public function __construct() {
-        $this->sql = " 
-       select 
+        $this->sql = "
+       select
        logs.id,
        logs.format,
        logs.section,
@@ -162,8 +162,9 @@ class database_helper {
            and modules.course = weeks.course
            and ctx.contextlevel = 50
            and r.shortname = 'student' ) logs
- where logs.course = %courseid 
-   and ((extract(YEAR from logs.course_week) - %year) * 52) + extract(WEEK from logs.course_week) between %coursestartweek and %currentweek
+ where logs.course = %courseid
+   and ((extract(YEAR from logs.course_week) - %year) * 52) + extract(WEEK from logs.course_week)
+       between %coursestartweek and %currentweek
  order by logs.log_views desc;
         ";
     }
@@ -182,13 +183,13 @@ class database_helper {
      * @param int $year The year the course is/was teached.
      * @param int $coursestartweek The start week of the course.
      * @param int $currentweek The week until the data will be queried. For a week n,
-     * the queried data will be from the first week, to the week (n-1). When querying 
+     * the queried data will be from the first week, to the week (n-1). When querying
      * historic data, this week will (presumably) be the end week of the course.
      *
      * @return array The recordset returned by database. A not-associative array, it doesn't
      * seem to be an obvious way to identificate each module access count in an unique way.
      */
-    function query_data($courseid, $year, $coursestartweek, $currentweek) {
+    public function query_data($courseid, $year, $coursestartweek, $currentweek) {
         global $DB;
 
         $sql = $this->sql;
@@ -199,12 +200,12 @@ class database_helper {
         $sql = str_replace('%currentweek', $currentweek, $sql);
 
         $records = $DB->get_recordset_sql($sql);
-        
+
         return $records;
     }
 
     /**
-     * Inserts the calculated associations between students for a specific course, into 
+     * Inserts the calculated associations between students for a specific course, into
      * the associations table. Instead of receiving an associative array with all the fields,
      * an array of each field is received, for the encapsulation of the data logic in the class
      * (in this case, the names of the columns). A little more work at the creation of the
@@ -212,18 +213,18 @@ class database_helper {
      * Obviously, arrays' values' indexes will be aligned.
      *
      * @param int $number The number of associations to insert.
-     * @param array $current_usersids The ids of the current users, which are associated to
+     * @param array $currentusersids The ids of the current users, which are associated to
      * historic users.
-     * @param int $current_courseid The id of the course the current users belong to. As the
+     * @param int $currentcourseid The id of the course the current users belong to. As the
      * associations are calculed for a course, it's a single int value.
-     * @param array $historic_userid The ids of the historics users, which are associated to current
+     * @param array $historicuserid The ids of the historics users, which are associated to current
      * users.
-     * @param int $historic_courseid The id of the course the historics users belong to. As the
+     * @param int $historiccourseid The id of the course the historics users belong to. As the
      * associations are calculed for a course, it's a single int value.
      * @param int $week The week for which the associations have been calculed. As the associations are
      * calculated for a week, it's a single int value.
      */
-    function insert_associations($number, $current_usersids, $current_courseid, $historic_userids, $historic_courseid, $week) {
+    public function insert_associations($number, $currentusersids, $currentcourseid, $historicuserids, $historiccourseid, $week) {
         global $DB;
 
         $associations = array();
@@ -231,10 +232,10 @@ class database_helper {
         for ($index = 0; $index < $number; $index++) {
             $association = new stdClass();
 
-            $association->current_userid = $current_usersids[$index];
-            $association->current_courseid = $current_courseid;
-            $association->historic_userid = $historic_userids[$index];
-            $association->historic_courseid = $historic_courseid;
+            $association->current_userid = $currentusersids[$index];
+            $association->current_courseid = $currentcourseid;
+            $association->historic_userid = $historicuserids[$index];
+            $association->historic_courseid = $historiccourseid;
             $association->week = $week;
 
             array_push($associations, $association);
@@ -256,21 +257,21 @@ class database_helper {
      * @param array resourcesids The ids of the recommended resources.
      * @param orders The orders in which will be displayed the resource, in ascendent order.
      */
-    function insert_recommendations($number, $associationids, $resourcesids, $priorities) {
+    public function insert_recommendations($number, $associationids, $resourcesids, $priorities) {
         global $DB;
 
         $recommendations = array();
 
         for ($index = 0; $index < $number; $index++) {
             $recommendation = new stdClass();
-            
+
             $recommendation->associationid = $associationids[$index];
             $recommendation->resourceid = $resourcesids[$index];
             $recommendation->priority = $priorities[$index];
 
             array_push($recommendations, $recommendation);
         }
-        
+
         $DB->insert_records('block_mycourse_recs', $recommendations);
     }
 
