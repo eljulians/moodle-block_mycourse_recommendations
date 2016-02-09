@@ -1,0 +1,21 @@
+#;Class;Method;Values;Comments;Technique;Tested?;Result;Notes;Author;Date
+1;database_helper.php;insert_associations;"$number = 3
+$current_userids = array(1, 2, 3)
+$current_courseid = 1
+$historic_userids = array(100, 200, 300)
+$historic_courseid = 2;
+$week = 1";Test that associations are inserted properly, as they are supposed to be inserted, with no exception thrown.;Exception;Yes;Ok;;Julen Pardo;09/02/2016
+2;database_helper.php;insert_associations;"$number = 4
+$current_userids = array(1, 2, 3, 4)
+$current_courseid = 1
+$historic_userids = array(100, 200, 300)
+$historic_courseid = 2;
+$week = 1";Test that exception is thrown, because $number parameter is specifying the length of all the arrays, and is higher than at least one of the arrays.;Exception;Yes;Ok;;Julen Pardo;09/02/2016
+3;database_helper.php;insert_recommendations;"$number = 3
+$associationsids = array(1, 2, 3)
+$resourcesids = array(4, 5, 6)
+$priorities = array(7, 8, 9)";Test that recommendations are inserted properly, as they are supposed to be inserted, with no exception thrown.;Exception;Yes;Ok;;Julen Pardo;09/02/2016
+4;database_helper.php;insert_recommendations;"$number = 4
+$associationsids = array(1, 2, 3)
+$resourcesids = array(4, 5, 6)
+$priorities = array(7, 8, 9, 10)";Test that exception is thrown, because $number parameter is specifying the length of all the arrays, and is higher than at least one of the arrays.;Exception;Yes;Ok;;Julen Pardo;09/02/2016
