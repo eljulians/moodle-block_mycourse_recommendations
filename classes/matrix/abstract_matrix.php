@@ -23,6 +23,8 @@
 
 namespace block_mycourse_recommendations;
 
-abstract class abstract_matrix {
+interface abstract_matrix {
+
+    public function transform_queried_data($data);
 
 }
