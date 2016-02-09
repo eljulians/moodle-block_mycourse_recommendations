@@ -40,7 +40,7 @@
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="associationid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT=""/>
         <FIELD NAME="resourceid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The id of the resource recommended to the current user."/>
-        <FIELD NAME="order" TYPE="int" LENGTH="3" NOTNULL="true" SEQUENCE="false" COMMENT="The order in which the recommendations will be displayed, displaying the recommendations in ascendent order."/>
+        <FIELD NAME="priority" TYPE="int" LENGTH="3" NOTNULL="true" SEQUENCE="false" COMMENT="The order in which the recommendations will be displayed, displaying the recommendations in ascendent order."/>
         <FIELD NAME="followed" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="1 if the recommendation has been followed (clicked); 0 if not."/>
       </FIELDS>
       <KEYS>

@@ -256,7 +256,7 @@ class database_helper {
      * @param array resourcesids The ids of the recommended resources.
      * @param orders The orders in which will be displayed the resource, in ascendent order.
      */
-    function insert_recommendations($number, $associationids, $resourcesids, $orders) {
+    function insert_recommendations($number, $associationids, $resourcesids, $priorities) {
         global $DB;
 
         $recommendations = array();
@@ -266,11 +266,11 @@ class database_helper {
             
             $recommendation->associationid = $associationids[$index];
             $recommendation->resourceid = $resourcesids[$index];
-            $recommendation->order = $orders[$index];
+            $recommendation->priority = $priorities[$index];
 
             array_push($recommendations, $recommendation);
         }
-        print_r($recommendations);
+        
         $DB->insert_records('block_mycourse_recs', $recommendations);
     }
 }
