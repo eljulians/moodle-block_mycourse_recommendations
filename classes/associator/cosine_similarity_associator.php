@@ -37,23 +37,24 @@ class cosine_similarity_associator implements abstract_associator {
     }
 
     public function create_associations_matrix($currentdata, $historicdata) {
-        $matrix = array(array());
-
         $currentusers = array_keys($currentdata);
         $historicusers = array_keys($historicdata);
 
         foreach ($currentusers as $currentuser) {
             $currentviewsvector = $currentdata[$currentuser];
 
+            $similarities = null;
             foreach ($historicusers as $historicuser) {
                 $historicviewsvector = $historicdata[$historicuser];
 
                 $similarity = $this->cosine_similarity($currentviewsvector, $historicviewsvector);
-                $matrix[$currentuserid][$historicuserid] = $similarity;
+                $similarity = round($similarity, 4);
+                $similarities[$historicuser] = $similarity;
             }
+
+            $matrix[$currentuser] = $similarities;
         }
 
-        var_dump($matrix);
         return $matrix;
     }
 
@@ -71,11 +72,11 @@ class cosine_similarity_associator implements abstract_associator {
     }
 
     private function dot_product($vector1, $vector2) {
-        $length = min(count($vector1), count($vector2));
         $result = 0;
+        $modules = array_keys($vector1);
 
-        for ($index = 0; $index < $length; $index++) {
-            $result += $vector1[$index] * $vector2[$index];
+        foreach ($modules as $module) {
+            $result += $vector1[$module] * $vector2[$module];
         }
 
         return $result;
@@ -83,9 +84,10 @@ class cosine_similarity_associator implements abstract_associator {
 
     private function vector_module($vector) {
         $result = 0;
+        $modules = array_keys($vector);
 
-        for ($index = 0; $index < count($vector); $index++) {
-            $result += pow($vector[$index], 2);
+        foreach ($modules as $module) {
+            $result += pow($vector[$module], 2);
         }
 
         $result = sqrt($result);

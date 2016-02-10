@@ -77,6 +77,7 @@ class block_mycourse_recommendations_cosine_similarity_associator_testcase exten
         $this->setAdminUser();
 
         $expected = array(array());
+        $delta = 0.001;
 
         $historicdata = array('1' => array('10' => 54,
                                            '11' => 1,
@@ -122,7 +123,7 @@ class block_mycourse_recommendations_cosine_similarity_associator_testcase exten
                                          '2' => 0.8102,
                                          '3' => 0.2345,
                                          '4' => 0.2096,
-                                         '5' => 0.2830,
+                                         '5' => 0.283,
                                          '6' => 0.2248),
                           '101' => array('1' => 0.2683,
                                          '2' => 0.5303,
@@ -130,17 +131,23 @@ class block_mycourse_recommendations_cosine_similarity_associator_testcase exten
                                          '4' => 0.9803,
                                          '5' => 0.7995,
                                          '6' => 0.9816),
-                          '101' => array('1' => 0.4625,
-                                         '2' => 0.6254,
+                          '102' => array('1' => 0.4625,
+                                         '2' => 0.6255,
                                          '3' => 0.9729,
                                          '4' => 0.8105,
-                                         '5' => 0.8096,
-                                         '6' => 0.805)
+                                         '5' => 0.8068,
+                                         '6' => 0.8055)
                           );
 
         $output = $this->associator->create_associations_matrix($currentdata, $historicdata);
 
-        $this->assertEquals($output, $expected);
+        // It seems that we have assert every value to make the assertion behave properly.
+        // It doesn't matter if we take expected's or output's keys; they must be the same.
+        foreach (array_keys($output) as $row) {
+            foreach (array_keys($output[$row]) as $column) {
+                $this->assertEquals($output[$row][$column], $expected[$row][$column], '', $delta);
+            }
+        }
     }
 
     public function test_dot_product() {
