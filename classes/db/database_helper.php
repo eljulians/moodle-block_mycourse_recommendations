@@ -165,7 +165,7 @@ class database_helper {
  where logs.course = %courseid
    and ((extract(YEAR from logs.course_week) - %year) * 52) + extract(WEEK from logs.course_week)
        between %coursestartweek and %currentweek
- order by logs.log_views desc;
+ order by logs.userid;
         ";
     }
 
