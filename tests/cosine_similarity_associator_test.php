@@ -104,7 +104,6 @@ class block_mycourse_recommendations_cosine_similarity_associator_testcase exten
                                            '13' => 37)
                             );
 
-
         $currentdata = array('100' => array('10' => 456,
                                             '11' => 71,
                                             '12' => 23,
@@ -118,7 +117,6 @@ class block_mycourse_recommendations_cosine_similarity_associator_testcase exten
                                             '12' => 64,
                                             '13' => 12)
                              );
-
 
         $expected = array('100' => array('1' => 0.6721,
                                          '2' => 0.8102,
