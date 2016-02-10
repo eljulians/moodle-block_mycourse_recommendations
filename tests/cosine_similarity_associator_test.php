@@ -60,7 +60,7 @@ class block_mycourse_recommendations_cosine_similarity_associator_testcase exten
         parent::tearDown();
     }
 
-    protected static function getMethod($name) {
+    protected static function get_method($name) {
         $class = new \ReflectionClass('cosine_similarity_associator');
         $method = $class->getMethod($name);
         $method->setAccessible(true);
@@ -69,7 +69,7 @@ class block_mycourse_recommendations_cosine_similarity_associator_testcase exten
     }
 
     public function test_dot_product() {
-        $dotproduct = self::getMethod('dot_product');
+        $dotproduct = self::get_method('dot_product');
         $vector1 = array();
         $vector2 = array();
         $expected = 10806;
@@ -89,7 +89,7 @@ class block_mycourse_recommendations_cosine_similarity_associator_testcase exten
     }
 
     public function test_vector_module() {
-        $vectormodule = self::getMethod('vector_module');
+        $vectormodule = self::get_method('vector_module');
         $vector = array();
         $expected = 68.6367;
         $delta = 0.0001;
@@ -106,7 +106,7 @@ class block_mycourse_recommendations_cosine_similarity_associator_testcase exten
     }
 
     public function test_cosine_similarity() {
-        $cosinesimilarity = self::getMethod('cosine_similarity');
+        $cosinesimilarity = self::get_method('cosine_similarity');
         $vector1 = array();
         $vector2 = array();
         $expected = 0.9263;

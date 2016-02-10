@@ -41,17 +41,34 @@ class cosine_similarity_associator implements abstract_associator {
     }
 
     private function cosine_similarity($vector1, $vector2) {
+        $numerator = $this->dot_product($vector1, $vector2);
+        $denominator = $this->vector_module($vector1) * $this->vector_module($vector2);
 
-        return null;
+        $result = $numerator / $denominator;
+
+        return $result;
     }
 
     private function dot_product($vector1, $vector2) {
+        $length = min(count($vector1), count($vector2));
+        $result = 0;
 
-        return null;
+        for ($index = 0; $index < $length; $index++) {
+            $result += $vector1[$index] * $vector2[$index];
+        }
+
+        return $result;
     }
 
     private function vector_module($vector) {
+        $result = 0;
 
-        return null;
+        for ($index = 0; $index < count($vector); $index++) {
+            $result += pow($vector[$index], 2);
+        }
+
+        $result = sqrt($result);
+
+        return $result;
     }
 }
