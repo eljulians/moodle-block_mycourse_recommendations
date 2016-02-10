@@ -23,11 +23,35 @@
 
 namespace block_mycourse_recommendations;
 
+require_once('abstract_associator.php');
+require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/matrix/abstract_matrix.php'); // Include the code to test.
+
 use block_mycourse_recommendations\abstract_associator;
 
 class cosine_similarity_associator implements abstract_associator {
 
-    public function find_associations() {
+    private $matrix;
 
+    public function __construct($matrixinstance) {
+        $this->matrix = $matrixinstance;
+    }
+
+    public function find_associations($currentdata, $historicdata) {
+
+    }
+
+    private function cosine_similarity($vector1, $vector2) {
+
+        return null;
+    }
+
+    private function dot_product($vector1, $vector2) {
+
+        return null;
+    }
+
+    private function vector_module($vector) {
+
+        return null;
     }
 }
