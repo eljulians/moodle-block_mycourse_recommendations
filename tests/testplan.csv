@@ -39,4 +39,4 @@ $input[5]->moduleid = 30
 $input[5]->log_views = 24
 $input[6]->userid = 4
 $input[6]->moduleid = 10
-$input[6]->log_views = 68";;Equivalence;No;;;Julen Pardo;2016/02/09
+$input[6]->log_views = 68";Test that, recieving the data queried from database (this input data is generated manually, to facilitate the process), generates a user/module matrix of log views.;Equivalence;Yes;Ok;;Julen Pardo;09/02/2016
