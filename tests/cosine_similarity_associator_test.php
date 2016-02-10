@@ -60,8 +60,12 @@ class block_mycourse_recommendations_cosine_similarity_associator_testcase exten
         parent::tearDown();
     }
 
+    /**
+     * Gets class' method by name. Seems that for creating the ReflectionClass, it's necessary to
+     * specify the full namespace.
+     */
     protected static function get_method($name) {
-        $class = new \ReflectionClass('cosine_similarity_associator');
+        $class = new \ReflectionClass('\block_mycourse_recommendations\cosine_similarity_associator');
         $method = $class->getMethod($name);
         $method->setAccessible(true);
 
@@ -69,6 +73,9 @@ class block_mycourse_recommendations_cosine_similarity_associator_testcase exten
     }
 
     public function test_dot_product() {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
         $dotproduct = self::get_method('dot_product');
         $vector1 = array();
         $vector2 = array();
@@ -89,6 +96,9 @@ class block_mycourse_recommendations_cosine_similarity_associator_testcase exten
     }
 
     public function test_vector_module() {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
         $vectormodule = self::get_method('vector_module');
         $vector = array();
         $expected = 68.6367;
@@ -99,13 +109,15 @@ class block_mycourse_recommendations_cosine_similarity_associator_testcase exten
         $vector[2] = 67;
         $vector[3] = 14;
 
-        $output = $this->associator->vector_module($vector);
         $output = $vectormodule->invokeArgs($this->associator, array($vector));
 
         $this->assertEquals($output, $expected, '', $delta);
     }
 
     public function test_cosine_similarity() {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
         $cosinesimilarity = self::get_method('cosine_similarity');
         $vector1 = array();
         $vector2 = array();
@@ -121,7 +133,6 @@ class block_mycourse_recommendations_cosine_similarity_associator_testcase exten
         $vector2[2] = 154;
         $vector2[3] = 9;
 
-        $output = $this->associator->cosine_similarity($vector1, $vector2);
         $output = $cosinesimilarity->invokeArgs($this->associator, array($vector1, $vector2));
 
         $this->assertEquals($output, $expected, '', $delta);
