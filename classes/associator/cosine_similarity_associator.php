@@ -36,8 +36,8 @@ class cosine_similarity_associator implements abstract_associator {
         $this->matrix = $matrixinstance;
     }
 
-    public function find_associations($currentdata, $historicdata) {
-
+    public function create_associations_matrix($currentdata, $historicdata) {
+        return null;
     }
 
     private function cosine_similarity($vector1, $vector2) {

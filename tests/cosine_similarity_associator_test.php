@@ -72,6 +72,76 @@ class block_mycourse_recommendations_cosine_similarity_associator_testcase exten
         return $method;
     }
 
+    public function test_create_associations_matrix() {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $currentdata = array(array());
+        $historicdata = array(array());
+        $expected = array(array());
+
+        $historicdata['1']['10'] = 54
+        $historicdata['1']['11'] = 1
+        $historicdata['1']['12'] = 35
+        $historicdata['1']['13'] = 65
+        $historicdata['2']['10'] = 145
+        $historicdata['2']['11'] = 65
+        $historicdata['2']['12'] = 46
+        $historicdata['2']['13'] = 123
+        $historicdata['3']['10'] = 6
+        $historicdata['3']['11'] = 76
+        $historicdata['3']['12'] = 45
+        $historicdata['3']['13'] = 12
+        $historicdata['4']['10'] = 65
+        $historicdata['4']['11'] = 1254
+        $historicdata['4']['12'] = 54
+        $historicdata['4']['13'] = 54
+        $historicdata['5']['10'] = 12
+        $historicdata['5']['11'] = 76
+        $historicdata['5']['12'] = 45
+        $historicdata['5']['13'] = 78
+        $historicdata['6']['10'] = 32
+        $historicdata['6']['11'] = 489
+        $historicdata['6']['12'] = 12
+        $historicdata['6']['13'] = 37
+
+        $currentdata['100']['10'] = 456
+        $currentdata['100']['11'] = 71
+        $currentdata['100']['12'] = 23
+        $currentdata['100']['13'] = 47
+        $currentdata['101']['10'] = 31
+        $currentdata['101']['11'] = 217
+        $currentdata['101']['12'] = 41
+        $currentdata['101']['13'] = 34
+        $currentdata['102']['10'] = 31
+        $currentdata['102']['11'] = 87
+        $currentdata['102']['12'] = 64
+        $currentdata['102']['13'] = 12
+
+        $ouput['100']['1'] = 0.6721
+        $ouput['100']['2'] = 0.8102
+        $ouput['100']['3'] = 0.2345
+        $ouput['100']['4'] = 0.2096
+        $ouput['100']['5'] = 0.2830
+        $ouput['100']['6'] = 0.2248
+        $ouput['101']['1'] = 0.2683
+        $ouput['101']['2'] = 0.5305
+        $ouput['101']['3'] = 0.9394
+        $ouput['101']['4'] = 0.9803
+        $ouput['101']['5'] = 0.7995
+        $ouput['101']['6'] = 0.9816
+        $ouput['102']['1'] = 0.4625
+        $ouput['102']['2'] = 0.6254
+        $ouput['102']['3'] = 0.9729
+        $ouput['102']['4'] = 0.8105
+        $ouput['102']['5'] = 0.8069
+        $ouput['102']['6'] = 0.805
+
+        $output = $this->associator->create_associations_matrix($currentdata, $historicdata);
+
+        $this->markTestIncomplete('Method not implemented yet.');
+    }
+
     public function test_dot_product() {
         $this->resetAfterTest();
         $this->setAdminUser();
