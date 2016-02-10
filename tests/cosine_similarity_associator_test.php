@@ -76,70 +76,73 @@ class block_mycourse_recommendations_cosine_similarity_associator_testcase exten
         $this->resetAfterTest();
         $this->setAdminUser();
 
-        $currentdata = array(array());
-        $historicdata = array(array());
         $expected = array(array());
 
-        $historicdata['1']['10'] = 54
-        $historicdata['1']['11'] = 1
-        $historicdata['1']['12'] = 35
-        $historicdata['1']['13'] = 65
-        $historicdata['2']['10'] = 145
-        $historicdata['2']['11'] = 65
-        $historicdata['2']['12'] = 46
-        $historicdata['2']['13'] = 123
-        $historicdata['3']['10'] = 6
-        $historicdata['3']['11'] = 76
-        $historicdata['3']['12'] = 45
-        $historicdata['3']['13'] = 12
-        $historicdata['4']['10'] = 65
-        $historicdata['4']['11'] = 1254
-        $historicdata['4']['12'] = 54
-        $historicdata['4']['13'] = 54
-        $historicdata['5']['10'] = 12
-        $historicdata['5']['11'] = 76
-        $historicdata['5']['12'] = 45
-        $historicdata['5']['13'] = 78
-        $historicdata['6']['10'] = 32
-        $historicdata['6']['11'] = 489
-        $historicdata['6']['12'] = 12
-        $historicdata['6']['13'] = 37
+        $historicdata = array('1' => array('10' => 54,
+                                           '11' => 1,
+                                           '12' => 35,
+                                           '13' => 65),
+                              '2' => array('10' => 145,
+                                           '11' => 65,
+                                           '12' => 46,
+                                           '13' => 123),
+                              '3' => array('10' => 6,
+                                           '11' => 76,
+                                           '12' => 45,
+                                           '13' => 12),
+                              '4' => array('10' => 65,
+                                           '11' => 1254,
+                                           '12' => 54,
+                                           '13' => 54),
+                              '5' => array('10' => 12,
+                                           '11' => 76,
+                                           '12' => 45,
+                                           '13' => 78),
+                              '6' => array('10' => 32,
+                                           '11' => 489,
+                                           '12' => 12,
+                                           '13' => 37)
+                            );
 
-        $currentdata['100']['10'] = 456
-        $currentdata['100']['11'] = 71
-        $currentdata['100']['12'] = 23
-        $currentdata['100']['13'] = 47
-        $currentdata['101']['10'] = 31
-        $currentdata['101']['11'] = 217
-        $currentdata['101']['12'] = 41
-        $currentdata['101']['13'] = 34
-        $currentdata['102']['10'] = 31
-        $currentdata['102']['11'] = 87
-        $currentdata['102']['12'] = 64
-        $currentdata['102']['13'] = 12
 
-        $ouput['100']['1'] = 0.6721
-        $ouput['100']['2'] = 0.8102
-        $ouput['100']['3'] = 0.2345
-        $ouput['100']['4'] = 0.2096
-        $ouput['100']['5'] = 0.2830
-        $ouput['100']['6'] = 0.2248
-        $ouput['101']['1'] = 0.2683
-        $ouput['101']['2'] = 0.5305
-        $ouput['101']['3'] = 0.9394
-        $ouput['101']['4'] = 0.9803
-        $ouput['101']['5'] = 0.7995
-        $ouput['101']['6'] = 0.9816
-        $ouput['102']['1'] = 0.4625
-        $ouput['102']['2'] = 0.6254
-        $ouput['102']['3'] = 0.9729
-        $ouput['102']['4'] = 0.8105
-        $ouput['102']['5'] = 0.8069
-        $ouput['102']['6'] = 0.805
+        $currentdata = array('100' => array('10' => 456,
+                                            '11' => 71,
+                                            '12' => 23,
+                                            '13' => 47),
+                             '101' => array('10' => 31,
+                                            '11' => 217,
+                                            '12' => 41,
+                                            '13' => 34),
+                             '102' => array('10' => 31,
+                                            '11' => 87,
+                                            '12' => 64,
+                                            '13' => 12)
+                             );
+
+
+        $expected = array('100' => array('1' => 0.6721,
+                                         '2' => 0.8102,
+                                         '3' => 0.2345,
+                                         '4' => 0.2096,
+                                         '5' => 0.2830,
+                                         '6' => 0.2248),
+                          '101' => array('1' => 0.2683,
+                                         '2' => 0.5303,
+                                         '3' => 0.9394,
+                                         '4' => 0.9803,
+                                         '5' => 0.7995,
+                                         '6' => 0.9816),
+                          '101' => array('1' => 0.4625,
+                                         '2' => 0.6254,
+                                         '3' => 0.9729,
+                                         '4' => 0.8105,
+                                         '5' => 0.8096,
+                                         '6' => 0.805)
+                          );
 
         $output = $this->associator->create_associations_matrix($currentdata, $historicdata);
 
-        $this->markTestIncomplete('Method not implemented yet.');
+        $this->assertEquals($output, $expected);
     }
 
     public function test_dot_product() {

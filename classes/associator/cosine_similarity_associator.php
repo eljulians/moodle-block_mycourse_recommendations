@@ -24,7 +24,7 @@
 namespace block_mycourse_recommendations;
 
 require_once('abstract_associator.php');
-require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/matrix/abstract_matrix.php'); // Include the code to test.
+require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/matrix/abstract_matrix.php');
 
 use block_mycourse_recommendations\abstract_associator;
 
@@ -37,14 +37,35 @@ class cosine_similarity_associator implements abstract_associator {
     }
 
     public function create_associations_matrix($currentdata, $historicdata) {
-        return null;
+        $matrix = array(array());
+
+        $currentusers = array_keys($currentdata);
+        $historicusers = array_keys($historicdata);
+
+        foreach ($currentusers as $currentuser) {
+            $currentviewsvector = $currentdata[$currentuser];
+
+            foreach ($historicusers as $historicuser) {
+                $historicviewsvector = $historicdata[$historicuser];
+
+                $similarity = $this->cosine_similarity($currentviewsvector, $historicviewsvector);
+                $matrix[$currentuserid][$historicuserid] = $similarity;
+            }
+        }
+
+        var_dump($matrix);
+        return $matrix;
     }
 
     private function cosine_similarity($vector1, $vector2) {
         $numerator = $this->dot_product($vector1, $vector2);
         $denominator = $this->vector_module($vector1) * $this->vector_module($vector2);
 
-        $result = $numerator / $denominator;
+        if (intval($denominator) === 0) {
+            $result = 1;
+        } else {
+            $result = $numerator / $denominator;
+        }
 
         return $result;
     }
