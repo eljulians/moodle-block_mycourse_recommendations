@@ -41,8 +41,8 @@ class cosine_similarity_associator implements abstract_associator {
      * current users as rows, and the historic user as columns.
      *
      * @see cosine_similarity($vector1, $vector2).
-     * @param array $currentdata A 2D array 
-     * @param array $historicdata A 2D array
+     * @param array $currentdata A 2D array.
+     * @param array $historicdata A 2D array.
      * @return array The association matrix.
      */
     public function create_associations_matrix($currentdata, $historicdata) {
