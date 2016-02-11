@@ -70,39 +70,18 @@ class block_mycourse_recommendations_decimal_matrix_testcase extends advanced_te
         $input = array();
 
         $input[0] = new query_result(1, 1, 10, 'module 10', 45, 0);
-        $input[0]->userid = 1;
-        $input[0]->moduleid = 10;
-        $input[0]->log_views = 45;
 
         $input[1] = new query_result(1, 1, 20, 'module 20', 31, 0);
-        $input[1]->userid = 1;
-        $input[1]->moduleid = 20;
-        $input[1]->log_views = 31;
 
         $input[2] = new query_result(1, 1, 30, 'module 30', 5, 0);
-        $input[2]->userid = 1;
-        $input[2]->moduleid = 30;
-        $input[2]->log_views = 5;
 
         $input[3] = new query_result(2, 1, 10, 'module 10', 16, 0);
-        $input[3]->userid = 2;
-        $input[3]->moduleid = 10;
-        $input[3]->log_views = 16;
 
         $input[4] = new query_result(3, 1, 20, 'module 20', 57, 0);
-        $input[4]->userid = 3;
-        $input[4]->moduleid = 20;
-        $input[4]->log_views = 57;
 
         $input[5] = new query_result(3, 1, 30, 'module 30', 24, 0);
-        $input[5]->userid = 3;
-        $input[5]->moduleid = 30;
-        $input[5]->log_views = 24;
 
         $input[6] = new query_result(4, 1, 10, 'module 10', 68, 0);
-        $input[6]->userid = 4;
-        $input[6]->moduleid = 10;
-        $input[6]->log_views = 68;
 
         $output = $this->matrix->transform_queried_data($input);
 

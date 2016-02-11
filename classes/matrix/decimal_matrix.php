@@ -36,6 +36,7 @@ class decimal_matrix implements abstract_matrix {
     /**
      * Transforms the data of a course fetched from database. The query MUST RETURN THE RESULTS ORDERED BY
      * USERS ID.
+     * The "userid" and "moduleid" are casted to string because we want to have an associative matrix.
      *
      * @param array $queryresults "query_result" objects.
      * @return array A matrix of the log views, with the users as rows, and the modules (resources) as columns.
@@ -45,15 +46,15 @@ class decimal_matrix implements abstract_matrix {
         $previoususer = -1;
 
         for ($index = 0; $index < count($queryresults); $index++) {
-            $currentuser = $queryresults[$index]->get_userid;
+            $currentuser = $queryresults[$index]->get_userid();
 
             // If we get a new user...
             if ($currentuser !== $previoususer) {
                 $user = array();
             }
 
-            $module = $queryresults[$index]->get_moduleid;
-            $views = $queryresults[$index]->get_logviews;
+            $module = $queryresults[$index]->get_moduleid();
+            $views = $queryresults[$index]->get_logviews();
 
             // We save the $views number in [$user] row and [$module] column of the matrix.
             $user[$module] = $views;
@@ -63,7 +64,7 @@ class decimal_matrix implements abstract_matrix {
             if ($lastuser) {
                 $users[$currentuser] = $user;
             } else {
-                $differentusercoming = $currentuser != $queryresults[$index + 1]->get_userid;
+                $differentusercoming = $currentuser != $queryresults[$index + 1]->get_userid();
 
                 // If the next user in the array is different from the current, we save the changes of the current.
                 if ($differentusercoming) {
@@ -71,7 +72,7 @@ class decimal_matrix implements abstract_matrix {
                 }
             }
 
-            $previoususer = $queryresults[$index]->get_userid;
+            $previoususer = $queryresults[$index]->get_userid();
         }
 
         return $users;
