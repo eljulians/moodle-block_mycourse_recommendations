@@ -14,12 +14,17 @@
     <property name="testsuite.name" value="block_mycourse_recommendations_testsuite"/>
     <property name="success.code" value="0"/>
 
+    <target name="git_status">
+        <exec command="git symbolic-ref --short HEAD" outputProperty="git.branch"/>
+        <echo msg="On branch ${git.branch}."/>
+        <exec command="git log --pretty=format:'%h' -n 1" outputProperty="git.hash"/>
+        <echo msg="Building commit ${git.hash}."/>
+    </target>
+
     <target name="block_mycourse_install">
         <delete dir="${block_mycourse.install.path}"/>
         <copy todir="${block_mycourse.install.path}">
-            <fileset dir="${workspace.dir}/${phing.project.name}">
-                <exclude name=".git/"/>
-            </fileset>
+            <fileset dir="${workspace.dir}/${phing.project.name}"/>
         </copy>
     </target>
 
