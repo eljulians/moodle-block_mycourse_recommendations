@@ -35,7 +35,7 @@ class decimal_matrix implements abstract_matrix {
 
     /**
      * Transforms the data of a course fetched from database. The query MUST RETURN THE RESULTS ORDERED BY
-     * USERS ID.
+     * USER IDS.
      * The "userid" and "moduleid" are casted to string because we want to have an associative matrix.
      *
      * @param array $queryresults "query_result" objects.
@@ -64,7 +64,7 @@ class decimal_matrix implements abstract_matrix {
             if ($lastuser) {
                 $users[$currentuser] = $user;
             } else {
-                $differentusercoming = $currentuser != $queryresults[$index + 1]->get_userid();
+                $differentusercoming = $currentuser !== $queryresults[$index + 1]->get_userid();
 
                 // If the next user in the array is different from the current, we save the changes of the current.
                 if ($differentusercoming) {

@@ -29,9 +29,11 @@ global $CFG;
 
 require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/associator/cosine_similarity_associator.php');
 require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/matrix/decimal_matrix.php');
+require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/db/query_result.php');
 
 use block_mycourse_recommendations\cosine_similarity_associator;
 use block_mycourse_recommendations\decimal_matrix;
+use block_mycourse_recommendations\query_result;
 
 /**
  * Test cases for block_mycourse_recommendations for cosine similarty associations.
@@ -79,45 +81,50 @@ class block_mycourse_recommendations_cosine_similarity_associator_testcase exten
         $expected = array(array());
         $delta = 0.001;
 
-        $historicdata = array('1' => array('10' => 54,
-                                           '11' => 1,
-                                           '12' => 35,
-                                           '13' => 65),
-                              '2' => array('10' => 145,
-                                           '11' => 65,
-                                           '12' => 46,
-                                           '13' => 123),
-                              '3' => array('10' => 6,
-                                           '11' => 76,
-                                           '12' => 45,
-                                           '13' => 12),
-                              '4' => array('10' => 65,
-                                           '11' => 1254,
-                                           '12' => 54,
-                                           '13' => 54),
-                              '5' => array('10' => 12,
-                                           '11' => 76,
-                                           '12' => 45,
-                                           '13' => 78),
-                              '6' => array('10' => 32,
-                                           '11' => 489,
-                                           '12' => 12,
-                                           '13' => 37)
-                            );
+        $historicdata[0] = new query_result(1, 1, 10, 'module 10', 54, 0);
+        $historicdata[1] = new query_result(1, 1, 11, 'module 11', 1, 0);
+        $historicdata[2] = new query_result(1, 1, 12, 'module 12', 35, 0);
+        $historicdata[3] = new query_result(1, 1, 13, 'module 13', 65, 0);
 
-        $currentdata = array('100' => array('10' => 456,
-                                            '11' => 71,
-                                            '12' => 23,
-                                            '13' => 47),
-                             '101' => array('10' => 31,
-                                            '11' => 217,
-                                            '12' => 41,
-                                            '13' => 34),
-                             '102' => array('10' => 31,
-                                            '11' => 87,
-                                            '12' => 64,
-                                            '13' => 12)
-                             );
+        $historicdata[4] = new query_result(2, 1, 10, 'module 10', 145, 0);
+        $historicdata[5] = new query_result(2, 1, 11, 'module 11', 65, 0);
+        $historicdata[6] = new query_result(2, 1, 12, 'module 12', 46, 0);
+        $historicdata[7] = new query_result(2, 1, 13, 'module 13', 123, 0);
+
+        $historicdata[8] = new query_result(3, 1, 10, 'module 10', 6, 0);
+        $historicdata[9] = new query_result(3, 1, 11, 'module 11', 76, 0);
+        $historicdata[10] = new query_result(3, 1, 12, 'module 12', 45, 0);
+        $historicdata[11] = new query_result(3, 1, 13, 'module 13', 12, 0);
+
+        $historicdata[12] = new query_result(4, 1, 10, 'module 10', 65, 0);
+        $historicdata[13] = new query_result(4, 1, 11, 'module 11', 1254, 0);
+        $historicdata[14] = new query_result(4, 1, 12, 'module 12', 54, 0);
+        $historicdata[15] = new query_result(4, 1, 13, 'module 13', 54, 0);
+
+        $historicdata[16] = new query_result(5, 1, 10, 'module 10', 12, 0);
+        $historicdata[17] = new query_result(5, 1, 11, 'module 11', 76, 0);
+        $historicdata[18] = new query_result(5, 1, 12, 'module 12', 45, 0);
+        $historicdata[19] = new query_result(5, 1, 13, 'module 13', 78, 0);
+
+        $historicdata[20] = new query_result(6, 1, 10, 'module 10', 32, 0);
+        $historicdata[21] = new query_result(6, 1, 11, 'module 11', 489, 0);
+        $historicdata[22] = new query_result(6, 1, 12, 'module 12', 12, 0);
+        $historicdata[23] = new query_result(6, 1, 13, 'module 13', 37, 0);
+
+        $currentdata[0] = new query_result(100, 1, 10, 'module 10', 456, 0);
+        $currentdata[1] = new query_result(100, 1, 11, 'module 11', 71, 0);
+        $currentdata[2] = new query_result(100, 1, 12, 'module 12', 23, 0);
+        $currentdata[3] = new query_result(100, 1, 13, 'module 13', 47, 0);
+
+        $currentdata[4] = new query_result(101, 1, 10, 'module 10', 31, 0);
+        $currentdata[5] = new query_result(101, 1, 11, 'module 11', 217, 0);
+        $currentdata[6] = new query_result(101, 1, 12, 'module 12', 41, 0);
+        $currentdata[7] = new query_result(101, 1, 13, 'module 13', 34, 0);
+
+        $currentdata[8] = new query_result(102, 1, 10, 'module 10', 31, 0);
+        $currentdata[9] = new query_result(102, 1, 11, 'module 11', 87, 0);
+        $currentdata[10] = new query_result(102, 1, 12, 'module 12', 64, 0);
+        $currentdata[11] = new query_result(102, 1, 13, 'module 13', 12, 0);
 
         $expected = array('100' => array('1' => 0.6721,
                                          '2' => 0.8102,
