@@ -23,7 +23,10 @@
 
 namespace block_mycourse_recommendations;
 
+require_once('query_result.php');
+
 use \stdClass;
+use block_mycourse_recommendations\query_result;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -200,24 +203,23 @@ class database_helper {
 
         $recordset = $DB->get_recordset_sql($sql);
 
-        $records = array();
+        $queryresults = array();
         $index = 0;
 
         foreach ($recordset as $record) {
-            $records[$index] = new stdClass();
+            $userid = $record->userid;
+            $moduleid = $record->moduleid;
+            $modulename = $record->module_name;
+            $logviews = $record->log_views;
+            $grades = $record->grades;
 
-            $records[$index]->userid = $record->userid;
-            $records[$index]->moduleid = $record->moduleid;
-            $records[$index]->module_name = $record->module_name;
-            $records[$index]->log_views = $record->log_views;
-            $records[$index]->grades = $record->grades;
-
+            $queryresults[$index] = new query_result($userid, $courseid, $moduleid, $modulename, $logviews, $grades);
             $index++;
         }
 
         $recordset->close();
 
-        return $records;
+        return $queryresults;
     }
 
     /**
