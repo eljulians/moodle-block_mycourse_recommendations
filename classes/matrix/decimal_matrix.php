@@ -46,15 +46,15 @@ class decimal_matrix implements abstract_matrix {
         $previoususer = -1;
 
         for ($index = 0; $index < count($queryresults); $index++) {
-            $currentuser = (string)$queryresults[$index]->get_userid;
+            $currentuser = (string)$queryresults[$index]->get_userid();
 
             // If we get a new user...
             if ($currentuser !== $previoususer) {
                 $user = array();
             }
 
-            $module = (string)$queryresults[$index]->get_moduleid;
-            $views = $queryresults[$index]->get_logviews;
+            $module = (string)$queryresults[$index]->get_moduleid();
+            $views = $queryresults[$index]->get_logviews();
 
             // We save the $views number in [$user] row and [$module] column of the matrix.
             $user[$module] = $views;
@@ -64,18 +64,10 @@ class decimal_matrix implements abstract_matrix {
             if ($lastuser) {
                 $users[$currentuser] = $user;
             } else {
-                $differentusercoming = $currentuser != $queryresults[$index + 1]->get_userid;
+                $differentusercoming = $currentuser != $queryresults[$index + 1]->get_userid();
 
                 // If the next user in the array is different from the current, we save the changes of the current.
                 if ($differentusercoming) {
                     $users[$currentuser] = $user;
                 }
-            }
-
-            $previoususer = $queryresults[$index]->get_userid;
-        }
-
-        return $users;
-    }
-
-}
+  
