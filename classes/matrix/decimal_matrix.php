@@ -46,14 +46,14 @@ class decimal_matrix implements abstract_matrix {
         $previoususer = -1;
 
         for ($index = 0; $index < count($queryresults); $index++) {
-            $currentuser = (string)$queryresults[$index]->get_userid();
+            $currentuser = $queryresults[$index]->get_userid();
 
             // If we get a new user...
             if ($currentuser !== $previoususer) {
                 $user = array();
             }
 
-            $module = (string)$queryresults[$index]->get_moduleid();
+            $module = $queryresults[$index]->get_moduleid();
             $views = $queryresults[$index]->get_logviews();
 
             // We save the $views number in [$user] row and [$module] column of the matrix.

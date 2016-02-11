@@ -89,16 +89,16 @@ class block_mycourse_recommendations_decimal_matrix_testcase extends advanced_te
         // an input with 4 different userids, and 3 different moduleids. So, we check matrix's values
         // (log views), accessing them by [$userid][$moduleid]. The access to the matrix is hardcoded because
         // doing like "$output[$input[0]->userid][$input[0]->moduleid], $input[0]->log_views" is so unintelligible.
-        $this->assertEquals($output['1']['10'], 45);
-        $this->assertEquals($output['1']['20'], 31);
-        $this->assertEquals($output['1']['30'], 5);
+        $this->assertEquals($output[1][10], 45);
+        $this->assertEquals($output[1][20], 31);
+        $this->assertEquals($output[1][30], 5);
 
-        $this->assertEquals($output['2']['10'], 16);
+        $this->assertEquals($output[2][10], 16);
 
-        $this->assertEquals($output['3']['20'], 57);
-        $this->assertEquals($output['3']['30'], 24);
+        $this->assertEquals($output[3][20], 57);
+        $this->assertEquals($output[3][30], 24);
 
-        $this->assertEquals($output['4']['10'], 68);
+        $this->assertEquals($output[4][10], 68);
     }
 
 }
