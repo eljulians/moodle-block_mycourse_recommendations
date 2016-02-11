@@ -25,5 +25,5 @@ namespace block_mycourse_recommendations;
 
 interface abstract_associator {
 
-    public function find_associations();
+    public function create_associations_matrix($currentdata, $historicdata);
 }
