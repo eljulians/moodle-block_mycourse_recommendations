@@ -186,8 +186,7 @@ class database_helper {
      * the queried data will be from the first week, to the week (n-1). When querying
      * historic data, this week will (presumably) be the end week of the course.
      *
-     * @return array The recordset returned by database. A not-associative array, it doesn't
-     * seem to be an obvious way to identificate each module access count in an unique way.
+     * @return array An object for each record in recordset.
      */
     public function query_data($courseid, $year, $coursestartweek, $currentweek) {
         global $DB;
@@ -199,7 +198,24 @@ class database_helper {
         $sql = str_replace('%coursestartweek', $coursestartweek, $sql);
         $sql = str_replace('%currentweek', $currentweek, $sql);
 
-        $records = $DB->get_recordset_sql($sql);
+        $recordset = $DB->get_recordset_sql($sql);
+
+        $records = array();
+        $index = 0;
+
+        foreach ($recordset as $record) {
+            $records[$index] = new stdClass();
+
+            $records[$index]->userid = $record->userid;
+            $records[$index]->moduleid = $record->moduleid;
+            $records[$index]->module_name = $record->module_name;
+            $records[$index]->log_views = $record->log_views;
+            $records[$index]->grades = $record->grades;
+
+            $index++;
+        }
+
+        $recordset->close();
 
         return $records;
     }
