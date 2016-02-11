@@ -14,6 +14,7 @@
     <property name="success.code" value="0"/>
 
     <target name="block_mycourse_install">
+        <delete dir="${block_mycourse.install.path}"/>
         <copy todir="${block_mycourse.install.path}">
             <fileset dir="${workspace.dir}/${phing.project.name}">
                 <exclude name=".git/"/>
