@@ -70,4 +70,12 @@ class decimal_matrix implements abstract_matrix {
                 if ($differentusercoming) {
                     $users[$currentuser] = $user;
                 }
-  
+            }
+
+            $previoususer = $queryresults[$index]->get_userid();
+        }
+
+        return $users;
+    }
+
+}
