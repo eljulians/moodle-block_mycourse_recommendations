@@ -46,15 +46,18 @@ class cosine_similarity_associator implements abstract_associator {
      * @return array The association matrix.
      */
     public function create_associations_matrix($currentdata, $historicdata) {
-        $currentusers = array_keys($currentdata);
-        $historicusers = array_keys($historicdata);
+        $currenttransformeddata = $this->matrix->transform_queried_data($currentdata);
+        $historictransformeddata = $this->matrix->transform_queried_data($historicdata);
+
+        $currentusers = array_keys($currenttransformeddata);
+        $historicusers = array_keys($historictransformeddata);
 
         foreach ($currentusers as $currentuser) {
-            $currentviewsvector = $currentdata[$currentuser];
+            $currentviewsvector = $currenttransformeddata[$currentuser];
 
             $similarities = null;
             foreach ($historicusers as $historicuser) {
-                $historicviewsvector = $historicdata[$historicuser];
+                $historicviewsvector = $historictransformeddata[$historicuser];
 
                 $similarity = $this->cosine_similarity($currentviewsvector, $historicviewsvector);
                 $similarity = round($similarity, 4);
