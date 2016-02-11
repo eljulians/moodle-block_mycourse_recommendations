@@ -23,7 +23,10 @@
 
 namespace block_mycourse_recommendations;
 
+require_once('query_result.php');
+
 use \stdClass;
+use block_mycourse_recommendations\query_result;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -186,8 +189,7 @@ class database_helper {
      * the queried data will be from the first week, to the week (n-1). When querying
      * historic data, this week will (presumably) be the end week of the course.
      *
-     * @return array The recordset returned by database. A not-associative array, it doesn't
-     * seem to be an obvious way to identificate each module access count in an unique way.
+     * @return array An object for each record in recordset.
      */
     public function query_data($courseid, $year, $coursestartweek, $currentweek) {
         global $DB;
@@ -199,9 +201,25 @@ class database_helper {
         $sql = str_replace('%coursestartweek', $coursestartweek, $sql);
         $sql = str_replace('%currentweek', $currentweek, $sql);
 
-        $records = $DB->get_recordset_sql($sql);
+        $recordset = $DB->get_recordset_sql($sql);
 
-        return $records;
+        $queryresults = array();
+        $index = 0;
+
+        foreach ($recordset as $record) {
+            $userid = $record->userid;
+            $moduleid = $record->moduleid;
+            $modulename = $record->module_name;
+            $logviews = $record->log_views;
+            $grades = $record->grades;
+
+            $queryresults[$index] = new query_result($userid, $courseid, $moduleid, $modulename, $logviews, $grades);
+            $index++;
+        }
+
+        $recordset->close();
+
+        return $queryresults;
     }
 
     /**

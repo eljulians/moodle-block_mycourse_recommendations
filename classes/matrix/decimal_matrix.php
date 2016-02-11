@@ -26,42 +26,45 @@ namespace block_mycourse_recommendations;
 defined('MOODLE_INTERNAL') || die();
 
 require_once('abstract_matrix.php');
+require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/db/query_result.php');
 
 use block_mycourse_recommendations\abstract_matrix;
+use block_mycourse_recommendations\query_result;
 
 class decimal_matrix implements abstract_matrix {
 
     /**
      * Transforms the data of a course fetched from database. The query MUST RETURN THE RESULTS ORDERED BY
      * USERS ID.
+     * The "userid" and "moduleid" are casted to string because we want to have an associative matrix.
      *
-     * @param array $data The data queried from database.
+     * @param array $queryresults "query_result" objects.
      * @return array A matrix of the log views, with the users as rows, and the modules (resources) as columns.
      */
-    public function transform_queried_data($data) {
+    public function transform_queried_data($queryresults) {
         $users = array();
         $previoususer = -1;
 
-        for ($index = 0; $index < count($data); $index++) {
-            $currentuser = $data[$index]->userid;
+        for ($index = 0; $index < count($queryresults); $index++) {
+            $currentuser = $queryresults[$index]->get_userid();
 
             // If we get a new user...
             if ($currentuser !== $previoususer) {
                 $user = array();
             }
 
-            $module = $data[$index]->moduleid;
-            $views = $data[$index]->log_views;
+            $module = $queryresults[$index]->get_moduleid();
+            $views = $queryresults[$index]->get_logviews();
 
             // We save the $views number in [$user] row and [$module] column of the matrix.
             $user[$module] = $views;
 
-            $lastuser = $index + 1 === count($data);
+            $lastuser = $index + 1 === count($queryresults);
 
             if ($lastuser) {
                 $users[$currentuser] = $user;
             } else {
-                $differentusercoming = $currentuser != $data[$index + 1]->userid;
+                $differentusercoming = $currentuser != $queryresults[$index + 1]->get_userid();
 
                 // If the next user in the array is different from the current, we save the changes of the current.
                 if ($differentusercoming) {
@@ -69,7 +72,7 @@ class decimal_matrix implements abstract_matrix {
                 }
             }
 
-            $previoususer = $data[$index]->userid;
+            $previoususer = $queryresults[$index]->get_userid();
         }
 
         return $users;

@@ -11,9 +11,11 @@
     <property name="codechecker.url" value="https://github.com/moodlehq/moodle-local_codechecker.git"/>
     <property name="codechecker.dir" value="${version.dir}/local"/>
     <property name="codechecker.ruleset" value="${codechecker.dir}/codechecker/moodle/ruleset.xml"/>
+    <property name="testsuite.name" value="block_mycourse_recommendations_testsuite"/>
     <property name="success.code" value="0"/>
 
     <target name="block_mycourse_install">
+        <delete dir="${block_mycourse.install.path}"/>
         <copy todir="${block_mycourse.install.path}">
             <fileset dir="${workspace.dir}/${phing.project.name}">
                 <exclude name=".git/"/>
@@ -59,7 +61,7 @@
     </target>
 
     <target name="phpunit_test" depends="phpunit_init">
-        <exec command="vendor/bin/phpunit ${block_mycourse.install.path}/tests/*" dir="${version.dir}" returnProperty="phpunit.status" outputProperty="phpunit.output"/>
+        <exec command="vendor/bin/phpunit --testsuite ${testsuite.name}" dir="${version.dir}" returnProperty="phpunit.status" outputProperty="phpunit.output"/>
         <if>
             <not>
                 <equals arg1="${phpunit.status}" arg2="${success.code}"/>
