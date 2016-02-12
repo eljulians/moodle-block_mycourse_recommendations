@@ -192,8 +192,13 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
         $output[0] = $this->databasehelper->get_students_from_course($courses[0]->id);
         $output[1] = $this->databasehelper->get_students_from_course($courses[1]->id);
 
-        $this->assertEquals($output[0], $expected[0]);
-        $this->assertEquals($output[1], $expected[1]);
+        // Fails when trying to assert the equality of the arrays, so we iterate it to assert
+        // the members.
+        for ($row = 0; $row < count($output); $row++) {
+            for ($column = 0; $column < count($output[$row]); $column++) {
+                $this->assertEquals($output[$row][$column], $expected[$row][$column]->id);
+            }
+        }
     }
 
     /**

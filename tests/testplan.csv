@@ -97,7 +97,7 @@ $currentdata['102']['10'] = 31
 $currentdata['102']['11'] = 87
 $currentdata['102']['12'] = 64
 $currentdata['102']['13'] = 12";Test that the association matrix between current and historic users is created, receiving matrixes of both types of users. These matrixes are the result of the query to database, which retrieves the log views of each user for each module.;Equivalence;Yes;Ok;;Julen Pardo;10/02/2016
-10;db/database_helper.php;get_students_from_course;<Using data generator>;Test that the function retrieves correctly users enrolled in a course.;Equivalence/Exception;Yes;Fail;"Exception when enroling users using data generator; the parameters must be 'id' fields instead of whole objects.";Julen Pardo;12/02/2016
+10;db/database_helper.php;get_students_from_course;<Using data generator>;Test that the function retrieves correctly users enrolled in a course.;Equivalence/Exception;Yes;Fail;Cannot assert that two arrays are equals.;Julen Pardo;12/02/2016
 11;db/database_helper.php;insert_selections;"$course = 50
 $year = 2016
 $users[0] = 100
