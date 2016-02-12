@@ -178,11 +178,11 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
         $users[2] = $this->getDataGenerator()->create_user();
         $users[3] = $this->getDataGenerator()->create_user();
 
-        $this->getDataGenerator()->enrol_user($courses[0], $users[0], $studentroleid);
-        $this->getDataGenerator()->enrol_user($courses[0], $users[1], $studentroleid);
+        $this->getDataGenerator()->enrol_user($courses[0]->id, $users[0]->id, $studentroleid);
+        $this->getDataGenerator()->enrol_user($courses[0]->id, $users[1]->id, $studentroleid);
 
-        $this->getDataGenerator()->enrol_user($courses[1], $users[2], $studentroleid);
-        $this->getDataGenerator()->enrol_user($courses[1], $users[3], $studentroleid);
+        $this->getDataGenerator()->enrol_user($courses[1]->id, $users[2]->id, $studentroleid);
+        $this->getDataGenerator()->enrol_user($courses[1]->id, $users[3]->id, $studentroleid);
 
         $expected = array();
         $expected[0] = array($users[0], $users[1]);
@@ -220,13 +220,16 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
         $sql = 'SELECT userid, courseid, year
                 FROM {block_mycourse_user_sel}
                 ORDER BY userid ASC';
-        $output = $DB->get_records_sql($sql);
+        $records = $DB->get_records_sql($sql);
 
-        // It would be better if the compare each attribute, instead of the whole object.
-        for ($index = 0; $index < count($output); $index++) {
-            $this->assertEquals($output[$index]->userid, $users[$index]);
-            $this->assertEquals($output[$index]->courseid, $course);
-            $this->assertEquals($output[$index]->year, $year);
+        // The output array is indexed by user id.
+        $index = 0;
+        foreach ($records as $output) {
+            $this->assertEquals($output->userid, $users[$index]);
+            $this->assertEquals($output->courseid, $course);
+            $this->assertEquals($output->year, $year);
+
+            $index++;
         }
     }
 }
