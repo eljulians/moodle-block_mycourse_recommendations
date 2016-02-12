@@ -156,4 +156,85 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
         }
     }
 
+    /**
+     * Tests that the function retrieves correctly students' ids belonging to the given course.
+     */
+    public function test_get_students_from_course() {
+        global $DB;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $studentroleid = 5;
+
+        $courses = array();
+        $users = array();
+
+        $courses[0] = $this->getDataGenerator()->create_course();
+        $courses[1] = $this->getDataGenerator()->create_course();
+
+        $users[0] = $this->getDataGenerator()->create_user();
+        $users[1] = $this->getDataGenerator()->create_user();
+        $users[2] = $this->getDataGenerator()->create_user();
+        $users[3] = $this->getDataGenerator()->create_user();
+
+        $this->getDataGenerator()->enrol_user($courses[0]->id, $users[0]->id, $studentroleid);
+        $this->getDataGenerator()->enrol_user($courses[0]->id, $users[1]->id, $studentroleid);
+
+        $this->getDataGenerator()->enrol_user($courses[1]->id, $users[2]->id, $studentroleid);
+        $this->getDataGenerator()->enrol_user($courses[1]->id, $users[3]->id, $studentroleid);
+
+        $expected = array();
+        $expected[0] = array($users[0], $users[1]);
+        $expected[1] = array($users[2], $users[3]);
+
+        $output = array();
+        $output[0] = $this->databasehelper->get_students_from_course($courses[0]->id);
+        $output[1] = $this->databasehelper->get_students_from_course($courses[1]->id);
+
+        // Fails when trying to assert the equality of the arrays, so we iterate it to assert
+        // the members.
+        for ($row = 0; $row < count($output); $row++) {
+            for ($column = 0; $column < count($output[$row]); $column++) {
+                $this->assertEquals($output[$row][$column], $expected[$row][$column]->id);
+            }
+        }
+    }
+
+    /**
+     * Tests that the function inserts correctly the selected users in the corresponding table,
+     * first, inserting them, and them, querying the database and comparing the results with the
+     * inserted values.
+     */
+    public function test_insert_selections() {
+        global $DB;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $course = 50;
+        $year = 2016;
+        $users = array();
+
+        $users[0] = 100;
+        $users[1] = 101;
+        $users[2] = 102;
+
+        $this->databasehelper->insert_selections($users, $course, $year);
+
+        $sql = 'SELECT userid, courseid, year
+                FROM {block_mycourse_user_sel}
+                ORDER BY userid ASC';
+        $records = $DB->get_records_sql($sql);
+
+        // The output array is indexed by user id.
+        $index = 0;
+        foreach ($records as $output) {
+            $this->assertEquals($output->userid, $users[$index]);
+            $this->assertEquals($output->courseid, $course);
+            $this->assertEquals($output->year, $year);
+
+            $index++;
+        }
+    }
 }
