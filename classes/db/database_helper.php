@@ -350,4 +350,61 @@ class database_helper {
             $DB->execute($sql, $values);
         }
     }
+
+    /**
+     * Checks if the current course has had previous teachings. To make the relation, the name of the course is
+     * used, since it is the unique strategy to find relations between courses.
+     *
+     * @param int $currentcourseid The id of the current course.
+     * @param int $currentyear The year the current course is being teached in.
+     * @return boolean If the course has had previous teachings or not.
+     */
+    public function has_course_previous_teachings($currentcourseid, $currentyear) {
+
+    }
+
+    /**
+     * Queries the number of previous teachings of the current course. To make the relation, the name of the course
+     * is used, since it is the unique strategy to find the relation between courses.
+     *
+     * @param int $currentcourseid The id of the current course.
+     * @param int $currentyear The year the current course is being teached in.
+     * @return int The number of teachings that the current course has had in the past.
+     */
+    public function get_previous_courses_number($currentcourseid, $currentyear) {
+
+    }
+
+    /**
+     * Queries the number of students that the current course has had in previous teachings.
+     *
+     * @param int $currentcourseid The id of the current course.
+     * @param int $currentyear The year the current course is being teached in.
+     * @return int The number of students that the course has had in past teachings.
+     */
+    public function get_previous_courses_students_number($currentcourseid, $currentyear) {
+
+    }
+
+    /**
+     * Queries the number of resources that the current course had in previous teachings. To make the relation, the
+     * name of the resource is used, since it is the unique strategy to find relation between resources.
+     *
+     * @param int $currentcourseid The id of the current course.
+     * @param int $currentyear The year the current course is being teached in.
+     * @return int The number of resources
+     */
+    public function get_previous_courses_resources_number($currentcourseid, $currentyear) {
+
+    }
+
+    /**
+     * @param int $currentcourseid The id of the current course.
+     * @param int $currentyear The year the current course is being teached in.
+     * @return int
+     */
+    public function get_course_duration_in_weeks($currentcourseid, $currentyear) {
+
+    }
+
 }
