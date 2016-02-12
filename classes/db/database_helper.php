@@ -293,4 +293,61 @@ class database_helper {
         $DB->insert_records('block_mycourse_recs', $recommendations);
     }
 
+    /**
+     * Queries the student users of the given course. The user roleid is 5, and the context level
+     * of the courses 50.
+     *
+     * @param int $courseid The course to query students from.
+     * @return array Index-based array of students' ids.
+     */
+    public function get_students_from_course($courseid) {
+        global $DB;
+
+        $sql = 'SELECT users.id  AS userid,
+                       course.id AS courseid
+                FROM   {user} users
+                INNER JOIN {role_assignments} ra
+                    ON users.id = ra.userid
+                INNER JOIN {context} context
+                    ON ra.contextid = context.id
+                INNER JOIN {course} course
+                    ON context.instanceid = course.id
+                WHERE  context.contextlevel = 50
+                    AND ra.roleid = 5
+                    AND course.id = ?';
+
+        $users = array();
+
+        $recordset = $DB->get_recordset_sql($sql, array($courseid));
+
+        foreach ($recordset as $record) {
+            array_push($users, $record->userid);
+        }
+
+        $recordset->close();
+
+        return $users;
+    }
+
+    /**
+     * Inserts the randomly selected user for the given course and year in the corresponding table.
+     * The DML instruction is constructed manually because the table doesn't have an 'id' column,
+     * and the '$BD->insert_record' throws an exception if it doesn't find a column with that name.
+     *
+     * @param array $selection The ids of the users that will receive the recommendations.
+     * @param int $courseid The course where the users will receive the recommendations.
+     * @param int $year
+     */
+    public function insert_selections($selections, $courseid, $year) {
+        global $DB;
+
+        $index = 0;
+
+        foreach ($selections as $selection) {
+            $sql = "INSERT INTO {block_mycourse_user_sel} (userid, courseid, year) VALUES(:v1, :v2, :v3)";
+            $values = ['v1' => (int)$selection, 'v2' => $courseid, 'v3' => $year];
+
+            $DB->execute($sql, $values);
+        }
+    }
 }
