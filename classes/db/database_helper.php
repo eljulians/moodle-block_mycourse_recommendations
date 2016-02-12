@@ -294,7 +294,7 @@ class database_helper {
     }
 
     /**
-     * Queries the student users of the given course. The user roleid is 5, and the context level
+     * Queries the student users of the given course. The student roleid is 5, and the context level
      * of the courses 50.
      *
      * @param int $courseid The course to query students from.
