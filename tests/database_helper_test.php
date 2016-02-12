@@ -170,8 +170,8 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
         $courses = array();
         $users = array();
 
-        $courses[0] = $this->getDataGenerator()->create_course()
-        $courses[1] = $this->getDataGenerator()->create_course()
+        $courses[0] = $this->getDataGenerator()->create_course();
+        $courses[1] = $this->getDataGenerator()->create_course();
 
         $users[0] = $this->getDataGenerator()->create_user();
         $users[1] = $this->getDataGenerator()->create_user();
