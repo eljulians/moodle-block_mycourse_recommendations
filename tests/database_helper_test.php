@@ -189,8 +189,8 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
         $expected[1] = array($users[2], $users[3]);
 
         $output = array();
-        $output[0] = $this->databasehelper->get_students_from_course($courses[0]);
-        $output[1] = $this->databasehelper->get_students_from_course($courses[1]);
+        $output[0] = $this->databasehelper->get_students_from_course($courses[0]->id);
+        $output[1] = $this->databasehelper->get_students_from_course($courses[1]->id);
 
         $this->assertEquals($output[0], $expected[0]);
         $this->assertEquals($output[1], $expected[1]);
