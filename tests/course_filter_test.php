@@ -55,7 +55,7 @@ class block_mycourse_recommendations_course_filter_testcase extends advanced_tes
 
         $this->currentyear = 2016;
         $this->currentcourseattributes = array('fullname' => 'Software Engineering II',
-                                               'startdate' => strtotime("15-02-$year"));
+                                               'startdate' => strtotime("15-02-$this->currentyear"));
 
         $this->previouscourses = $this->create_courses($this->previouscourseattributes, 3);
         $this->currentcourse = $this->create_courses($this->currentcourseattributes, 1);
@@ -87,11 +87,12 @@ class block_mycourse_recommendations_course_filter_testcase extends advanced_tes
         $this->resetAfterTest();
         $this->setAdminUser();
 
-        $currentcourseid = $this->currentcourse->id;
+        $currentcourseid = $this->currentcourse[0]->id;
         $currentyear = $this->currentyear;
+
         $expected = true;
 
-        $actual = course_filter::meets_minimum_previous_courses($currentcourseid, $currentyear);
+        $actual = course_filter::meets_minimum_previous_courses($currentcourseid, $currentyear, $this->db);
 
         $this->assertEquals($expected, $actual);
     }
