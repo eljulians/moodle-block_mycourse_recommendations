@@ -51,11 +51,11 @@ class block_mycourse_recommendations_course_filter_testcase extends advanced_tes
 
         $this->db = new database_helper();
         $this->previouscourseattributes = array('fullname' => 'Software Engineering II',
-                                                'startdate' => strtotime('01-01-2009');
+                                                'startdate' => strtotime('01-01-2009'));
 
         $this->currentyear = 2016;
         $this->currentcourseattributes = array('fullname' => 'Software Engineering II',
-                                               'startdate' => strtotime("15-02-$year");
+                                               'startdate' => strtotime("15-02-$year"));
 
         $this->previouscourses = $this->create_courses($this->previouscourseattributes, 3);
         $this->currentcourse = $this->create_courses($this->currentcourseattributes, 1);

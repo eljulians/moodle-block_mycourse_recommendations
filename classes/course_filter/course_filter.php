@@ -31,10 +31,10 @@ defined('MOODLE_INTERNAL') || die();
 
 class course_filter {
 
-    private static $minimumweeks = 4;
-    private static $minimumpreviouscourses = 1;
-    private static $minimumpreviousstudents = 20;
-    private static $minimumpreviousmodules = self::$minimumpreviousstudents * 2;
+    const MINIMUM_WEEKS = 4;
+    const MINIMUM_PREVIOUS_COURSES = 1;
+    const MINIMUM_PREVIOUS_STUDENTS = 20;
+    const MINIMUM_PREVIOUS_RESOURCES = 40; // It seems to be illegal: self::MINIMUM_PREVIOUS_STUDENTS * 2... This must be fixed.
 
     /**
      * Determines if a course is personalizable or not. The logic to determine this is divided in other
@@ -100,7 +100,7 @@ class course_filter {
 
         $minimum = false;
 
-        if (count($previouscourses) >= self::$minimumpreviouscourses) {
+        if (count($previouscourses) >= self::MINIMUM_PREVIOUS_COURSES) {
             $minimum = true;
         }
 
