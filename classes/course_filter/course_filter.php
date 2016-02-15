@@ -47,9 +47,10 @@ class course_filter {
      * @see meets_minimum_previous_students($courseid, $db).
      * @see meets_resource_variation($courseid, $db).
      * @param int $courseid The course to determine if it is personalizable or not.
+     * @param int $year The year the course teaching began.
      * @return boolean If the given course is personalizable or not.
      */
-    public static function is_course_personalizable($courseid) {
+    public static function is_course_personalizable($courseid, $year) {
         $db = new database_helper();
 
         $personalizable = true;
@@ -88,12 +89,22 @@ class course_filter {
     /**
      * Determines if the course has had the minimum previous teachings in the past years.
      *
+     * @see find_course_previous_teachings_ids($currentcourseid, $currentyear) in database_helper.php.
      * @param int $courseid The course to determine if has had the minimum teachings before.
+     * @param int $currentyear The year the current course began in.
      * @param database_helper $db The object with deals with database.
      * @return boolean If the given course has had the minimum teachings before or not.
      */
-    public static function meets_minimum_previous_courses($courseid, $db) {
+    public static function meets_minimum_previous_courses($courseid, $currentyear, $db) {
+        $previoscourses = $db->find_course_previous_teachings_ids($courseid, $currentyear);
 
+        $minimum = false;
+
+        if (count($previouscourses) >= self::$minimumpreviouscourses) {
+            $minimum = true;
+        }
+
+        return $minimum;
     }
 
     /**
