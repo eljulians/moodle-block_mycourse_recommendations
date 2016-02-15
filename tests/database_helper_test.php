@@ -344,4 +344,57 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
 
         $this->assertEquals($output, $expected);
     }
+
+    /**
+     * Creates n resources of the given type, for the given course. Having a separated function for this makes
+     * the tests more clear.
+     *
+     * @param int $courseid The id of the course.
+     * @param string $resourcetype The type of resource to create.
+     * @param int $number The number of resources to create.
+     */
+    private function create_resource($courseid, $resourcetype, $number) {
+        $generator = $this->getDataGenerator()->get_plugin_generator($resourcetype);
+        $generator->create_instance(array('course' => $courseid));
+    }
+
+    public function test_get_previous_courses_resources_number() {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        // Important parameters for the test: the fullname of the course; the current year, and a date with a lower year.
+        $fullname = 'Software Engineering';
+        $currentyear = 2016;
+        $previouscoursestimestamp = strtotime('01-01-2009');
+
+        // We create the current course...
+        $currenttimestamp = strtotime("15-02-$currentyear");
+        $currentcourse = array();
+        $currentcourse = $this->create_course($fullname, $currenttimestamp, 1);
+
+        // We create the previous courses...
+        $previouscourses = array();
+        $previouscourses = $this->create_course($fullname, $previouscoursestimestamp, 2);
+
+        // We create some resources...
+        $previousresources = array();
+        $previousresources[$previouscourses[0]->id]['mod_page'] = 2;
+        $previousresources[$previouscourses[0]->id]['mod_url'] = 7;
+        $previousresources[$previouscourses[0]->id]['mod_book'] = 3;
+        $previousresources[$previouscourses[1]->id]['mod_resource'] = 4;
+        $previousresources[$previouscourses[1]->id]['mod_page'] = 3;
+        $previousresources[$previouscourses[1]->id]['mod_url'] = 10;
+
+        $expected = 0;
+        foreach ($previousresources as $courseid => $course) {
+            foreach ($course as $resource => $number) {
+                $this->create_resource($courseid, $resource, $number);
+                $expected += $number;
+            }
+        }
+
+        $output = $this->databasehelper->get_previous_courses_resources_number($currentcourse[0]->id, $currentyear);
+
+        $this->assertEquals($output, $expected);
+    }
 }

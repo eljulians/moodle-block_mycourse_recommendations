@@ -432,7 +432,32 @@ class database_helper {
      * @return int The number of resources
      */
     public function get_previous_courses_resources_number($currentcourseid, $currentyear) {
+        global $DB;
 
+        $sql = "SELECT count(*) AS count
+                FROM   {course_modules} c_modules
+                INNER JOIN {modules} modules 
+                    ON c_modules.module = modules.id
+                WHERE  c_modules.course = ?
+                    AND (modules.name = 'label'
+                    OR modules.name = 'resource'
+                    OR modules.name = 'folder'
+                    OR modules.name = 'page'
+                    OR modules.name = 'book'
+                    OR modules.name = 'url')";
+
+        $previouscourses = $this->find_course_previous_teachings_ids($currentcourseid, $currentyear);
+
+        $count = 0;
+
+        if (!empty($previouscourses)) {
+            foreach ($previouscourses as $course) {
+                $record = $DB->get_record_sql($sql, array($course));
+                $count += $record->count;
+            }
+        }
+
+        return $count;
     }
 
     /**
