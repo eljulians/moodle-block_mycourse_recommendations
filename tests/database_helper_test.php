@@ -331,17 +331,13 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
         $previoususers[$previouscourses[2]->id] = 23;
         $expected = 0;
 
-        foreach ($previoususers as $usernumber) {
-            $courseindex = 0;
-
+        foreach ($previoususers as $courseid => $usernumber) {
             for ($index = 0; $index < $usernumber; $index++) {
                 $newuser = $this->getDataGenerator()->create_user();
-                $this->getDataGenerator()->enrol_user($newuser->id, $previouscourses[$courseindex], $studentroleid);
+                $this->getDataGenerator()->enrol_user($newuser->id, $courseid, $studentroleid);
 
                 $expected++;
             }
-
-            $courseindex++;
         }
 
         $output = $this->databasehelper->get_previous_courses_students_number($currentcourse[0]->id, $currentyear);
