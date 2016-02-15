@@ -103,3 +103,5 @@ $year = 2016
 $users[0] = 100
 $users[1] = 101
 $users[2] = 102";Test that the function inserts correctly users for a course and year, after inserting, querying table's data and asserting that is equal to the inserted one.;Equivalence/Exception;Yes;Ok;;Julen Pardo;12/02/2016
+12;db/database_helper.php;find_course_previous_teachings_ids;"$currentcourseid = <generated>
+$currentyear = 2016";The courses are created using the data generator, so the id is unknown.;Equivalence;No;;Using reflection to access the methods, since it's protected.;;
