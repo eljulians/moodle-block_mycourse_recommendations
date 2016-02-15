@@ -305,4 +305,47 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
         $this->assertEquals($output, $expected);
     }
 
+    public function test_get_previous_courses_students_number() {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $studentroleid = 5;
+
+        // Important parameters for the test: the fullname of the course; the current year, and a date with a lower year.
+        $fullname = 'Software Engineering';
+        $currentyear = 2016;
+        $previouscoursestimestamp = strtotime('01-01-2009');
+
+        // We create the current course...
+        $currenttimestamp = strtotime("15-02-$currentyear");
+        $currentcourse = array();
+        $currentcourse = $this->create_course($fullname, $currenttimestamp, 1);
+
+        // We create the previous courses...
+        $previouscourses = array();
+        $previouscourses = $this->create_course($fullname, $previouscoursestimestamp, 3);
+
+        $previoususers = array();
+        $previoususers[$previouscourses[0]->id] = 5;
+        $previoususers[$previouscourses[1]->id] = 15;
+        $previoususers[$previouscourses[2]->id] = 23;
+        $expected = 0;
+
+        foreach ($previoususers as $usernumber) {
+            $courseindex = 0;
+
+            for ($index = 0; $index < $usernumber; $index++) {
+                $newuser = $this->getDataGenerator->create_user();
+                $this->getDataGenerator->enrol_user($newuser->id, $previouscourses[$courseindex], $studentroleid);
+
+                $expected++;
+            }
+
+            $courseindex++;
+        }
+
+        $output = $this->databasehelper->get_previous_courses_students_number($currentcourse[0]->id, $currentyear);
+
+        $this->assertEquals($output, $expected);
+    }
 }
