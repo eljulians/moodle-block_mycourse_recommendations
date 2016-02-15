@@ -335,8 +335,8 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
             $courseindex = 0;
 
             for ($index = 0; $index < $usernumber; $index++) {
-                $newuser = $this->getDataGenerator->create_user();
-                $this->getDataGenerator->enrol_user($newuser->id, $previouscourses[$courseindex], $studentroleid);
+                $newuser = $this->getDataGenerator()->create_user();
+                $this->getDataGenerator()->enrol_user($newuser->id, $previouscourses[$courseindex], $studentroleid);
 
                 $expected++;
             }
