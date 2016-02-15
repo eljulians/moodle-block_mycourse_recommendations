@@ -259,7 +259,7 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
         $coursesids = array();
 
         for ($index = 0; $index < $number; $index++) {
-            $coursesids[$index] = $this->getDataGenerator()->createCourse(array('fullname' => $fullname,
+            $coursesids[$index] = $this->getDataGenerator()->create_course(array('fullname' => $fullname,
                                                                                 'startdate' => $startdate));
         }
 
