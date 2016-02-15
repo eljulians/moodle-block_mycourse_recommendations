@@ -65,7 +65,7 @@ class block_mycourse_recommendations_course_filter_testcase extends advanced_tes
         $this->db = null;
         parent::tearDown();
     }
-    
+
     /**
      * Creates a number of courses with the given attributes.
      *

@@ -113,4 +113,4 @@ Tests that the function retrieves correctly the number of students enroled in pr
 $currentyear = 2016";"The courses and resources are created using the data generator, so the ids are unknown.
 Tests that the function retrieves correctly the number of resources of previous teachings of the given course id.";Equivalence;Yes;Ok;The created resources are of the types hardcoded in class function.;Julen Pardo;15/02/2016
 15;course_filter/course_filter;meets_minimum_previous_courses;"$currentcourseid = <generated>
-$currentyear = 2016";The courses and resources are created using the data generator, so the ids are unknown.;Equivalence;No;;;;
+$currentyear = 2016";The courses and resources are created using the data generator, so the ids are unknown.;Equivalence;Yes;Ok;;Julen Pardo;15/02/2016

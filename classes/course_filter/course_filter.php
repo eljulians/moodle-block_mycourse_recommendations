@@ -133,7 +133,7 @@ class course_filter {
      * Determines if the course meets the resource variation.
      * For the moment, we'll suppose every course meets this.
      *
-     * @param int $courseid The course to determine 
+     * @param int $courseid The course to determine if meets the resource variation.
      * @param database_helper $db The object with deals with database.
      * @return boolean If the given course meets the resource variation or not.
      */
