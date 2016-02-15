@@ -111,4 +111,4 @@ $currentyear = 2016";"The courses and students are created using the data genera
 Tests that the function retrieves correctly the number of students enroled in previous teachings of the given course id.";Equivalence;Yes;Ok;;Julen Pardo;15/02/2016
 14;db/database_helper.php;get_previous_courses_resources_number;"$currentcourseid = <generated>
 $currentyear = 2016";"The courses and resources are created using the data generator, so the ids are unknown.
-Tests that the function retrieves correctly the number of resources of previous teachings of the given course id.";Equivalence;No;;The created resources are of the types hardcoded in class function.;;
+Tests that the function retrieves correctly the number of resources of previous teachings of the given course id.";Equivalence;Yes;Ok;The created resources are of the types hardcoded in class function.;Julen Pardo;15/02/2016
