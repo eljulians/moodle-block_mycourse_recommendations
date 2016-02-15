@@ -350,4 +350,123 @@ class database_helper {
             $DB->execute($sql, $values);
         }
     }
+
+    /**
+     * This function finds, for a current course, previous teachings. Encapsulates the logic used to relate different
+     * teachings in time, so, other functions that have the need to relate different teachings, MUST use this function.
+     * Currently, to make the relation, the function looks for courses with same 'fullname' field value, and the course
+     * start year must be lower than the current year.
+     *
+     * @param int $currentcourseid The id of the current course.
+     * @param int $currentyear The year the current course is being teached in.
+     * @return array Previous teachings' ids.
+     */
+    protected function find_course_previous_teachings_ids($currentcourseid, $currentyear) {
+        global $DB;
+
+        $sql = 'SELECT prev_courses.id        AS courseid,
+                       prev_courses.startdate AS starttimestamp
+                FROM   {course} cur_course
+                INNER JOIN {course} prev_courses
+                    ON cur_course.fullname = prev_courses.fullname
+                WHERE  cur_course.id = ?
+                    AND prev_courses.id <> ?';
+
+        $previouscoursesids = array();
+        $recordset = $DB->get_recordset_sql($sql, array($currentcourseid, $currentcourseid));
+
+        foreach ($recordset as $record) {
+            $year = getdate($record->starttimestamp)['year'];
+            if ($year < $currentyear) {
+                array_push($previouscoursesids, $record->courseid);
+            }
+        }
+
+        $recordset->close();
+
+        return $previouscoursesids;
+    }
+
+    /**
+     * Queries the number of students that the current course has had in previous teachings.
+     *
+     * @param int $currentcourseid The id of the current course.
+     * @param int $currentyear The year the current course is being teached in.
+     * @return int The number of students that the course has had in past teachings.
+     */
+    public function get_previous_courses_students_number($currentcourseid, $currentyear) {
+        global $DB;
+
+        $sql = 'SELECT count(*) as count
+                FROM   {user} users
+                INNER JOIN {role_assignments} ra
+                    ON users.id = ra.userid
+                INNER JOIN {context} context
+                    ON ra.contextid = context.id
+                INNER JOIN {course} course
+                    ON context.instanceid = course.id
+                WHERE  context.contextlevel = 50
+                    AND ra.roleid = 5
+                    AND course.id = ?';
+
+        $previouscourses = $this->find_course_previous_teachings_ids($currentcourseid, $currentyear);
+
+        $count = 0;
+
+        if (!empty($previouscourses)) {
+            foreach ($previouscourses as $course) {
+                $record = $DB->get_record_sql($sql, array($course));
+                $count += $record->count;
+            }
+        }
+
+        return $count;
+    }
+
+    /**
+     * Queries the number of resources that the current course had in previous teachings. To make the relation, the
+     * name of the resource is used, since it is the unique strategy to find relation between resources.
+     *
+     * @param int $currentcourseid The id of the current course.
+     * @param int $currentyear The year the current course is being teached in.
+     * @return int The number of resources
+     */
+    public function get_previous_courses_resources_number($currentcourseid, $currentyear) {
+        global $DB;
+
+        $sql = "SELECT count(*) AS count
+                FROM   {course_modules} c_modules
+                INNER JOIN {modules} modules
+                    ON c_modules.module = modules.id
+                WHERE  c_modules.course = ?
+                    AND (modules.name = 'label'
+                    OR modules.name = 'resource'
+                    OR modules.name = 'folder'
+                    OR modules.name = 'page'
+                    OR modules.name = 'book'
+                    OR modules.name = 'url')";
+
+        $previouscourses = $this->find_course_previous_teachings_ids($currentcourseid, $currentyear);
+
+        $count = 0;
+
+        if (!empty($previouscourses)) {
+            foreach ($previouscourses as $course) {
+                $record = $DB->get_record_sql($sql, array($course));
+                $count += $record->count;
+            }
+        }
+
+        return $count;
+    }
+
+    /**
+     * @param int $currentcourseid The id of the current course.
+     * @param int $currentyear The year the current course is being teached in.
+     * @return int
+     */
+    public function get_course_duration_in_weeks($currentcourseid, $currentyear) {
+
+    }
+
 }

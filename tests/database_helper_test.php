@@ -68,6 +68,14 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
         parent::tearDown();
     }
 
+    protected static function get_method($name) {
+        $class = new \ReflectionClass('\block_mycourse_recommendations\database_helper');
+        $method = $class->getMethod($name);
+        $method->setAccessible(true);
+
+        return $method;
+    }
+
     /**
      * Tests that function inserts associations properly, with the expected behaviour.
      */
@@ -236,5 +244,160 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
 
             $index++;
         }
+    }
+
+    /**
+     * Creates a number of courses with the given fullname and startdate. There is a specific function for this task
+     * because it is used several times in this tests.
+     *
+     * @param string $fullname The fullname of the course.
+     * @param int $startdate The UNIX timestamp of the start of the course.
+     * @param int $number The number of courses to create for the given previous parameters.
+     * @return array The ids of the created courses.
+     */
+    private function create_course($fullname, $startdate, $number) {
+        $coursesids = array();
+
+        for ($index = 0; $index < $number; $index++) {
+            $coursesids[$index] = $this->getDataGenerator()->create_course(array('fullname' => $fullname,
+                                                                                'startdate' => $startdate));
+        }
+
+        return $coursesids;
+    }
+    /**
+     * Tests that the function queries properly the ids of the previous teachings of a course, which are currently found
+     * looking at the same 'fullname' field.
+     */
+    public function test_find_course_previous_teachings_ids() {
+        global $DB;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        // Important parameters for the test: the fullname of the course; the current year, and a date with a lower year.
+        $fullname = 'Software Engineering';
+        $currentyear = 2016;
+        $previouscoursestimestamp = strtotime('01-01-2009');
+
+        // We create the current course...
+        $currenttimestamp = strtotime("15-02-$currentyear");
+        $currentcourse = array();
+        $currentcourse = $this->create_course($fullname, $currenttimestamp, 1);
+
+        // We create the previous courses...
+        $previouscourses = array();
+        $previouscourses = $this->create_course($fullname, $previouscoursestimestamp, 3);
+
+        $expected = array();
+        foreach ($previouscourses as $expectedcourse) {
+            array_push($expected, $expectedcourse->id);
+        }
+
+        // We get the method using reflection, and we invoke it.
+        $findpreviousteachings = self::get_method('find_course_previous_teachings_ids');
+        $output = $findpreviousteachings->invokeArgs($this->databasehelper, array($currentcourse[0]->id, $currentyear));
+
+        // The arrays must be ordered in order to consider them equals.
+        sort($output);
+        sort($expected);
+
+        $this->assertEquals($output, $expected);
+    }
+
+    public function test_get_previous_courses_students_number() {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $studentroleid = 5;
+
+        // Important parameters for the test: the fullname of the course; the current year, and a date with a lower year.
+        $fullname = 'Software Engineering';
+        $currentyear = 2016;
+        $previouscoursestimestamp = strtotime('01-01-2009');
+
+        // We create the current course...
+        $currenttimestamp = strtotime("15-02-$currentyear");
+        $currentcourse = array();
+        $currentcourse = $this->create_course($fullname, $currenttimestamp, 1);
+
+        // We create the previous courses...
+        $previouscourses = array();
+        $previouscourses = $this->create_course($fullname, $previouscoursestimestamp, 3);
+
+        $previoususers = array();
+        $previoususers[$previouscourses[0]->id] = 5;
+        $previoususers[$previouscourses[1]->id] = 15;
+        $previoususers[$previouscourses[2]->id] = 23;
+        $expected = 0;
+
+        foreach ($previoususers as $courseid => $usernumber) {
+            for ($index = 0; $index < $usernumber; $index++) {
+                $newuser = $this->getDataGenerator()->create_user();
+                $this->getDataGenerator()->enrol_user($newuser->id, $courseid, $studentroleid);
+
+                $expected++;
+            }
+        }
+
+        $output = $this->databasehelper->get_previous_courses_students_number($currentcourse[0]->id, $currentyear);
+
+        $this->assertEquals($output, $expected);
+    }
+
+    /**
+     * Creates n resources of the given type, for the given course. Having a separated function for this makes
+     * the tests more clear.
+     *
+     * @param int $courseid The id of the course.
+     * @param string $resourcetype The type of resource to create.
+     * @param int $number The number of resources to create.
+     */
+    private function create_resource($courseid, $resourcetype, $number) {
+        $generator = $this->getDataGenerator()->get_plugin_generator($resourcetype);
+
+        for ($index = 0; $index < $number; $index++) {
+            $generator->create_instance(array('course' => $courseid));
+        }
+    }
+
+    public function test_get_previous_courses_resources_number() {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        // Important parameters for the test: the fullname of the course; the current year, and a date with a lower year.
+        $fullname = 'Software Engineering';
+        $currentyear = 2016;
+        $previouscoursestimestamp = strtotime('01-01-2009');
+
+        // We create the current course...
+        $currenttimestamp = strtotime("15-02-$currentyear");
+        $currentcourse = array();
+        $currentcourse = $this->create_course($fullname, $currenttimestamp, 1);
+
+        // We create the previous courses...
+        $previouscourses = array();
+        $previouscourses = $this->create_course($fullname, $previouscoursestimestamp, 2);
+
+        // We create some resources...
+        $previousresources = array();
+        $previousresources[$previouscourses[0]->id]['mod_page'] = 2;
+        $previousresources[$previouscourses[0]->id]['mod_url'] = 7;
+        $previousresources[$previouscourses[0]->id]['mod_book'] = 3;
+        $previousresources[$previouscourses[1]->id]['mod_resource'] = 4;
+        $previousresources[$previouscourses[1]->id]['mod_page'] = 3;
+        $previousresources[$previouscourses[1]->id]['mod_url'] = 10;
+
+        $expected = 0;
+        foreach ($previousresources as $courseid => $course) {
+            foreach ($course as $resource => $number) {
+                $this->create_resource($courseid, $resource, $number);
+                $expected += $number;
+            }
+        }
+
+        $output = $this->databasehelper->get_previous_courses_resources_number($currentcourse[0]->id, $currentyear);
+
+        $this->assertEquals($output, $expected);
     }
 }
