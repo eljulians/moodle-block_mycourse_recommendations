@@ -96,7 +96,7 @@ class course_filter {
      * @return boolean If the given course has had the minimum teachings before or not.
      */
     public static function meets_minimum_previous_courses($courseid, $currentyear, $db) {
-        $previoscourses = $db->find_course_previous_teachings_ids($courseid, $currentyear);
+        $previouscourses = $db->find_course_previous_teachings_ids($courseid, $currentyear);
 
         $minimum = false;
 
