@@ -410,7 +410,7 @@ class database_helper {
                     AND course.id = ?';
 
         $previouscourses = $this->find_course_previous_teachings_ids($currentcourseid, $currentyear);
-        
+
         $count = 0;
 
         if (!empty($previouscourses)) {

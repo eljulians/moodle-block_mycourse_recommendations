@@ -108,4 +108,4 @@ $currentyear = 2016";"The courses are created using the data generator, so the i
 Tests that the function retrieves correctly  the number of previous teachings for the given id, finding courses with the same fullname.";Equivalence;Yes;Ok;Using reflection to access the methods, since it's protected.;Julen Pardo;15/02/2016
 13;db/database_helper.php;get_previous_courses_students_number;"$currentcourseid = <generated>
 $currentyear = 2016";"The courses and students are created using the data generator, so the id is unknown.
-Tests that the function retrieves correctly the number of students enroled in previous teachings of the given course id.";Equivalence;No;;;;
+Tests that the function retrieves correctly the number of students enroled in previous teachings of the given course id.";Equivalence;Yes;Ok;;Julen Pardo;15/02/2016
