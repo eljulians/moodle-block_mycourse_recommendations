@@ -355,7 +355,7 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
      */
     private function create_resource($courseid, $resourcetype, $number) {
         $generator = $this->getDataGenerator()->get_plugin_generator($resourcetype);
-        
+
         for ($index = 0; $index < $number; $index++) {
             $generator->create_instance(array('course' => $courseid));
         }

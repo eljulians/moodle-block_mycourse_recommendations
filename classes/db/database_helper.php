@@ -436,7 +436,7 @@ class database_helper {
 
         $sql = "SELECT count(*) AS count
                 FROM   {course_modules} c_modules
-                INNER JOIN {modules} modules 
+                INNER JOIN {modules} modules
                     ON c_modules.module = modules.id
                 WHERE  c_modules.course = ?
                     AND (modules.name = 'label'
