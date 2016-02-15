@@ -61,8 +61,8 @@ class block_mycourse_recommendations_course_filter_testcase extends advanced_tes
         $this->previouscourses = $this->create_courses($this->previouscourseattributes, 3);
         $this->previousresources = array();
         $this->previousresources[$this->previouscourses[0]->id]['mod_page'] = 2;
-        $this->previousresources[$this->previouscourses[0]->id]['mod_url'] = 7;
-        $this->previousresources[$this->previouscourses[0]->id]['mod_book'] = 3;
+        $this->previousresources[$this->previouscourses[0]->id]['mod_url'] = 17;
+        $this->previousresources[$this->previouscourses[0]->id]['mod_book'] = 5;
         $this->previousresources[$this->previouscourses[1]->id]['mod_resource'] = 4;
         $this->previousresources[$this->previouscourses[1]->id]['mod_page'] = 3;
         $this->previousresources[$this->previouscourses[1]->id]['mod_url'] = 10;
