@@ -114,8 +114,16 @@ class course_filter {
      * @param database_helper $db The object with deals with database.
      * @return boolean If the given course has the minimum resources or not.
      */
-    public static function meets_minimum_resources($courseid, $db) {
+    public static function meets_minimum_resources($courseid, $currentyear, $db) {
+        $previousresourcenumber = $db->get_previous_courses_resources_number($courseid, $currentyear);
 
+        $minimum = false;
+
+        if ($previousresourcenumber >= self::MINIMUM_PREVIOUS_RESOURCES) {
+            $minimum = true;
+        }
+
+        return $minimum;
     }
 
     /**

@@ -41,6 +41,7 @@ class block_mycourse_recommendations_course_filter_testcase extends advanced_tes
     protected $db;
     protected $previouscourseattributes;
     protected $previouscourses;
+    protected $previousresources;
     protected $currentyear;
     protected $currentcourseattributes;
     protected $currentcourse;
@@ -58,6 +59,15 @@ class block_mycourse_recommendations_course_filter_testcase extends advanced_tes
                                                'startdate' => strtotime("15-02-$this->currentyear"));
 
         $this->previouscourses = $this->create_courses($this->previouscourseattributes, 3);
+        $this->previousresources = array();
+        $this->previousresources[$this->previouscourses[0]->id]['mod_page'] = 2;
+        $this->previousresources[$this->previouscourses[0]->id]['mod_url'] = 7;
+        $this->previousresources[$this->previouscourses[0]->id]['mod_book'] = 3;
+        $this->previousresources[$this->previouscourses[1]->id]['mod_resource'] = 4;
+        $this->previousresources[$this->previouscourses[1]->id]['mod_page'] = 3;
+        $this->previousresources[$this->previouscourses[1]->id]['mod_url'] = 10;
+        $this->create_resources();
+
         $this->currentcourse = $this->create_courses($this->currentcourseattributes, 1);
     }
 
@@ -82,6 +92,23 @@ class block_mycourse_recommendations_course_filter_testcase extends advanced_tes
 
         return $courses;
     }
+    
+    /**
+     * Creates resources.
+     *
+     * @param array $resources number of resources of a type for a course.
+     */
+    protected function create_resources($resources) {
+        foreach ($resources as $courseid => $course) {
+            foreach ($course as $resourcetype => $number) {
+                $generator = $this->getDataGenerator()->get_plugin_generator($resourcetype);
+
+                for ($index = 0; $index < $number; $index++) {
+                    $generator->create_instance(array('course' => $courseid));
+                }
+            }
+        }
+    }
 
     public function test_meets_minimum_previous_courses() {
         $this->resetAfterTest();
@@ -97,4 +124,17 @@ class block_mycourse_recommendations_course_filter_testcase extends advanced_tes
         $this->assertEquals($expected, $actual);
     }
 
+    public function test_meets_minimum_resources() {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $currentcourseid = $this->currentcourse[0]->id;
+        $currentyear = $this->currentyear;
+
+        $expected = true;
+
+        $actual = course_filter::meets_minimum_resources($currentcourseid, $currentyear, $this->db);
+
+        $this->assertEquals($expected, $actual);
+    }
 }
