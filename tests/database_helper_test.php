@@ -247,6 +247,25 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
     }
 
     /**
+     * Creates a number of courses with the given fullname and startdate. There is a specific function for this task
+     * because it is used several times in this tests.
+     *
+     * @param string $fullname The fullname of the course.
+     * @param int $startdate The UNIX timestamp of the start of the course.
+     * @param int $number The number of courses to create for the given previous parameters.
+     * @return array The ids of the created courses.
+     */
+    private function create_course($fullname, $startdate, $number) {
+        $coursesids = array();
+
+        for ($index = 0; $index < $number; $index++) {
+            $coursesids[$index] = $this->getDataGenerator()->createCourse(array('fullname' => $fullname,
+                                                                                'startdate' => $startdate));
+        }
+
+        return $coursesids;
+    }
+    /**
      * Tests that the function queries properly the ids of the previous teachings of a course, which are currently found
      * looking at the same 'fullname' field.
      */
@@ -263,17 +282,12 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
 
         // We create the current course...
         $currenttimestamp = strtotime("15-02-$currentyear");
-        $currentcourse = $this->getDataGenerator()->create_course(array('fullname' => $fullname,
-                                                                        'startdate' => $currenttimestamp));
+        $currentcourse = array();
+        $currentcourse = $this->create_course($fullname, $currenttimestamp, 1);
 
         // We create the previous courses...
         $previouscourses = array();
-        $previouscourses[0] = $this->getDataGenerator()->create_course(array('fullname' => $fullname,
-                                                                             'startdate' => $previouscoursestimestamp));
-        $previouscourses[1] = $this->getDataGenerator()->create_course(array('fullname' => $fullname,
-                                                                             'startdate' => $previouscoursestimestamp));
-        $previouscourses[2] = $this->getDataGenerator()->create_course(array('fullname' => $fullname,
-                                                                             'startdate' => $previouscoursestimestamp));
+        $previouscourses = $this->create_course($fullname, $previouscoursestimestamp, 3);
 
         $expected = array();
         foreach ($previouscourses as $expectedcourse) {
@@ -282,7 +296,7 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
 
         // We get the method using reflection, and we invoke it.
         $findpreviousteachings = self::get_method('find_course_previous_teachings_ids');
-        $output = $findpreviousteachings->invokeArgs($this->databasehelper, array($currentcourse->id, $currentyear));
+        $output = $findpreviousteachings->invokeArgs($this->databasehelper, array($currentcourse[0]->id, $currentyear));
 
         // The arrays must be ordered in order to consider them equals.
         sort($output);
@@ -290,4 +304,5 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
 
         $this->assertEquals($output, $expected);
     }
+
 }
