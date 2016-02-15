@@ -362,6 +362,8 @@ class database_helper {
      * @return array Previous teachings' ids.
      */
     protected function find_course_previous_teachings_ids($currentcourseid, $currentyear) {
+        global $DB;
+
         $sql = 'SELECT prev_courses.id        AS courseid,
                        prev_courses.startdate AS starttimestamp
                 FROM   {course} cur_course
