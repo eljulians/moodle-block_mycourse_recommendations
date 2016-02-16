@@ -23,7 +23,27 @@
 
 namespace block_mycourse_recommendations;
 
-interface abstract_recommendator {
+defined('MOODLE_INTERNAL') || die();
 
-    public function create_recommendations();
+require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/db/database_helper.php');
+require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/associator/abstract_associator.php');
+
+use block_mycourse_recommendations\database_helper;
+use block_mycourse_recommendations\abstract_associator;
+
+abstract class abstract_recommendator {
+
+    protected $db;
+    protected $associator;
+
+    public function __construct($associatorinstance) {
+        $this->db = new database_helper();
+        $this->associator = $associatorinstance;
+    }
+
+    abstract public function create_recommendations();
+
+    public function select_students() {
+        
+    }
 }

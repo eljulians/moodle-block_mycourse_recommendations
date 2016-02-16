@@ -23,9 +23,15 @@
 
 namespace block_mycourse_recommendations;
 
+require_once('abstract_recommendator.php');
+
 use block_mycourse_recommendations\abstract_recommendator;
 
-class simple_recommendator implements abstract_recommendator {
+class simple_recommendator extends abstract_recommendator {
+
+    public function __construct($associatorinstance) {
+        parent::__construct($associatorinstance);
+    }
 
     public function create_recommendations() {
 
