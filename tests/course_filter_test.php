@@ -69,10 +69,18 @@ class block_mycourse_recommendations_course_filter_testcase extends advanced_tes
         $this->create_resources($this->previousresources);
 
         $this->currentcourse = $this->create_courses($this->currentcourseattributes, 1);
+
+        $this->create_and_enrol_students($this->previouscourses[0]->id, course_filter::MINIMUM_PREVIOUS_STUDENTS);
     }
 
     protected function tearDown() {
         $this->db = null;
+        $this->previouscourseattributes = null;
+        $this->previouscourses = null;
+        $this->previousresources = null;
+        $this->currentyear = null;
+        $this->currentcourseattributes = null;
+        $this->currentcourse = null;
         parent::tearDown();
     }
 
@@ -110,6 +118,19 @@ class block_mycourse_recommendations_course_filter_testcase extends advanced_tes
         }
     }
 
+    /**
+     * Creates n number of students (roleid = 5) for the given course.
+     *
+     * @param int $courseid The course to enrol the student in.
+     * @param int $number The number of students to create.
+     */
+    protected function create_and_enrol_students($courseid, $number) {
+        for ($index = 0; $index < $number; $index++) {
+            $newuser = $this->getDataGenerator()->create_user();
+            $this->getDataGenerator()->enrol_user($newuser->id, $courseid, 5); // The student role id.
+        }
+    }
+
     public function test_meets_minimum_previous_courses() {
         $this->resetAfterTest();
         $this->setAdminUser();
@@ -134,6 +155,20 @@ class block_mycourse_recommendations_course_filter_testcase extends advanced_tes
         $expected = true;
 
         $actual = course_filter::meets_minimum_resources($currentcourseid, $currentyear, $this->db);
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function test_meets_minimum_previous_students() {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $currentcourseid = $this->currentcourse[0]->id;
+        $currentyear = $this->currentyear;
+
+        $expected = true;
+
+        $actual = course_filter::meets_minimum_previous_students($currentcourseid, $currentyear, $this->db);
 
         $this->assertEquals($expected, $actual);
     }

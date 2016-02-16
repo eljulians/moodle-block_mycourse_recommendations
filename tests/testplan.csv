@@ -116,3 +116,5 @@ Tests that the function retrieves correctly the number of resources of previous 
 $currentyear = 2016";The courses and resources are created using the data generator, so the ids are unknown.;Equivalence;Yes;Ok;;Julen Pardo;15/02/2016
 16;course_filter/course_filter;meets_minimum_resources;"$currentcourseid = <generated>
 $currentyear = 2016";The courses and resources are created using the data generator, so the ids are unknown.;Equivalence;Yes;Ok;;Julen Pardo;15/02/2016
+17;course_filter/course_filter;meets_minimum_previous_students;"$currentcourseid = <generated>
+$currentyear = 2016";The courses and users are created using the data generator, so the ids are unknown.;Equivalence;No;;;;

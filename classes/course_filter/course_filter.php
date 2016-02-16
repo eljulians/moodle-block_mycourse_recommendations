@@ -133,8 +133,16 @@ class course_filter {
      * @param database_helper $db The object with deals with database.
      * @return boolean If the given course has the minimum students or not.
      */
-    public static function meets_minimum_previous_students($courseid, $db) {
+    public static function meets_minimum_previous_students($courseid, $currentyear, $db) {
+        $previousstudents = $db->get_previous_courses_students_number($courseid, $currentyear);
 
+        $minimum = false;
+
+        if ($previousstudents >= self:MINIMUM_PREVIOUS_STUDENTS) {
+            $minimum = true;
+        }
+
+        return $minimum;
     }
 
     /**
