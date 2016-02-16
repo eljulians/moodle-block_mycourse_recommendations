@@ -138,7 +138,7 @@ class course_filter {
 
         $minimum = false;
 
-        if ($previousstudents >= self:MINIMUM_PREVIOUS_STUDENTS) {
+        if ($previousstudents >= self::MINIMUM_PREVIOUS_STUDENTS) {
             $minimum = true;
         }
 
