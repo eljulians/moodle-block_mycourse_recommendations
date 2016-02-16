@@ -55,9 +55,10 @@ class course_filter {
 
         $personalizable = true;
 
-        $personalizable .= self::meets_minimum_weeks($courseid, $db);
+        $personalizable .= self::meets_minimum_previous_courses($courseid, $db);
+
         if ($personalizable) {
-            $personalizable .= self::meets_minimum_previous_courses($courseid, $db);
+            $personalizable .= self::meets_minimum_weeks($courseid, $db);
         }
 
         if ($personalizable) {
@@ -77,13 +78,14 @@ class course_filter {
 
     /**
      * Determines if the course duration, in weeks, is long enough to consider it personalizable.
+     * This function will be implemented in the near future.
      *
      * @param int $courseid The course to determine if meets the minimum weeks.
      * @param database_helper $db The object with deals with database.
      * @return boolean If the duration of the given course is the needed.
      */
     public static function meets_minimum_weeks($courseid, $db) {
-
+        return true;
     }
 
     /**
