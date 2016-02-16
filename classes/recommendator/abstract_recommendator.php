@@ -43,7 +43,17 @@ abstract class abstract_recommendator {
 
     abstract public function create_recommendations();
 
-    public function select_students() {
-        
+    /**
+     * Given the course identificator, selects, randomly, 50% of the students enroled in the course,
+     * who will be the ones receiving the personalized recommendations.
+     *
+     * @param int $courseid The course to select students from.
+     */
+    public function select_students($courseid, $year) {
+        $coursestudents = $this->db->get_students_from_course($courseid);
+        $count = count($coursestudents);
+
+        $selectedstudents = array_rand($coursestudents, $count / 2);
+        $this->db->insert_selections($selectedstudents, $courseid, $year);
     }
 }
