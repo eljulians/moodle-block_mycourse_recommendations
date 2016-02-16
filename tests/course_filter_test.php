@@ -58,19 +58,11 @@ class block_mycourse_recommendations_course_filter_testcase extends advanced_tes
         $this->currentcourseattributes = array('fullname' => 'Software Engineering II',
                                                'startdate' => strtotime("15-02-$this->currentyear"));
 
-        $this->previouscourses = $this->create_courses($this->previouscourseattributes, 3);
-        $this->previousresources = array();
-        $this->previousresources[$this->previouscourses[0]->id]['mod_page'] = 2;
-        $this->previousresources[$this->previouscourses[0]->id]['mod_url'] = 17;
-        $this->previousresources[$this->previouscourses[0]->id]['mod_book'] = 5;
-        $this->previousresources[$this->previouscourses[1]->id]['mod_resource'] = 4;
-        $this->previousresources[$this->previouscourses[1]->id]['mod_page'] = 3;
-        $this->previousresources[$this->previouscourses[1]->id]['mod_url'] = 10;
-        $this->create_resources($this->previousresources);
-
         $this->currentcourse = $this->create_courses($this->currentcourseattributes, 1);
 
-        $this->create_and_enrol_students($this->previouscourses[0]->id, course_filter::MINIMUM_PREVIOUS_STUDENTS);
+        // $this->previouscourses = $this->create_courses($this->previouscourseattributes, 3);
+
+        //$this->create_and_enrol_students($this->previouscourses[0]->id, course_filter::MINIMUM_PREVIOUS_STUDENTS);
     }
 
     protected function tearDown() {
@@ -131,45 +123,199 @@ class block_mycourse_recommendations_course_filter_testcase extends advanced_tes
         }
     }
 
-    public function test_meets_minimum_previous_courses() {
+    /**
+     * Tests that the function returns false when the number of previous courses is lower than the minimum
+     * defined.
+     */
+    public function test_meets_minimum_previous_courses_below() {
         $this->resetAfterTest();
         $this->setAdminUser();
 
+        $expected = false;
         $currentcourseid = $this->currentcourse[0]->id;
-        $currentyear = $this->currentyear;
 
-        $expected = true;
+        $numberofcoursestocreate = course_filter::MINIMUM_PREVIOUS_COURSES - 1; // As said above, we create less than the minimum.
 
-        $actual = course_filter::meets_minimum_previous_courses($currentcourseid, $currentyear, $this->db);
+        // We create those courses, with the attributes defined in setUp.
+        $this->create_courses($this->previouscourseattributes, $numberofcoursestocreate);
+
+        $actual = course_filter::meets_minimum_previous_courses($currentcourseid, $this->currentyear, $this->db);
 
         $this->assertEquals($expected, $actual);
     }
 
-    public function test_meets_minimum_resources() {
+    /**
+     * Tests that the function returns true when the number of previous courses is the same as the minimum defined.
+     */
+    public function test_meets_minimum_previous_courses_equal() {
         $this->resetAfterTest();
         $this->setAdminUser();
 
+        $expected = true;
         $currentcourseid = $this->currentcourse[0]->id;
-        $currentyear = $this->currentyear;
+
+        $numberofcoursestocreate = course_filter::MINIMUM_PREVIOUS_COURSES;
+
+        // We create those courses, with the attributes defined in setUp.
+        $this->create_courses($this->previouscourseattributes, $numberofcoursestocreate);
+
+        $actual = course_filter::meets_minimum_previous_courses($currentcourseid, $this->currentyear, $this->db);
+
+        $this->assertEquals($expected, $actual);   
+    }
+
+    /**
+     * Tests that the function returns true when the number of previous courses is higher than the minumimum defined.
+     */
+    public function test_meets_minimum_previous_courses_above() {
+        $this->resetAfterTest();
+        $this->setAdminUser();
 
         $expected = true;
+        $currentcourseid = $this->currentcourse[0]->id;
 
-        $actual = course_filter::meets_minimum_resources($currentcourseid, $currentyear, $this->db);
+        $numberofcoursestocreate = course_filter::MINIMUM_PREVIOUS_COURSES + 1;
+
+        // We create those courses, with the attributes defined in setUp.
+        $this->create_courses($this->previouscourseattributes, $numberofcoursestocreate);
+
+        $actual = course_filter::meets_minimum_previous_courses($currentcourseid, $this->currentyear, $this->db);
+
+        $this->assertEquals($expected, $actual);   
+    }
+
+    public function test_meets_minimum_resources_below() {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $expected = false;
+        $currentcourseid = $this->currentcourse[0]->id;
+
+        // We have to create some courses before creating resources...
+        $numberofcoursestocreate = course_filter::MINIMUM_PREVIOUS_COURSES;
+        $previouscourses = $this->create_courses($this->previouscourseattributes, $numberofcoursestocreate);
+
+        // We set the total number of resources to create.
+        $numberofresources = course_filter::MINIMUM_PREVIOUS_RESOURCES - 1;
+        $previousresources = array();
+
+        // We divide the resources to create in, let's say, 3 types of resources, to have a bit of variation.
+        $previousresources[$previouscourses[0]->id]['mod_page'] = $numberofresources / 3;
+        $previousresources[$previouscourses[0]->id]['mod_url'] = $numberofresources / 3;
+        $previousresources[$previouscourses[0]->id]['mod_book'] = $numberofresources / 3;
+        $this->create_resources($previousresources);
+
+        $actual = course_filter::meets_minimum_resources($currentcourseid, $this->currentyear, $this->db);
 
         $this->assertEquals($expected, $actual);
     }
 
-    public function test_meets_minimum_previous_students() {
+    public function test_meets_minimum_resources_equal() {
         $this->resetAfterTest();
         $this->setAdminUser();
 
-        $currentcourseid = $this->currentcourse[0]->id;
-        $currentyear = $this->currentyear;
-
         $expected = true;
+        $currentcourseid = $this->currentcourse[0]->id;
 
-        $actual = course_filter::meets_minimum_previous_students($currentcourseid, $currentyear, $this->db);
+        // We have to creates some courses before creating resources...
+        $numberofcoursestocreate = course_filter::MINIMUM_PREVIOUS_COURSES;
+        $previouscourses = $this->create_courses($this->previouscourseattributes, $numberofcoursestocreate);
+
+        // We set the total number of resources to create.
+        $numberofresources = course_filter::MINIMUM_PREVIOUS_RESOURCES;
+        $previousresources = array();
+
+        // We divide the resources to create in, let's say, 2 types of resources, to have a bit of variation.
+        $previousresources[$previouscourses[0]->id]['mod_page'] = $numberofresources / 2;
+        $previousresources[$previouscourses[0]->id]['mod_url'] = $numberofresources / 2;
+        $this->create_resources($previousresources);
+
+        $actual = course_filter::meets_minimum_resources($currentcourseid, $this->currentyear, $this->db);
 
         $this->assertEquals($expected, $actual);
     }
+
+    public function test_meets_minimum_resources_above() {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $expected = true;
+        $currentcourseid = $this->currentcourse[0]->id;
+
+        // We have to creates some courses before creating resources...
+        $numberofcoursestocreate = course_filter::MINIMUM_PREVIOUS_COURSES;
+        $previouscourses = $this->create_courses($this->previouscourseattributes, $numberofcoursestocreate);
+
+        // We set the total number of resources to create.
+        $numberofresources = course_filter::MINIMUM_PREVIOUS_RESOURCES + 1;
+        $previousresources = array();
+
+        // We divide the resources to create in, let's say, 3 types of resources, to have a bit of variation.
+        $previousresources[$previouscourses[0]->id]['mod_page'] = $numberofresources / 3;
+        $previousresources[$previouscourses[0]->id]['mod_url'] = $numberofresources / 3;
+        $previousresources[$previouscourses[0]->id]['mod_book'] = $numberofresources / 3;
+        $this->create_resources($previousresources);
+
+        $actual = course_filter::meets_minimum_resources($currentcourseid, $this->currentyear, $this->db);
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function test_meets_minimum_previous_students_below() {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $expected = false;
+        $currentcourseid = $this->currentcourse[0]->id;
+
+        // We have to creates some courses before creating students...
+        $numberofcoursestocreate = course_filter::MINIMUM_PREVIOUS_COURSES;
+        $previouscourses = $this->create_courses($this->previouscourseattributes, $numberofcoursestocreate);
+
+        $numberofstudents = course_filter::MINIMUM_PREVIOUS_STUDENTS - 1;
+        $this->create_and_enrol_students($previouscourses[0]->id, $numberofstudents);
+
+        $actual = course_filter::meets_minimum_previous_students($currentcourseid, $this->currentyear, $this->db);
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function test_meets_minimum_previous_students_equal() {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $expected = true;
+        $currentcourseid = $this->currentcourse[0]->id;
+
+        // We have to creates some courses before creating students...
+        $numberofcoursestocreate = course_filter::MINIMUM_PREVIOUS_COURSES;
+        $previouscourses = $this->create_courses($this->previouscourseattributes, $numberofcoursestocreate);
+
+        $numberofstudents = course_filter::MINIMUM_PREVIOUS_STUDENTS;
+        $this->create_and_enrol_students($previouscourses[0]->id, $numberofstudents);
+
+        $actual = course_filter::meets_minimum_previous_students($currentcourseid, $this->currentyear, $this->db);
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function test_meets_minimum_previous_students_above() {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $expected = true;
+        $currentcourseid = $this->currentcourse[0]->id;
+
+        // We have to creates some courses before creating students...
+        $numberofcoursestocreate = course_filter::MINIMUM_PREVIOUS_COURSES;
+        $previouscourses = $this->create_courses($this->previouscourseattributes, $numberofcoursestocreate);
+
+        $numberofstudents = course_filter::MINIMUM_PREVIOUS_STUDENTS + 1;
+        $this->create_and_enrol_students($previouscourses[0]->id, $numberofstudents);
+
+        $actual = course_filter::meets_minimum_previous_students($currentcourseid, $this->currentyear, $this->db);
+
+        $this->assertEquals($expected, $actual);
+    }
+
 }
