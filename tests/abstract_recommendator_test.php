@@ -74,6 +74,13 @@ class block_mycourse_recommendations_abstract_recommendator_testcase extends adv
         parent::tearDown();
     }
 
+    /**
+     * Creates a number of courses with the given attributes.
+     *
+     * @param array $attibutes The attributes of the course (fullname, startdate, etc.).
+     * @param int $number The number of courses to create for the given previous parameters.
+     * @return array The created courses.
+     */
     protected function create_courses($attributes, $number) {
         $courses = array();
 
@@ -84,6 +91,12 @@ class block_mycourse_recommendations_abstract_recommendator_testcase extends adv
         return $courses;
     }
 
+    /**
+     * Creates n number of students (roleid = 5) for the given course.
+     *
+     * @param int $courseid The course to enrol the student in.
+     * @param int $number The number of students to create.
+     */
     protected function create_and_enrol_students($courseid, $number) {
         for ($index = 0; $index < $number; $index++) {
             $newuser = $this->getDataGenerator()->create_user();
@@ -91,22 +104,28 @@ class block_mycourse_recommendations_abstract_recommendator_testcase extends adv
         }
     }
 
+    /**
+     * Tests that the function selects the half of the students of a course, querying the table after calling the function.
+     */
     public function test_select_students() {
         global $DB;
 
         $this->resetAfterTest();
         $this->setAdminUser();
 
+        // Let's say that the course has 20 students. Only the half is selected, so, the expected value will be the half.
         $coursestudents = 20;
         $expected = $coursestudents / 2;
 
+        // We create and enrol users, using the created course in setup.
         $this->create_and_enrol_students($this->courses[0]->id, $coursestudents);
 
+        // We call the function that will insert the users into the database.
         $this->recommendator->select_students($this->courses[0]->id, $this->currentyear);
 
+        // We create the query that counts the number of rows in the selected users table, after doing the insertion.
         $sql = 'SELECT count(*) AS count
                 FROM   {block_mycourse_user_sel}';
-
         $actual = $DB->get_record_sql($sql)->count;
 
         $this->assertEquals($expected, $actual);
