@@ -130,3 +130,8 @@ $currentyear = 2016";"There are three different tests for this method:
  - One that creates the same student as the minimum (expecting to return true).
  - One that creates one more student than the minimum (expecting to return true).
 The courses and student are created using the data generator, so the ids are unknown.";Boundary;Yes;Ok;"The results of the test of this method is the result of all the boundary tests created; if one of these boundary test fails, the result of the test of this method will be considered as failed.";Julen Pardo;16/02/2016
+18;recommendator/abstract_recommendator;select_students;"$currentcourseid = <generated>
+$year = 2016";"Test creates 20 students. There are three different tests:
+ - One for the lower limit.
+ - One for the upper limit.
+ - One for the equal value.";Boundary;No;;;;
