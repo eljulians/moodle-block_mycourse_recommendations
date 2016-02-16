@@ -97,18 +97,36 @@ $currentdata['102']['10'] = 31
 $currentdata['102']['11'] = 87
 $currentdata['102']['12'] = 64
 $currentdata['102']['13'] = 12";Test that the association matrix between current and historic users is created, receiving matrixes of both types of users. These matrixes are the result of the query to database, which retrieves the log views of each user for each module.;Equivalence;Yes;Ok;;Julen Pardo;10/02/2016
-10;db/database_helper.php;get_students_from_course;<Using data generator>;Test that the function retrieves correctly users enrolled in a course.;Equivalence/Exception;Yes;Ok;;Julen Pardo;12/02/2016
-11;db/database_helper.php;insert_selections;"$course = 50
+10;db/database_helper;get_students_from_course;<Using data generator>;Test that the function retrieves correctly users enrolled in a course.;Equivalence/Exception;Yes;Ok;;Julen Pardo;12/02/2016
+11;db/database_helper;insert_selections;"$course = 50
 $year = 2016
 $users[0] = 100
 $users[1] = 101
 $users[2] = 102";Test that the function inserts correctly users for a course and year, after inserting, querying table's data and asserting that is equal to the inserted one.;Equivalence/Exception;Yes;Ok;;Julen Pardo;12/02/2016
-12;db/database_helper.php;find_course_previous_teachings_ids;"$currentcourseid = <generated>
+12;db/database_helper;find_course_previous_teachings_ids;"$currentcourseid = <generated>
 $currentyear = 2016";"The courses are created using the data generator, so the id is unknown.
 Tests that the function retrieves correctly  the number of previous teachings for the given id, finding courses with the same fullname.";Equivalence;Yes;Ok;Using reflection to access the methods, since it's protected.;Julen Pardo;15/02/2016
-13;db/database_helper.php;get_previous_courses_students_number;"$currentcourseid = <generated>
+13;db/database_helper;get_previous_courses_students_number;"$currentcourseid = <generated>
 $currentyear = 2016";"The courses and students are created using the data generator, so the ids are unknown.
 Tests that the function retrieves correctly the number of students enroled in previous teachings of the given course id.";Equivalence;Yes;Ok;;Julen Pardo;15/02/2016
-14;db/database_helper.php;get_previous_courses_resources_number;"$currentcourseid = <generated>
+14;db/database_helper;get_previous_courses_resources_number;"$currentcourseid = <generated>
 $currentyear = 2016";"The courses and resources are created using the data generator, so the ids are unknown.
 Tests that the function retrieves correctly the number of resources of previous teachings of the given course id.";Equivalence;Yes;Ok;The created resources are of the types hardcoded in class function.;Julen Pardo;15/02/2016
+15;course_filter/course_filter;meets_minimum_previous_courses;"$currentcourseid = <generated>
+$currentyear = 2016";"There are three different tests for this method:
+ - One that creates one course less than the minimum (expecting to return false).
+ - One that creates the same courses as the minimum (expecting to return true).
+ - One that creates one course more than the minimum (expecting to return true).
+The courses are created using the data generator, so the ids are unknown.";Boundary;Yes;Ok;"The results of the test of this method is the result of all the boundary tests created; if one of these boundary test fails, the result of the test of this method will be considered as failed.";Julen Pardo;16/02/2016
+16;course_filter/course_filter;meets_minimum_resources;"$currentcourseid = <generated>
+$currentyear = 2016";"There are three different tests for this method:
+ - One that creates one resource less than the minimum (expecting to return false).
+ - One that creates the same resources as the minimum (expecting to return true).
+ - One that creates one more resource than the minimum (expecting to return true).
+The courses and resources are created using the data generator, so the ids are unknown.";Boundary;Yes;Ok;"The results of the test of this method is the result of all the boundary tests created; if one of these boundary test fails, the result of the test of this method will be considered as failed.";Julen Pardo;16/02/2016
+17;course_filter/course_filter;meets_minimum_previous_students;"$currentcourseid = <generated>
+$currentyear = 2016";"There are three different tests for this method:
+ - One that creates one student less than the minimum (expecting to return false).
+ - One that creates the same student as the minimum (expecting to return true).
+ - One that creates one more student than the minimum (expecting to return true).
+The courses and student are created using the data generator, so the ids are unknown.";Boundary;Yes;Ok;"The results of the test of this method is the result of all the boundary tests created; if one of these boundary test fails, the result of the test of this method will be considered as failed.";Julen Pardo;16/02/2016
