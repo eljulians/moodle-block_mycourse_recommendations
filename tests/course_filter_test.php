@@ -137,7 +137,7 @@ class block_mycourse_recommendations_course_filter_testcase extends advanced_tes
         $this->create_courses($this->previouscourseattributes, $numberofcoursestocreate);
 
         // We get the actual value and we do the assertion.
-        $currentcourseid = $this->currentcourse[0]->id;        
+        $currentcourseid = $this->currentcourse[0]->id;
         $actual = course_filter::meets_minimum_previous_courses($currentcourseid, $this->currentyear, $this->db);
 
         $this->assertEquals($expected, $actual);
@@ -337,7 +337,6 @@ class block_mycourse_recommendations_course_filter_testcase extends advanced_tes
         // We have to creates some courses before creating students, with the attributes defined in setUp.
         $numberofcoursestocreate = course_filter::MINIMUM_PREVIOUS_COURSES;
         $previouscourses = $this->create_courses($this->previouscourseattributes, $numberofcoursestocreate);
-
 
         // We create and enrol the students in one course...
         $this->create_and_enrol_students($previouscourses[0]->id, $numberofstudents);
