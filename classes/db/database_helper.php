@@ -469,4 +469,54 @@ class database_helper {
 
     }
 
+    /**
+     * Queries the users selected for receiving recommendations of a course.
+     *
+     * @param int $courseid The course to query the users from.
+     * @return array The ids of the users of the given course.
+     */
+    public function get_selected_users($courseid) {
+        global $DB;
+
+        $sql = 'SELECT userid
+                FROM   {block_mycourse_user_sel} course
+                WHERE  course.courseid = ?';
+
+        $users = array();
+
+        $recordset = $DB->get_recordset_sql($sql, array($courseid));
+
+        foreach ($recordset as $record) {
+            array_push($users, $record->userid);
+        }
+
+        $recordset->close();
+
+        return $users;
+    }
+
+    /**
+     * Queries the week and year start of a course.
+     *
+     * @param int $courseid The course to query the start week and year of.
+     * @return array The week number ([1, 52]); the year.
+     */
+    public function get_course_start_week_and_year($courseid) {
+        global $DB;
+
+        $sql = 'SELECT course.startdate AS starttimestamp
+                FROM   {course} course
+                WHERE  course.id = ?';
+
+        $starttimestamp = $DB->get_record_sql($sql);
+        $week = date('W', $starttimestamp);
+        $year = date('Y', $starttimestamp);
+
+        $weekandyear = array();
+        $weekandyear['week'] = intval($week);
+        $weekandyear['year'] = intval($year);
+
+        return $weekandyear;
+    }
+
 }
