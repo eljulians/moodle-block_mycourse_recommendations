@@ -131,4 +131,16 @@ $currentyear = 2016";"There are three different tests for this method:
  - One that creates one more student than the minimum (expecting to return true).
 The courses and student are created using the data generator, so the ids are unknown.";Boundary;Yes;Ok;"The results of the test of this method is the result of all the boundary tests created; if one of these boundary test fails, the result of the test of this method will be considered as failed.";Julen Pardo;16/02/2016
 18;recommendator/abstract_recommendator;select_students;"$currentcourseid = <generated>
-$year = 2016";"Test that, generating 20 students for a course, after calling the method, there are exactly 10 students in the table of the selected users.";Equivalence;Yes;Ok;;Julen Pardo;16/02/2016
+$year = 2016";Test that, generating 20 students for a course, after calling the method, there are exactly 10 students in the table of the selected users.;Equivalence;Yes;Ok;;Julen Pardo;16/02/2016
+19;recommendator/simple_recommendator;create_associations;"$courseid = <generated>
+$currentweek = ";"Test that the associations are created and inserted correctly into the database, that is, that after querying the needed data (both current and previous), and using the associator (cosine_similarity_associator in this case), the associations are properly inserted into {block_mycourse_user_sel}.
+The following data will be generated:
+ - 2 courses: one, current; the other, a previous teaching.
+ - 6 resources: half for the current, half for the previous. Each current-previous course pair will have the same name.
+ - 5 users: 2 for the current, 3 for the previous.
+ - Log views ('p' for previous, 'c' for current): 
+    - p1 = (10, 3, 5)
+    - p2 = (4, 1, 2)
+    - p3 = (0, 7, 7)
+    - c1 = (3, 4, 6)
+    - c2 = (7, 3, 2)";Equivalence;No;;;;
