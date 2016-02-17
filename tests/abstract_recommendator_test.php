@@ -48,7 +48,14 @@ class concrete_recommendator extends abstract_recommendator {
     /**
      * Parents abstract method must be implemented, so we do this dirty (another) workaround.
      */
-    public function create_recommendations() {
+    public function create_recommendations($courseid, $currentweek) {
+        null;
+    }
+
+    /**
+     * Parents abstract method must be implemented, so we do this dirty (another) workaround.
+     */
+    public function create_associations($courseid, $currentweek) {
         null;
     }
 }

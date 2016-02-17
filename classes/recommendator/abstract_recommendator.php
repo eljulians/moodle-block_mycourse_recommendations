@@ -41,7 +41,9 @@ abstract class abstract_recommendator {
         $this->associator = $associatorinstance;
     }
 
-    abstract public function create_recommendations();
+    abstract public function create_recommendations($courseid, $currentweek);
+
+    abstract public function create_associations($courseid, $currentweek);
 
     /**
      * Given the course identificator, selects, randomly, 50% of the students enroled in the course,
@@ -56,4 +58,5 @@ abstract class abstract_recommendator {
         $selectedstudents = array_rand($coursestudents, $count / 2);
         $this->db->insert_selections($selectedstudents, $courseid, $year);
     }
+
 }
