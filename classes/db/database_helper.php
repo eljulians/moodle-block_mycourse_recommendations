@@ -195,7 +195,6 @@ class database_helper {
         global $DB;
 
         $sql = $this->sql;
-        where logs.course = %courseid
 
         if (!is_null($userid)) {
             $sql = str_replace('where logs.course = %courseid', "where logs.userid = $userid and logs.course = %courseid ");
