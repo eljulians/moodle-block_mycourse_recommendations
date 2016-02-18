@@ -400,4 +400,112 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
 
         $this->assertEquals($output, $expected);
     }
+
+    public function test_get_associations() {
+        global $DB;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $currentusersids = array(100, 101, 102, 103);
+        $currentcourseid = 20;
+        $historicuserids = array(1, 2, 3, 4, 5);
+        $historiccourseid = 10;
+        $week = 1;
+
+        $records = array();
+
+        for ($index = 0; $index < 4; $index++) {
+            $records[$index] = new stdClass();
+
+            $records[$index]->current_userid = $currentusersids[$index];
+            $records[$index]->current_courseid = $currentcourseid;
+            $records[$index]->historic_userid = $historicuserids[$index];
+            $records[$index]->historic_courseid = $historiccourseid;
+            $records[$index]->week = $week;
+        }
+
+        $DB->insert_records('block_mycourse_assoc', $records);
+
+        $actuals = $this->databasehelper->get_associations($currentcourseid, $week);
+
+        foreach ($actuals as $index => $record) {
+            unset($record->id);
+            $actuals[$index] = $record;
+        }
+
+        $actuals = array_values($actuals);
+
+        $expecteds = array();
+        for ($index = 0; $index < 4; $index++) {
+            $expecteds[$index] = new stdClass();
+
+            $expecteds[$index]->current_userid = intval($currentusersids[$index]);
+            $expecteds[$index]->historic_courseid = intval($historiccourseid);
+            $expecteds[$index]->historic_userid = intval($historicuserids[$index]);
+        }
+
+        foreach ($actuals as $index => $actual) {
+            $this->assertEquals($expecteds[$index], $actual);
+        }
+    }
+
+    public function test_get_recommendations() {
+        global $DB;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $currentcourseid = 20;
+        $week = 1;
+
+        // We create associations...
+        $record = new stdClass();
+        $record->current_userid = 100;
+        $record->current_courseid = $currentcourseid;
+        $record->historic_userid = 1;
+        $record->historic_courseid = 10;
+        $record->week = $week;
+
+        $DB->insert_record('block_mycourse_assoc', $record);
+
+        $associations = $this->databasehelper->get_associations($currentcourseid, $week);
+        $associations = array_values($associations);
+
+        $resourcesids = array(1000, 1001, 1002, 1003);
+        $priorities = array(0, 1, 2, 3);
+
+        $records = array();
+
+        for ($index = 0; $index < 4; $index++) {
+            $records[$index] = new stdClass();
+
+            $records[$index]->associationid = $associations[0]->id;
+            $records[$index]->resourceid = $resourcesids[$index];
+            $records[$index]->priority = $priorities[$index];
+        }
+
+        $DB->insert_records('block_mycourse_recs', $records);
+
+        $actuals = $this->databasehelper->get_recommendations($currentcourseid, $week);
+
+        foreach ($actuals as $index => $record) {
+            unset($record->id);
+            $actuals[$index] = $record;
+        }
+
+        $actuals = array_values($actuals);
+
+        $expecteds = array();
+        for ($index = 0; $index < 4; $index++) {
+            $expecteds[$index] = new stdClass();
+
+            $expecteds[$index]->resourceid = intval($resourcesids[$index]);
+            $expecteds[$index]->priority = intval($priorities[$index]);
+        }
+
+        foreach ($actuals as $index => $actual) {
+            $this->assertEquals($expecteds[$index], $actual);
+        }
+    }
 }
