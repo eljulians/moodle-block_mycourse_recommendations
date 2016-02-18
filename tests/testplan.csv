@@ -144,3 +144,7 @@ The following data will be generated:
     - p3 = (0, 7, 7)
     - c1 = (3, 4, 6)
     - c2 = (7, 3, 2)";Equivalence;Yes;Ok;;Julen Pardo;18/02/2016
+20;db/database_helper;get_associations;"$courseid = <generated>
+$currentweek = 1";Test that, after generating associations (with current and previous users and courses), there are properly retrieved from database.;Equivalence;No;;;;
+21;db/database_helper;get_recommendations;"$courseid = <generated>
+$currentweek = 1";Test that, after generating recommendations (with current and previous users and courses), there are properly retrieved from database.;Equivalence;No;;;;

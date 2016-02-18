@@ -519,4 +519,51 @@ class database_helper {
         return $weekandyear;
     }
 
+    /**
+     * Quieres the associations calculated for a course in a specific week.
+     *
+     * @param int $courseid The course to query the associations of.
+     * @param int $week The week to query the associations in.
+     * @return array An object for each row, with the attributes of the queried columns.
+     */
+    public function get_associations($courseid, $week) {
+        global $DB;
+
+        $sql = 'SELECT associations.id,
+                       associations.current_userid,
+                       associations.historic_userid,
+                       associations.historic_courseid
+                FROM   {block_mycourse_assoc} associations
+                WHERE  associations.current_courseid = ?
+                AND    associations.week = ?';
+
+        $records = $DB->get_records_sql($sql, array($courseid, $week));
+
+        return $records;
+    }
+
+    /**
+     * Quieres the recommenadtions calculated for a course in a specific week.
+     *
+     * @param int $courseid The course to query the associations of.
+     * @param int $week The week to query the associations in.
+     * @return array An object for each row, with the attributes of the queried columns.
+     */
+    public function get_recommendations($courseid, $week) {
+        global $DB;
+
+        $sql = 'SELECT recommendations.id,
+                       recommendations.resourceid,
+                       recommendations.priority 
+                FROM   {block_mycourse_recs} recommendations
+                INNER JOIN {block_mycourse_assoc} associations
+                    ON recommendations.associationid = associations.id
+                WHERE  associations.current_courseid = ?
+                    AND associations.week = ?';
+
+        $records = $DB->get_records_sql($sql, array($courseid, $week));
+
+        return $records;
+    }
+
 }
