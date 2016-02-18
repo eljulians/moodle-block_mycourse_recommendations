@@ -500,7 +500,6 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
         for ($index = 0; $index < 4; $index++) {
             $expecteds[$index] = new stdClass();
 
-            $expecteds[$index]->associationid = intval($associations[0]->id);
             $expecteds[$index]->resourceid = intval($resourcesids[$index]);
             $expecteds[$index]->priority = intval($priorities[$index]);
         }
