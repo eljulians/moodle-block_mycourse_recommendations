@@ -508,7 +508,7 @@ class database_helper {
                 FROM   {course} course
                 WHERE  course.id = ?';
 
-        $starttimestamp = $DB->get_record_sql($sql);
+        $starttimestamp = $DB->get_record_sql($sql, array($courseid))->starttimestamp;
         $week = date('W', $starttimestamp);
         $year = date('Y', $starttimestamp);
 
