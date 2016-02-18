@@ -554,7 +554,7 @@ class database_helper {
 
         $sql = 'SELECT recommendations.id,
                        recommendations.resourceid,
-                       recommendations.priority 
+                       recommendations.priority
                 FROM   {block_mycourse_recs} recommendations
                 INNER JOIN {block_mycourse_assoc} associations
                     ON recommendations.associationid = associations.id
