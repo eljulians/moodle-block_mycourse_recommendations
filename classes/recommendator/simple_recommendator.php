@@ -74,9 +74,15 @@ class simple_recommendator extends abstract_recommendator {
 
         $previousdata = $this->db->query_data($previouscourse, $year, $startweek, $currentweek);
 
+        $associatedresources = $this->associate_resources($previousdata, $currentdata);
+        $previousdata = $associatedresources['previous'];
+        $currentdata = $associatedresources['current'];
+
         // We get the association matrix, where the rows will be the current users id; the columns, the previous users;
         // and the values, the simmilarity coefficient.
         $associationmatrix = $this->associator->create_associations_matrix($currentdata, $previousdata);
+
+        var_dump($associationmatrix);
 
         $number = count($associationmatrix);
         $currentusersids = array();
@@ -95,5 +101,41 @@ class simple_recommendator extends abstract_recommendator {
 
         // Finally, we call the function that will insert the associations into the database.
         $this->db->insert_associations($number, $currentusersids, $courseid, $historicusersids, $previouscourse, $currentweek);
+    }
+
+    /**
+     * Makes the relations between the resources of current and previous courses. To determine the association between two
+     * resources, the name is used. So, the names must match exactly to consider the association.
+     * Current resources are iterated, finding the relation with previous. The result is the same received data, but with the
+     * associated resources aligned in the arrays; in the same position.
+     *
+     * @param \block_mycourse_recommendations\query_result $previousdata The data of previous course retrieved from database.
+     * @param \block_mycourse_recommendations\query_result $currentdata The data of current course retrieved from database.
+     * @return array An array with the transformation of the received arrays. Since PHP 5.4 the pass of arguments by reference
+     * is not allowed, so this is the only way to return the two arrays :( .
+     */
+    public function associate_resources($previousdata, $currentdata) {
+        $previousresources = array();
+        $currentresources = array();
+        $currenttransformedindex = 0;
+
+        foreach ($currentdata as $currentindex => $currentresource) {
+            foreach ($previousdata as $previousindex => $previousresource) {
+                if ($currentresource->get_modulename() === $previousresource->get_modulename()) {
+                    if (!in_array($previousresource, $previousresources)) {
+                        array_push($previousresources, $previousresource);
+                    }
+                    if (!in_array($currentresource, $currentresources)) {
+                        array_push($currentresources, $currentresource);
+                    }
+                }
+            }
+        }
+
+        $resources = array();
+        $resources['previous'] = $previousresources;
+        $resources['current'] = $currentresources;
+
+        return $resources;
     }
 }

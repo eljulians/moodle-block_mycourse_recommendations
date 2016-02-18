@@ -98,7 +98,7 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
      *
      * @param array $resources number of resources of a type for a course.
      */
-    protected function create_resources($resources) {
+    protected function create_resources($resources, $resourcesnames) {
         $createdresources = array();
 
         foreach ($resources as $courseid => $course) {
@@ -106,7 +106,7 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
                 $generator = $this->getDataGenerator()->get_plugin_generator($resourcetype);
 
                 for ($index = 0; $index < $number; $index++) {
-                    $resource = $generator->create_instance(array('course' => $courseid));
+                    $resource = $generator->create_instance(array('course' => $courseid, 'name' => $resourcesnames[$index]));
                     array_push($createdresources, $resource);
                 }
             }
@@ -170,6 +170,7 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         $eventname = '\\mod_page\\event\\course_module_viewed';
         $component = 'mod_page';
 
+        $resourcesnames = array('Page 1', 'Page 2', 'Page 3');
         // We have to creates a course before creating resources, with the attributes defined in setUp.
         $previouscourses = $this->create_courses($this->previouscourseattributes, 1);
 
@@ -180,7 +181,7 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         $numberofresources = 3;
         $previousresources = array();
         $previousresources[$previouscourses[0]->id]['mod_page'] = $numberofresources;
-        $resources = $this->create_resources($previousresources);
+        $resources = $this->create_resources($previousresources, $resourcesnames);
 
         // We create the log views for the previous users...
         $previouslogviews = array();
@@ -205,7 +206,7 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         $currentresources = array();
         $currentresources[$currentcourses[0]->id]['mod_page'] = $numberofresources;
         $resources = array();
-        $resources = $this->create_resources($currentresources);
+        $resources = $this->create_resources($currentresources, $resourcesnames);
 
         // We create the log views for the current users...
         $currentlogviews = array();
