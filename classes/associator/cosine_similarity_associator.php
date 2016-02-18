@@ -105,10 +105,13 @@ class cosine_similarity_associator implements abstract_associator {
      */
     private function dot_product($vector1, $vector2) {
         $result = 0;
-        $modules = array_keys($vector1);
+        $modules1 = array_keys($vector1);
+        $modules2 = array_keys($vector2);
 
-        foreach ($modules as $module) {
-            $result += $vector1[$module] * $vector2[$module];
+        for ($index = 0; $index < count($modules1); $index++) {
+            $module1 = $modules1[$index];
+            $module2 = $modules2[$index];
+            $result += $vector1[$module1] * $vector2[$module2];
         }
 
         return $result;

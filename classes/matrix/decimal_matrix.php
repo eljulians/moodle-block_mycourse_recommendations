@@ -34,45 +34,25 @@ use block_mycourse_recommendations\query_result;
 class decimal_matrix implements abstract_matrix {
 
     /**
-     * Transforms the data of a course fetched from database. The query MUST RETURN THE RESULTS ORDERED BY
-     * USER IDS.
-     * The "userid" and "moduleid" are casted to string because we want to have an associative matrix.
+     * Transforms the data of a course fetched from database, creating a matrix, where the rows will be the users ids;
+     * the columns, the resources ids; and the values, the views.
      *
      * @param array $queryresults "query_result" objects.
      * @return array A matrix of the log views, with the users as rows, and the modules (resources) as columns.
      */
     public function transform_queried_data($queryresults) {
         $users = array();
-        $previoususer = -1;
 
-        for ($index = 0; $index < count($queryresults); $index++) {
-            $currentuser = $queryresults[$index]->get_userid();
+        foreach ($queryresults as $row) {
+            $currentuser = $row->get_userid();
+            $resource = $row->get_moduleid();
+            $views = $row->get_logviews();
 
-            // If we get a new user...
-            if ($currentuser !== $previoususer) {
-                $user = array();
+            if (!isset($users[$currentuser])) {
+                $users[$currentuser] = array();
             }
 
-            $module = $queryresults[$index]->get_moduleid();
-            $views = $queryresults[$index]->get_logviews();
-
-            // We save the $views number in [$user] row and [$module] column of the matrix.
-            $user[$module] = $views;
-
-            $lastuser = $index + 1 === count($queryresults);
-
-            if ($lastuser) {
-                $users[$currentuser] = $user;
-            } else {
-                $differentusercoming = $currentuser !== $queryresults[$index + 1]->get_userid();
-
-                // If the next user in the array is different from the current, we save the changes of the current.
-                if ($differentusercoming) {
-                    $users[$currentuser] = $user;
-                }
-            }
-
-            $previoususer = $queryresults[$index]->get_userid();
+            $users[$currentuser][$resource] = $views;
         }
 
         return $users;
