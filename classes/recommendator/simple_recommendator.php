@@ -83,8 +83,8 @@ class simple_recommendator extends abstract_recommendator {
         // We have to find the highest coefficient of the relation of each current user with each previous student.
         foreach ($associationmatrix as $currentuser => $similarities) {
             $highestsimilarityindex = array_keys($similarities, max($similarities));
-
-            $associatedhistoric = $similarities[$highestsimilarityindex];
+            
+            $associatedhistoric = $similarities[$highestsimilarityindex[0]];
 
             array_push($currentusersids, $currentuser);
             array_push($historicusersids, $associatedhistoric);
