@@ -143,4 +143,4 @@ The following data will be generated:
     - p2 = (4, 1, 2)
     - p3 = (0, 7, 7)
     - c1 = (3, 4, 6)
-    - c2 = (7, 3, 2)";Equivalence;No;;;;
+    - c2 = (7, 3, 2)";Equivalence;Yes;Fail;;Julen Pardo;18/02/2016

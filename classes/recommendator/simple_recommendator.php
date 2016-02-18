@@ -70,7 +70,7 @@ class simple_recommendator extends abstract_recommendator {
         $startweek = $coursedates['week'];
         $year = $coursedates['year'];
 
-        $previousdata = $this->db->find_course_previous_teachings_ids($previouscourse, $year);
+        $previousdata = $this->db->query_data($previouscourse, $year, $startweek, $currentweek);
 
         // We get the association matrix, where the rows will be the current users id; the columns, the previous users;
         // and the values, the simmilarity coefficient.

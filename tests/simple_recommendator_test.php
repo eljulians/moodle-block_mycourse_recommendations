@@ -58,7 +58,7 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         $this->recommendator = new simple_recommendator(new cosine_similarity_associator(new decimal_matrix));
 
         $this->previousyear = 2015;
-        $this->previousstartdate = strtotime("04-01-$this->previousyear");
+        $this->previousstartdate = strtotime("06-01-$this->previousyear");
         $this->previouscourseattributes = array('fullname' => 'Software Engineering II',
                                                 'startdate' => $this->previousstartdate);
 
