@@ -60,6 +60,7 @@ class simple_recommendator extends abstract_recommendator {
         $coursedates = $this->db->get_course_start_week_and_year($courseid);
         $startweek = $coursedates['week'];
         $year = $coursedates['year'];
+
         $currentdata = $this->db->query_data($courseid, $year, $startweek, $currentweek);
 
         $previouscourses = $this->db->find_course_previous_teachings_ids($courseid, $year);
@@ -81,7 +82,7 @@ class simple_recommendator extends abstract_recommendator {
 
         // We have to find the highest coefficient of the relation of each current user with each previous student.
         foreach ($associationmatrix as $currentuser => $similarities) {
-            $highestsimilarityindex = array_keys($similarities, $max($similarities));
+            $highestsimilarityindex = array_keys($similarities, max($similarities));
 
             $associatedhistoric = $similarities[$highestsimilarityindex];
 
