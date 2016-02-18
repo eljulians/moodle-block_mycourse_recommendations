@@ -82,8 +82,6 @@ class simple_recommendator extends abstract_recommendator {
         // and the values, the simmilarity coefficient.
         $associationmatrix = $this->associator->create_associations_matrix($currentdata, $previousdata);
 
-        var_dump($associationmatrix);
-
         $number = count($associationmatrix);
         $currentusersids = array();
         $historicusersids = array();
