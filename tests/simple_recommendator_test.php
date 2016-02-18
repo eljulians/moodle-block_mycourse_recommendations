@@ -221,5 +221,42 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
 
         // After the logs are created, we can call the function we're testing.
         $this->recommendator->create_associations($currentcourses[0]->id, 2);
+
+        // The number of rows of the table has to be equal to the number of current students, otherwise, something is wrong.
+        $rowcount = $DB->count_records('block_mycourse_assoc');
+        $this->assertEquals(count($currentusers), $rowcount);
+
+        // We query the actual values, and we store them in an index-based array beginning from 0, not using the ids as keys.
+        $actuals = array();
+        $records = $DB->get_records('block_mycourse_assoc');
+        $actuals = array_values($records);
+
+        // We remove the "id" field of each record, because to make the assertion later is unnecessary.
+        foreach ($actuals as $id => $actual) {
+            unset($actual->id);
+            $actuals[$id] = $actual;
+        }
+
+        // We create the expected values, determining the associations between users with the similarity coefficientes calculated
+        // externaly.
+        $expecteds = array();
+        $expecteds[0] = new stdClass();
+        $expecteds[0]->current_userid = $currentusers[0]->id;
+        $expecteds[0]->current_courseid = $currentcourses[0]->id;
+        $expecteds[0]->historic_userid = $previoususers[2]->id;
+        $expecteds[0]->historic_courseid = $previouscourses[0]->id;
+        $expecteds[0]->week = 2;
+
+        $expecteds[1] = new stdClass();
+        $expecteds[1]->current_userid = $currentusers[1]->id;
+        $expecteds[1]->current_courseid = $currentcourses[0]->id;
+        $expecteds[1]->historic_userid = $previoususers[0]->id;
+        $expecteds[1]->historic_courseid = $previouscourses[0]->id;
+        $expecteds[1]->week = "2";
+
+        // Probably asserting each object, instead of the whole arrays of objects, will cause less trouble.
+        foreach (array_keys($actuals) as $index) {
+            $this->assertEquals($expecteds[$index], $actuals[$index]);
+        }
     }
 }
