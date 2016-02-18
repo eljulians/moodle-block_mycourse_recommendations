@@ -191,10 +191,15 @@ class database_helper {
      *
      * @return array An object for each record in recordset.
      */
-    public function query_data($courseid, $year, $coursestartweek, $currentweek) {
+    public function query_data($courseid, $year, $coursestartweek, $currentweek, $userid = null) {
         global $DB;
 
         $sql = $this->sql;
+        where logs.course = %courseid
+
+        if (!is_null($userid)) {
+            $sql = str_replace('where logs.course = %courseid', "where logs.userid = $userid and logs.course = %courseid ");
+        }
 
         $sql = str_replace('%courseid', $courseid, $sql);
         $sql = str_replace('%year', $year, $sql);

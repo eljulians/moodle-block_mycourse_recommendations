@@ -37,8 +37,67 @@ class simple_recommendator extends abstract_recommendator {
         null; // The codechecker will throw a warning if we don't do something more apart from calling parent's constructor...
     }
 
+    /**
+     * Creates the recommendations for the current course and week, first, creating and retrieving the associations
+     * between the current and previous users; second, for each association, querying the logviews of the resources
+     * of the previous associated user; third, stablishing a priority order of these resources by views, being 0 the
+     * most viewed and thereforo the one with most priority; and fourth, defining the data structure to make the
+     * insertion into the database.
+     *
+     * @see create_associations($courseid, $currentweek).
+     * @see get_associations($courseid, $currentweek) in database_helper.php.
+     * @see get_course_start_week_and_year($courseid) in database_helper.php.
+     * @param int $courseid
+     * @param int $currentweek
+     */
     public function create_recommendations($courseid, $currentweek) {
+        $this->create_associations($courseid, $currentweek);
 
+        $associations = $this->db->get_associations($courseid, $currentweek);
+
+        $recommendations = array();
+        $recommendationindex = 0;
+
+        foreach ($associations as $associationid => $association) {
+            $userid = $association->historic_userid;
+            $previouscourseid = $association->historic_courseid;
+            $year = $this->db->get_course_start_week_and_year($previouscourseid)['year'];
+
+            $records = $this->db->query_data($previouscourseid, $year, $currentweek, $currentweek + 1, $userid);
+            $logviews = array();
+            $index = 0;
+
+            // We save the view of each resource in an associative array, only if it has been seen at least once.
+            foreach ($records as $record) {
+                if ($record->get_logviews > 0) {
+                    $logviews[$record->moduleid] = $record->get_logviews();
+                }
+            }
+
+            rsort($logviews);
+
+            $recommendations[$recommendationindex] = new stdClass();
+            $recommendations[$recommendationindex]->number = count($logviews);
+            $recommendations[$recommendationindex]->associationids = array();
+            $recommendations[$recommendationindex]->resourcesids = array();
+            $recommendations[$recommendationindex]->priorities = array();
+
+            $index = 0;
+            foreach ($logviews as $resourceid => $views) {
+                $recommendations[$recommendationindex]->associationids[$index] = $associationid;
+                $recommendations[$recommendationindex]->resourcesids[$index] = $resourceid;
+                $recommendations[$recommendationindex]->priorities[$index] = $index; // Index works like priority also.
+
+                $index++;
+            }
+
+            $recommendationindex++;
+        }
+
+        foreach ($recommendations as $index => $recommendation) {
+            $this->db->insert_recommendations($recommendation->number, $recommendation->associationids,
+                                              $recommendation->resourcesids, $recommendation->priorities);
+        }
     }
 
     /**
