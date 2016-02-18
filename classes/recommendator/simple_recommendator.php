@@ -55,6 +55,8 @@ class simple_recommendator extends abstract_recommendator {
      * @param int $currentweek The current week of the current course.
      */
     public function create_associations($courseid, $currentweek) {
+        global $DB;
+
         $users = $this->db->get_selected_users($courseid);
 
         $coursedates = $this->db->get_course_start_week_and_year($courseid);
@@ -83,14 +85,15 @@ class simple_recommendator extends abstract_recommendator {
         // We have to find the highest coefficient of the relation of each current user with each previous student.
         foreach ($associationmatrix as $currentuser => $similarities) {
             $highestsimilarityindex = array_keys($similarities, max($similarities));
-            
+
             $associatedhistoric = $similarities[$highestsimilarityindex[0]];
 
             array_push($currentusersids, $currentuser);
-            array_push($historicusersids, $associatedhistoric);
+            // The key, user id, of the highest similarity coefficient, will be the most similar user.
+            array_push($historicusersids, intval($highestsimilarityindex[0]));
         }
 
         // Finally, we call the function that will insert the associations into the database.
-        $this->db->insert_associations($number, $currentusersids, $courseid, $historicusersids, $currentweek);
+        $this->db->insert_associations($number, $currentusersids, $courseid, $historicusersids, $previouscourse, $currentweek);
     }
 }

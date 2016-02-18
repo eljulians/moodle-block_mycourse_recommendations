@@ -113,11 +113,7 @@ class cosine_similarity_associator implements abstract_associator {
             $module2 = $modules2[$index];
             $result += $vector1[$module1] * $vector2[$module2];
         }
-/*
-        foreach ($modules as $module) {
-            $result += $vector1[$module] * $vector2[$module];
-        }
-*/
+
         return $result;
     }
 

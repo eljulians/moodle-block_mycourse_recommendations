@@ -145,7 +145,7 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
 
             $logview->eventname = $eventname;
             $logview->component = $component;
-            $logview->action ='viewed';
+            $logview->action = 'viewed';
             $logview->target = 'course_module';
             $logview->contextlevel = 50;
             $logview->userid = $userid;
@@ -190,7 +190,7 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
 
         foreach ($previouslogviews as $userid => $resourceslogviews) {
             foreach ($resourceslogviews as $resourceindex => $logviews) {
-                $this->create_logview($userid, $previouscourses[0]->id, $resources[$resourceindex]->id, 
+                $this->create_logview($userid, $previouscourses[0]->id, $resources[$resourceindex]->id,
                                       $eventname, $component, $this->previousstartdate, $logviews);
             }
         }
