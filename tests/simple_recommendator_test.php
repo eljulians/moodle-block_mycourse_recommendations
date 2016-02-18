@@ -43,9 +43,12 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
 
     protected $recommendator;
     protected $previousyear;
+    protected $previousstartdate;
     protected $previouscourseattributes;
     protected $previouscourses;
+
     protected $currentyear;
+    protected $currentstartdate;
     protected $currentcourseattributes;
     protected $currentcourse;
     protected $dbhelper;
@@ -55,12 +58,14 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         $this->recommendator = new simple_recommendator(new cosine_similarity_associator(new decimal_matrix));
 
         $this->previousyear = 2015;
+        $this->previousstartdate = strtotime("04-01-$this->previousyear");
         $this->previouscourseattributes = array('fullname' => 'Software Engineering II',
-                                                'startdate' => strtotime("01-01-$this->previousyear"));
+                                                'startdate' => $this->previousstartdate);
 
         $this->currentyear = 2016;
+        $this->currentstartdate = strtotime("04-01-$this->currentyear");
         $this->currentcourseattributes = array('fullname' => 'Software Engineering II',
-                                               'startdate' => strtotime("01-01-$this->currentyear"));
+                                               'startdate' => $this->currentstartdate);
 
         $this->currentcourse = $this->create_courses($this->currentcourseattributes, 1);
         $this->dbhelper = new database_helper();
@@ -128,7 +133,7 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         return $users;
     }
 
-    protected function create_logview($userid, $courseid, $resourceid, $eventname, $component, $number) {
+    protected function create_logview($userid, $courseid, $resourceid, $eventname, $component, $timestamp, $number) {
         global $DB;
 
         for ($index = 0; $index < $number; $index++) {
@@ -148,7 +153,7 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
             $logview->edulevel = 2;
             $logview->contextid = $context->id;
             $logview->contextinstanceid = $context->instanceid;
-            $logview->timecreated = time();
+            $logview->timecreated = $timestamp;
 
             $DB->insert_record('logstore_standard_log', $logview);
         }
@@ -186,7 +191,7 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         foreach ($previouslogviews as $userid => $resourceslogviews) {
             foreach ($resourceslogviews as $resourceindex => $logviews) {
                 $this->create_logview($userid, $previouscourses[0]->id, $resources[$resourceindex]->id, 
-                                      $eventname, $component, $logviews);
+                                      $eventname, $component, $this->previousstartdate, $logviews);
             }
         }
 
@@ -210,11 +215,11 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         foreach ($currentlogviews as $userid => $resourceslogviews) {
             foreach ($resourceslogviews as $resourceindex => $logviews) {
                 $this->create_logview($userid, $currentcourses[0]->id, $resources[$resourceindex]->id,
-                                      $eventname, $component, $logviews);
+                                      $eventname, $component, $this->currentstartdate, $logviews);
             }
         }
 
         // After the logs are created, we can call the function we're testing.
-        $this->recommendator->create_associations($currentcourses[0]->id, 1);
+        $this->recommendator->create_associations($currentcourses[0]->id, 2);
     }
 }
