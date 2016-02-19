@@ -339,6 +339,10 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
             }
         }
 
+        $currentunviewedresources = array();
+        $currentunviewedresources[$currentcourses[0]->id]['mod_page'] = 2;
+        $recommendedresources = $this->create_resources($currentunviewedresources, $resourcesnames);
+
         // After the logs are created, we can call the function we're testing.
         $this->recommendator->create_recommendations($currentcourses[0]->id, 2);
 
@@ -349,20 +353,20 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         // viewed in the following weeek.
         $expecteds = array();
         $expecteds[0] = new stdClass();
-        $expecteds[0]->resourceid = $resources[0]->id;
-        $expecteds[0]->priority = 0;
+        $expecteds[0]->resourceid = $recommendedresources[0]->id;
+        $expecteds[0]->priority = "0";
 
         $expecteds[1] = new stdClass();
-        $expecteds[1]->resourceid = $resources[1]->id;
-        $expecteds[1]->priority = 1;
+        $expecteds[1]->resourceid = $recommendedresources[1]->id;
+        $expecteds[1]->priority = "1";
 
         $expecteds[2] = new stdClass();
-        $expecteds[2]->resourceid = $resources[1]->id;
-        $expecteds[2]->priority = 0;
+        $expecteds[2]->resourceid = $recommendedresources[1]->id;
+        $expecteds[2]->priority = "0";
 
         $expecteds[3] = new stdClass();
-        $expecteds[3]->resourceid = $resources[0]->id;
-        $expecteds[3]->priority = 1;
+        $expecteds[3]->resourceid = $recommendedresources[0]->id;
+        $expecteds[3]->priority = "1";
 
         $sql = 'SELECT id,
                        resourceid,
@@ -370,12 +374,36 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
                 FROM   {block_mycourse_recs}';
         $actuals = $DB->get_records_sql($sql);
         $actuals = array_values($actuals);
-        var_dump($expecteds);
-
+var_dump($actuals);
+        // We remove the "id" attribute, otherwise, the objects won't be equal to the expected ones.
         foreach ($actuals as $index => $actual) {
             unset($actual->id);
-            
+            $actuals[$index] = $actual;
+        }
+
+        usort($expecteds, array($this, 'sort_recommendations'));
+        usort($actuals, array($this, 'sort_recommendations'));
+
+        //var_dump($expecteds);
+        
+        foreach ($actuals as $index => $actual) {
             $this->assertEquals($expecteds[$index], $actual);
+        }
+    }
+
+    protected function sort_recommendations($a, $b) {
+        if ($a->resourceid < $b->resourceid) {
+            return -1;
+        } else if ($a->resourceid > $b->resourceid) {
+            return 1;
+        } else {
+            if ($a->priority < $b->priority) {
+                return -1;
+            } else if ($a->priority > $b->priority) {
+                return 1;
+            } else {
+                return 0;
+            }
         }
     }
 }

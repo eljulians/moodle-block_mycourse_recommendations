@@ -23,6 +23,8 @@
 
 namespace block_mycourse_recommendations;
 
+defined('MOODLE_INTERNAL') || die();
+
 require_once('abstract_recommendator.php');
 require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/db/database_helper.php');
 require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/matrix/abstract_matrix.php');
@@ -64,17 +66,24 @@ class simple_recommendator extends abstract_recommendator {
             $year = $this->db->get_course_start_week_and_year($previouscourseid)['year'];
 
             $records = $this->db->query_data($previouscourseid, $year, $currentweek, $currentweek + 1, $userid);
+
+            $currentrecords = $this->db->query_data($courseid, $year, $currentweek, $currentweek + 1, $association->current_userid, true, true);
+
             $logviews = array();
             $index = 0;
 
+            $associatedresources = $this->associate_resources($records, $currentrecords);
+            $previousresources = $associatedresources['previous'];
+            $currentresources = $associatedresources['current'];
+
             // We save the view of each resource in an associative array, only if it has been seen at least once.
-            foreach ($records as $record) {
-                if ($record->get_logviews() > 0) {
-                    $logviews[$record->get_moduleid()] = $record->get_logviews();
+            foreach ($previousresources as $previousresource) {
+                if ($previousresource->get_logviews() > 0) {
+                    $logviews[$previousresource->get_moduleid()] = $previousresource->get_logviews();
                 }
             }
 
-            rsort($logviews);
+            arsort($logviews);
 
             $recommendations[$recommendationindex] = new \stdClass();
             $recommendations[$recommendationindex]->number = count($logviews);
@@ -85,7 +94,7 @@ class simple_recommendator extends abstract_recommendator {
             $index = 0;
             foreach ($logviews as $resourceid => $views) {
                 $recommendations[$recommendationindex]->associationids[$index] = $associationid;
-                $recommendations[$recommendationindex]->resourcesids[$index] = $resourceid;
+                $recommendations[$recommendationindex]->resourcesids[$index] = $currentresources[$index]->get_courseid();
                 $recommendations[$recommendationindex]->priorities[$index] = $index; // Index works like priority also.
 
                 $index++;

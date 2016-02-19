@@ -161,4 +161,4 @@ The following data will be generated:
     (The first column is the $resource[0], the second the $resource[1])
  - With that data, the following recommendations will be created:
     · $currentuser[0] = (priority:0 => $resource[0]; priority:1 => $resource[1])
-    · $currentuser[1] = (priority:0 => $resource[1]; priority:1 => $resource[0])";Equivalence;No;;;;
+    · $currentuser[1] = (priority:0 => $resource[1]; priority:1 => $resource[0])";Equivalence;Yes;Fail;;Julen Pardo;19/02/2016
