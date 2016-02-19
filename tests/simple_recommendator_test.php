@@ -260,4 +260,68 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
             $this->assertEquals($expecteds[$index], $actuals[$index]);
         }
     }
+
+    public function test_create_recommendations() {
+        global $DB;
+        global $CFG;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $eventname = '\\mod_page\\event\\course_module_viewed';
+        $component = 'mod_page';
+
+        $resourcesnames = array('Page 1', 'Page 2', 'Page 3');
+        // We have to creates a course before creating resources, with the attributes defined in setUp.
+        $previouscourses = $this->create_courses($this->previouscourseattributes, 1);
+
+        // We create the previous users...
+        $previoususers = $this->create_and_enrol_students($previouscourses[0]->id, 3);
+
+        // We create the resources...
+        $numberofresources = 3;
+        $previousresources = array();
+        $previousresources[$previouscourses[0]->id]['mod_page'] = $numberofresources;
+        $resources = $this->create_resources($previousresources, $resourcesnames);
+
+        // We create the log views for the previous users...
+        $previouslogviews = array();
+        $previouslogviews[$previoususers[0]->id] = array(10, 3, 5);
+        $previouslogviews[$previoususers[1]->id] = array(4, 1, 2);
+        $previouslogviews[$previoususers[2]->id] = array(0, 7, 7);
+
+        foreach ($previouslogviews as $userid => $resourceslogviews) {
+            foreach ($resourceslogviews as $resourceindex => $logviews) {
+                $this->create_logview($userid, $previouscourses[0]->id, $resources[$resourceindex]->id,
+                                      $eventname, $component, $this->previousstartdate, $logviews);
+            }
+        }
+
+        // We create the current users...
+        $currentcourses = $this->create_courses($this->currentcourseattributes, 1);
+
+        $currentusers = $this->create_and_enrol_students($currentcourses[0]->id, 2);
+
+        // We create the resources...
+        $numberofresources = 3;
+        $currentresources = array();
+        $currentresources[$currentcourses[0]->id]['mod_page'] = $numberofresources;
+        $resources = array();
+        $resources = $this->create_resources($currentresources, $resourcesnames);
+
+        // We create the log views for the current users...
+        $currentlogviews = array();
+        $currentlogviews[$currentusers[0]->id] = array(3, 4, 6);
+        $currentlogviews[$currentusers[1]->id] = array(7, 3, 2);
+
+        foreach ($currentlogviews as $userid => $resourceslogviews) {
+            foreach ($resourceslogviews as $resourceindex => $logviews) {
+                $this->create_logview($userid, $currentcourses[0]->id, $resources[$resourceindex]->id,
+                                      $eventname, $component, $this->currentstartdate, $logviews);
+            }
+        }
+
+        // After the logs are created, we can call the function we're testing.
+        $this->recommendator->create_recommendations($currentcourses[0]->id, 2);
+    }
 }
