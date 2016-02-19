@@ -321,7 +321,61 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
             }
         }
 
+        // We create the resources and log views of previous course for the week + 1.
+        $date = strtotime("13-01-$this->previousyear");
+        $nextlogviews = array();
+        $nextlogviews[$previoususers[0]->id] = array(3, 1);
+        $nextlogviews[$previoususers[1]->id] = array(0, 5);
+        $nextlogviews[$previoususers[2]->id] = array(2, 6);
+        $resourcesnames = array('Page 100', 'Page 101');
+        $nextresources = array();
+        $nextresources[$previouscourses[0]->id]['mod_page'] = 2;
+        $resources = $this->create_resources($nextresources, $resourcesnames);
+
+        foreach ($nextlogviews as $userid => $resourceslogviews) {
+            foreach ($resourceslogviews as $resourceindex => $logviews) {
+                $this->create_logview($userid, $previouscourses[0]->id, $resources[$resourceindex]->id,
+                                      $eventname, $component, $date, $logviews);
+            }
+        }
+
         // After the logs are created, we can call the function we're testing.
         $this->recommendator->create_recommendations($currentcourses[0]->id, 2);
+
+        // With the data in this test, the associations will be the following:
+        // $currentuser[0] associated with $previoususer[2].
+        // $currentuser[1] associated with $previoususer[0].
+        // So, the recommendations for these will be, respectively, the resources that $previoususer[2] and $previoususer[0]
+        // viewed in the following weeek.
+        $expecteds = array();
+        $expecteds[0] = new stdClass();
+        $expecteds[0]->resourceid = $resources[0]->id;
+        $expecteds[0]->priority = 0;
+
+        $expecteds[1] = new stdClass();
+        $expecteds[1]->resourceid = $resources[1]->id;
+        $expecteds[1]->priority = 1;
+
+        $expecteds[2] = new stdClass();
+        $expecteds[2]->resourceid = $resources[1]->id;
+        $expecteds[2]->priority = 0;
+
+        $expecteds[3] = new stdClass();
+        $expecteds[3]->resourceid = $resources[0]->id;
+        $expecteds[3]->priority = 1;
+
+        $sql = 'SELECT id,
+                       resourceid,
+                       priority
+                FROM   {block_mycourse_recs}';
+        $actuals = $DB->get_records_sql($sql);
+        $actuals = array_values($actuals);
+        var_dump($expecteds);
+
+        foreach ($actuals as $index => $actual) {
+            unset($actual->id);
+            
+            $this->assertEquals($expecteds[$index], $actual);
+        }
     }
 }

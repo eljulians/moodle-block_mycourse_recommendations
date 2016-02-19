@@ -133,7 +133,7 @@ The courses and student are created using the data generator, so the ids are unk
 18;recommendator/abstract_recommendator;select_students;"$currentcourseid = <generated>
 $year = 2016";Test that, generating 20 students for a course, after calling the method, there are exactly 10 students in the table of the selected users.;Equivalence;Yes;Ok;;Julen Pardo;16/02/2016
 19;recommendator/simple_recommendator;create_associations;"$courseid = <generated>
-$currentweek = ";"Test that the associations are created and inserted correctly into the database, that is, that after querying the needed data (both current and previous), and using the associator (cosine_similarity_associator in this case), the associations are properly inserted into {block_mycourse_user_sel}.
+$currentweek = 1";"Test that the associations are created and inserted correctly into the database, that is, that after querying the needed data (both current and previous), and using the associator (cosine_similarity_associator in this case), the associations are properly inserted into {block_mycourse_user_sel}.
 The following data will be generated:
  - 2 courses: one, current; the other, a previous teaching.
  - 6 resources: half for the current, half for the previous. Each current-previous course pair will have the same name.
@@ -148,3 +148,17 @@ The following data will be generated:
 $currentweek = 1";Test that, after generating associations (with current and previous users and courses), there are properly retrieved from database.;Equivalence;Yes;Ok;;Julen Pardo;18/02/2016
 21;db/database_helper;get_recommendations;"$courseid = 20 
 $currentweek = 1";Test that, after generating recommendations (with current and previous users and courses), there are properly retrieved from database.;Equivalence;Yes;Ok;;Julen Pardo;18/02/2016
+22;recommendator/simple_recommendator;create_recommendations;"$courseid = <generated>
+$currentweek = 1";"Test that the recommendations are created and inserted correctly into the database, that is, after creating the associations between current and historic users, the recommendations are properly inserted into {block_mycourse_recs}.
+The following data will be generated:
+ - Same associations generated for test #19, resulting in the following associations:
+    · $currentuser[0] with $previoususer[2].
+    · $currentuser[1] with $previoususer[0].
+ - There will be created the following views for the $currentweek+1 for new contents, from where the recommendations will be generated:
+    · $previoususer[0] = (3, 1) 
+    · $previoususer[1] = (0, 5)
+    · $previoususer[2] = (2, 6)
+    (The first column is the $resource[0], the second the $resource[1])
+ - With that data, the following recommendations will be created:
+    · $currentuser[0] = (priority:0 => $resource[0]; priority:1 => $resource[1])
+    · $currentuser[1] = (priority:0 => $resource[1]; priority:1 => $resource[0])";Equivalence;No;;;;
