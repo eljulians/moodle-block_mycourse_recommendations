@@ -69,14 +69,14 @@ class simple_recommendator extends abstract_recommendator {
 
             // We save the view of each resource in an associative array, only if it has been seen at least once.
             foreach ($records as $record) {
-                if ($record->get_logviews > 0) {
-                    $logviews[$record->moduleid] = $record->get_logviews();
+                if ($record->get_logviews() > 0) {
+                    $logviews[$record->get_moduleid()] = $record->get_logviews();
                 }
             }
 
             rsort($logviews);
 
-            $recommendations[$recommendationindex] = new stdClass();
+            $recommendations[$recommendationindex] = new \stdClass();
             $recommendations[$recommendationindex]->number = count($logviews);
             $recommendations[$recommendationindex]->associationids = array();
             $recommendations[$recommendationindex]->resourcesids = array();
