@@ -69,18 +69,34 @@ class simple_recommendator extends abstract_recommendator {
 
             $currentrecords = $this->db->query_data($courseid, $year, $currentweek, $currentweek + 1, $association->current_userid, true, true);
 
-            $logviews = array();
-            $index = 0;
-
             $associatedresources = $this->associate_resources($records, $currentrecords);
             $previousresources = $associatedresources['previous'];
             $currentresources = $associatedresources['current'];
 
+            // We need to remove the duplicated rows of logviews of resources. We want to keep only those with more
+            // views, that is, the most recent updated.
+            $auxpreviousresources = $previousresources;
+            $unduplicated = array();
+            foreach ($previousresources as $previousindex => $previousresource) {
+                foreach ($auxpreviousresources as $auxindex => $aux) {
+                    if ($aux->get_moduleid() === $previousresource->get_moduleid()) {
+                        if ($previousresource->get_logviews() > $aux->get_logviews()) {
+                            unset($auxpreviousresources[$auxindex]);
+                        }
+                    }
+                }
+            }
+            $previousresources = array_values($auxpreviousresources);
+
             // We save the view of each resource in an associative array, only if it has been seen at least once.
+            $logviews = array();
+            $index = 0;
             foreach ($previousresources as $previousresource) {
                 if ($previousresource->get_logviews() > 0) {
-                    $logviews[$previousresource->get_moduleid()] = $previousresource->get_logviews();
+                    $logviews[$currentresources[$index]->get_moduleid()] = $previousresource->get_logviews();
                 }
+
+                $index++;
             }
 
             arsort($logviews);
@@ -92,10 +108,10 @@ class simple_recommendator extends abstract_recommendator {
             $recommendations[$recommendationindex]->priorities = array();
 
             $index = 0;
-            foreach ($logviews as $resourceid => $views) {
+            foreach ($logviews as $currentresourceid => $views) {
                 $recommendations[$recommendationindex]->associationids[$index] = $associationid;
-                $recommendations[$recommendationindex]->resourcesids[$index] = $currentresources[$index]->get_courseid();
-                $recommendations[$recommendationindex]->priorities[$index] = $index; // Index works like priority also.
+                $recommendations[$recommendationindex]->resourcesids[$index] = $currentresourceid;
+                $recommendations[$recommendationindex]->priorities[$index] = $index;
 
                 $index++;
             }
