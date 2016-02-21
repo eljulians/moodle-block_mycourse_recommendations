@@ -412,7 +412,7 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
      * specify the full namespace.
      */
     protected static function get_method($name) {
-        $class = new \ReflectionClass('\block_mycourse_recommendations\simple_recommendator_test');
+        $class = new \ReflectionClass('\block_mycourse_recommendations\simple_recommendator');
         $method = $class->getMethod($name);
         $method->setAccessible(true);
 
