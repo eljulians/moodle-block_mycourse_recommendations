@@ -469,7 +469,8 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
 
         $expecteds = array();
         foreach ($inputs as $index => $input) {
-            $expecteds[$index] = $input;
+            $expecteds[$index] = new query_result($input->userid, $input->courseid, $input->moduleid,
+                                                      $input->modulename, $input->logviews);
         }
         // We remove the record that the function it's supposed to remove, and we re-align the array.
         unset($expecteds[1]);
@@ -496,7 +497,6 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         $inputs[0]->modulename = 'Module 100';
         $inputs[0]->logviews = 3;
 
-        $inputs = array();
         $inputs[1] = new stdClass();
         $inputs[1]->userid = 2;
         $inputs[1]->courseid = 10;
@@ -504,7 +504,6 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         $inputs[1]->modulename = 'Module 101';
         $inputs[1]->logviews = 7;
 
-        $inputs = array();
         $inputs[2] = new stdClass();
         $inputs[2]->userid = 2;
         $inputs[2]->courseid = 10;
@@ -513,13 +512,16 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         $inputs[2]->logviews = 5;
 
         $functioninput = array();
+        $functioncurrentinput = array();
 
         foreach ($inputs as $index => $input) {
             $functioninput[$index] = new query_result($input->userid, $input->courseid, $input->moduleid,
                                                       $input->modulename, $input->logviews);
+            $functioncurrentinput[$index] = new query_result($input->userid, $input->courseid, $input->moduleid,
+                                                             $input->modulename, $input->logviews);
         }
 
-        $actuals = $testfunction->invokeArgs($this->recommendator, array($functioninput));
+        $actuals = $testfunction->invokeArgs($this->recommendator, array($functioninput, $functioncurrentinput));
 
         $expecteds = array();
         foreach ($inputs as $index => $input) {

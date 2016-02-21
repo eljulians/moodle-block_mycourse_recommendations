@@ -52,7 +52,7 @@ class simple_recommendator extends abstract_recommendator {
      * @see query_data($courseid, $year, $coursestartweek, $currentweek, $userid = null, $ignoreweeks = false,
      * $onlyunviewed = false).
      * @see keep_latest_logviews($resources).
-     * @see save_logviews_by_resource($resources).
+     * @see save_logviews_by_resource($previousresources, $currentresources).
      * @see insert_recommendations($number, $associationids, $resourcesids, $priorities) in database_helper.php.
      * @param int $courseid
      * @param int $currentweek
@@ -80,7 +80,7 @@ class simple_recommendator extends abstract_recommendator {
             $currentresources = $associatedresources['current'];
 
             $previousresources = $this->keep_latest_logviews($previousresources);
-            $logviews = $this->save_logviews_by_resource($previousresources);
+            $logviews = $this->save_logviews_by_resource($previousresources, $currentresources);
 
             $recommendations[$recommendationindex] = new \stdClass();
             $recommendations[$recommendationindex]->number = count($logviews);
@@ -231,9 +231,10 @@ class simple_recommendator extends abstract_recommendator {
      * has been seen at least once.
      *
      * @param blocks_mycourse_recommendations\query_result $previousresources The queried data of the previous course.
+     * @param blocks_mycourse_recommendations\query_result $ previousresources The queried data of the current course.
      * @return array The logviews of each resource.
      */
-    protected function save_logviews_by_resource($previousresources) {
+    protected function save_logviews_by_resource($previousresources, $currentresources) {
         $logviews = array();
         $index = 0;
 
