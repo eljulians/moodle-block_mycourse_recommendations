@@ -210,7 +210,7 @@ class simple_recommendator extends abstract_recommendator {
      * @return blocks_mycourse_recommendations\query_result The received queried data, but only with the latest views
      * of the resources.
      */
-    protected function keep_latest_logviews($previousresorces) {
+    protected function keep_latest_logviews($previousresources) {
         $auxpreviousresources = $previousresources;
 
         foreach ($previousresources as $previousindex => $previousresource) {
