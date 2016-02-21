@@ -192,7 +192,8 @@ class database_helper {
      *
      * @return array An object for each record in recordset.
      */
-    public function query_data($courseid, $year, $coursestartweek, $currentweek, $userid = null, $ignoreweeks = false, $onlyunviewed = false) {
+    public function query_data($courseid, $year, $coursestartweek, $currentweek, $userid = null,
+                               $ignoreweeks = false, $onlyunviewed = false) {
         global $DB;
 
         $sql = $this->sql;
@@ -207,7 +208,8 @@ class database_helper {
             $sql = str_replace('%coursestartweek', $coursestartweek, $sql);
             $sql = str_replace('%currentweek', $currentweek, $sql);
         } else {
-            $sql = str_replace('and ((extract(YEAR from logs.course_week) - %year) * 52) + extract(WEEK from logs.course_week)', '', $sql);
+            $sql = str_replace('and ((extract(YEAR from logs.course_week) - %year) * 52) + extract(WEEK from logs.course_week)',
+                               '', $sql);
             $sql = str_replace('between %coursestartweek and %currentweek', '', $sql);
         }
 

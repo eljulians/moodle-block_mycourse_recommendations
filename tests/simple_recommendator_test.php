@@ -383,7 +383,7 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
 
         usort($expecteds, array($this, 'sort_recommendations'));
         usort($actuals, array($this, 'sort_recommendations'));
-        
+
         foreach ($actuals as $index => $actual) {
             $this->assertEquals($expecteds[$index], $actual);
         }

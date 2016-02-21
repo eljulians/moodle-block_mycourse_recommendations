@@ -67,7 +67,8 @@ class simple_recommendator extends abstract_recommendator {
 
             $records = $this->db->query_data($previouscourseid, $year, $currentweek, $currentweek + 1, $userid);
 
-            $currentrecords = $this->db->query_data($courseid, $year, $currentweek, $currentweek + 1, $association->current_userid, true, true);
+            $currentrecords = $this->db->query_data($courseid, $year, $currentweek, $currentweek + 1,
+                                                    $association->current_userid, true, true);
 
             $associatedresources = $this->associate_resources($records, $currentrecords);
             $previousresources = $associatedresources['previous'];
