@@ -162,8 +162,8 @@ The following data will be generated:
  - With that data, the following recommendations will be created:
     · $currentuser[0] = (priority:0 => $resource[0]; priority:1 => $resource[1])
     · $currentuser[1] = (priority:0 => $resource[1]; priority:1 => $resource[0])";Equivalence;Yes;Ok;;Julen Pardo;19/02/2016
-23;recommendator/simple_recommendator;;"$inputs = array();";Test that the function returns an array with the latest logviews, i.e., the logviews with the higher number of views. In this case, the expected value will be the same array of objects of the input, but without the 1-nd record.;Equivalence;No;;Using reflection to access the methods, since it's protected.;;
-24;recommendator/simple_recommendator;;"$inputs = array();";Test that the function creates properly an associative array from the query results, where the resource (module) id is the key, and the logviews the value.;Equivalence;No;;Using reflection to access the methods, since it's protected.;;
+23;recommendator/simple_recommendator;;"$inputs = array();";Test that the function returns an array with the latest logviews, i.e., the logviews with the higher number of views. In this case, the expected value will be the same array of objects of the input, but without the 1-nd record.;Equivalence;Yes;Ok;Using reflection to access the methods, since it's protected.;Julen Pardo;21/02/2016
+24;recommendator/simple_recommendator;;"$inputs = array();";Test that the function creates properly an associative array from the query results, where the resource (module) id is the key, and the logviews the value.;Equivalence;Yes;Ok;Using reflection to access the methods, since it's protected.;Julen Pardo;21/02/2016
 ;;;"        $inputs[0] = new stdClass();";;;;;;;
 ;;;"        $inputs[0]->userid = 1;";;;;;;;
 ;;;"        $inputs[0]->courseid = 10;";;;;;;;

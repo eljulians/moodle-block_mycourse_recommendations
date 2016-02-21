@@ -377,6 +377,9 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         $actuals = $DB->get_records_sql($sql);
         $actuals = array_values($actuals);
 
+        // If there's no record, something is wrong.
+        $this->assertFalse(empty($actuals));
+
         // We remove the "id" attribute, otherwise, the objects won't be equal to the expected ones.
         foreach ($actuals as $index => $actual) {
             unset($actual->id);
@@ -389,6 +392,8 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         foreach ($actuals as $index => $actual) {
             $this->assertEquals($expecteds[$index], $actual);
         }
+
+        var_dump($DB->get_records('block_mycourse_recs'));
     }
 
     protected function sort_recommendations($a, $b) {
