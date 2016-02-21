@@ -32,12 +32,14 @@ require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/associato
 require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/matrix/decimal_matrix.php');
 require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/course_filter/course_filter.php');
 require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/db/database_helper.php');
+require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/db/query_result.php');
 
 use block_mycourse_recommendations\simple_recommendator;
 use block_mycourse_recommendations\cosine_similarity_associator;
 use block_mycourse_recommendations\decimal_matrix;
 use block_mycourse_recommendations\course_filter;
 use block_mycourse_recommendations\database_helper;
+use block_mycourse_recommendations\query_result;
 
 class block_mycourse_recommendations_simple_recommendator_testcase extends advanced_testcase {
 
@@ -402,6 +404,130 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
             } else {
                 return 0;
             }
+        }
+    }
+
+    /**
+     * Gets class' method by name. Seems that for creating the ReflectionClass, it's necessary to
+     * specify the full namespace.
+     */
+    protected static function get_method($name) {
+        $class = new \ReflectionClass('\block_mycourse_recommendations\simple_recommendator_test');
+        $method = $class->getMethod($name);
+        $method->setAccessible(true);
+
+        return $method;
+    }
+
+    public function test_keep_latest_logviews() {
+        global $DB;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $inputs = array();
+        $inputs[0] = new stdClass();
+        $inputs[0]->userid = 1;
+        $inputs[0]->courseid = 10;
+        $inputs[0]->moduleid = 100;
+        $inputs[0]->modulename = 'Module 100';
+        $inputs[0]->logviews = 3;
+
+        $inputs = array();
+        $inputs[1] = new stdClass();
+        $inputs[1]->userid = 2;
+        $inputs[1]->courseid = 10;
+        $inputs[1]->moduleid = 101;
+        $inputs[1]->modulename = 'Module 101';
+        $inputs[1]->logviews = 0;
+
+        $inputs = array();
+        $inputs[2] = new stdClass();
+        $inputs[2]->userid = 2;
+        $inputs[2]->courseid = 10;
+        $inputs[2]->moduleid = 101;
+        $inputs[2]->modulename = 'Module 101';
+        $inputs[2]->logviews = 7;
+
+        $inputs = array();
+        $inputs[3] = new stdClass();
+        $inputs[3]->userid = 2;
+        $inputs[3]->courseid = 10;
+        $inputs[3]->moduleid = 103;
+        $inputs[3]->modulename = 'Module 102';
+        $inputs[3]->logviews = 5;
+
+        $testfunction = self::get_method('keep_latest_logviews');
+
+        $functioninput = array();
+        foreach ($inputs as $index => $input) {
+            $functioninput[$index] = new query_result($input->userid, $input->courseid, $input->moduleid,
+                                                      $input->modulename, $input->logviews);
+        }
+
+        $actuals = $testfunction->invokeArgs($this->recommendator, array($functioninput));
+
+        $expecteds = array();
+        foreach ($inputs as $index => $input) {
+            $expecteds[$index] = $input;
+        }
+        // We remove the record that the function it's supposed to remove, and we re-align the array.
+        unset($expecteds[1]);
+        $expecteds = array_values($expecteds);
+
+        foreach ($actuals as $index => $actual) {
+            $this->assertEquals($expecteds[$index], $actual);
+        }
+    }
+
+    public function test_save_logviews_by_resource() {
+        global $DB;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $testfunction = self::get_method('save_logviews_by_resource');
+
+        $inputs = array();
+        $inputs[0] = new stdClass();
+        $inputs[0]->userid = 1;
+        $inputs[0]->courseid = 10;
+        $inputs[0]->moduleid = 100;
+        $inputs[0]->modulename = 'Module 100';
+        $inputs[0]->logviews = 3;
+
+        $inputs = array();
+        $inputs[1] = new stdClass();
+        $inputs[1]->userid = 2;
+        $inputs[1]->courseid = 10;
+        $inputs[1]->moduleid = 101;
+        $inputs[1]->modulename = 'Module 101';
+        $inputs[1]->logviews = 7;
+
+        $inputs = array();
+        $inputs[2] = new stdClass();
+        $inputs[2]->userid = 2;
+        $inputs[2]->courseid = 10;
+        $inputs[2]->moduleid = 103;
+        $inputs[2]->modulename = 'Module 102';
+        $inputs[2]->logviews = 5;
+
+        $functioninput = array();
+
+        foreach ($inputs as $index => $input) {
+            $functioninput[$index] = new query_result($input->userid, $input->courseid, $input->moduleid,
+                                                      $input->modulename, $input->logviews);
+        }
+
+        $actuals = $testfunction->invokeArgs($this->recommendator, array($functioninput));
+
+        $expecteds = array();
+        foreach ($inputs as $index => $input) {
+            $expecteds[$input->moduleid] = $input->logviews;
+        }
+
+        foreach ($actuals as $index => $actual) {
+            $this->assertEquals($expecteds[$index], $actual);
         }
     }
 }
