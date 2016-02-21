@@ -49,6 +49,11 @@ class simple_recommendator extends abstract_recommendator {
      * @see create_associations($courseid, $currentweek).
      * @see get_associations($courseid, $currentweek) in database_helper.php.
      * @see get_course_start_week_and_year($courseid) in database_helper.php.
+     * @see query_data($courseid, $year, $coursestartweek, $currentweek, $userid = null, $ignoreweeks = false,
+     * $onlyunviewed = false).
+     * @see keep_latest_logviews($resources).
+     * @see save_logviews_by_resource($resources).
+     * @see insert_recommendations($number, $associationids, $resourcesids, $priorities) in database_helper.php.
      * @param int $courseid
      * @param int $currentweek
      */
@@ -74,33 +79,8 @@ class simple_recommendator extends abstract_recommendator {
             $previousresources = $associatedresources['previous'];
             $currentresources = $associatedresources['current'];
 
-            // We need to remove the duplicated rows of logviews of resources. We want to keep only those with more
-            // views, that is, the most recent updated.
-            $auxpreviousresources = $previousresources;
-            $unduplicated = array();
-            foreach ($previousresources as $previousindex => $previousresource) {
-                foreach ($auxpreviousresources as $auxindex => $aux) {
-                    if ($aux->get_moduleid() === $previousresource->get_moduleid()) {
-                        if ($previousresource->get_logviews() > $aux->get_logviews()) {
-                            unset($auxpreviousresources[$auxindex]);
-                        }
-                    }
-                }
-            }
-            $previousresources = array_values($auxpreviousresources);
-
-            // We save the view of each resource in an associative array, only if it has been seen at least once.
-            $logviews = array();
-            $index = 0;
-            foreach ($previousresources as $previousresource) {
-                if ($previousresource->get_logviews() > 0) {
-                    $logviews[$currentresources[$index]->get_moduleid()] = $previousresource->get_logviews();
-                }
-
-                $index++;
-            }
-
-            arsort($logviews);
+            $previousresources = $this->keep_latest_logviews($previousresources);
+            $logviews = $this->save_logviews_by_resource($previousresources);
 
             $recommendations[$recommendationindex] = new \stdClass();
             $recommendations[$recommendationindex]->number = count($logviews);
@@ -220,5 +200,53 @@ class simple_recommendator extends abstract_recommendator {
         $resources['current'] = $currentresources;
 
         return $resources;
+    }
+
+    /**
+     * Discards the older results of a query, removing those duplicated rows for a resource that have less views compared with
+     * other views of the same resource.
+     *
+     * @param blocks_mycourse_recommendations\query_result $previousresources The queried data of the previous course.
+     * @return blocks_mycourse_recommendations\query_result The received queried data, but only with the latest views
+     * of the resources.
+     */
+    protected function keep_latest_logviews($previousresorces) {
+        $auxpreviousresources = $previousresources;
+
+        foreach ($previousresources as $previousindex => $previousresource) {
+            foreach ($auxpreviousresources as $auxindex => $aux) {
+                if ($aux->get_moduleid() === $previousresource->get_moduleid()) {
+                    if ($previousresource->get_logviews() > $aux->get_logviews()) {
+                        unset($auxpreviousresources[$auxindex]);
+                    }
+                }
+            }
+        }
+
+        return array_values($auxpreviousresources);
+    }
+
+    /**
+     * Saves the views of each resource in an associative array with the resourceid as key, sorted descendently, only if it
+     * has been seen at least once.
+     *
+     * @param blocks_mycourse_recommendations\query_result $previousresources The queried data of the previous course.
+     * @return array The logviews of each resource.
+     */
+    protected function save_logviews_by_resource($previousresources) {
+        $logviews = array();
+        $index = 0;
+
+        foreach ($previousresources as $previousresource) {
+            if ($previousresource->get_logviews() > 0) {
+                $logviews[$currentresources[$index]->get_moduleid()] = $previousresource->get_logviews();
+            }
+
+            $index++;
+        }
+
+        arsort($logviews);
+
+        return $logviews;
     }
 }
