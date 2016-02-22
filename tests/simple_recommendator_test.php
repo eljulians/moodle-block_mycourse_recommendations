@@ -61,11 +61,12 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
 
         $this->previousyear = 2015;
         $this->previousstartdate = strtotime("06-01-$this->previousyear");
+
         $this->previouscourseattributes = array('fullname' => 'Software Engineering II',
                                                 'startdate' => $this->previousstartdate);
 
         $this->currentyear = 2016;
-        $this->currentstartdate = strtotime("04-01-$this->currentyear");
+        $this->currentstartdate = strtotime("12-01-$this->currentyear");
         $this->currentcourseattributes = array('fullname' => 'Software Engineering II',
                                                'startdate' => $this->currentstartdate);
 
@@ -327,7 +328,7 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         }
 
         // We create the resources and log views of previous course for the week + 1.
-        $date = strtotime("12-01-$this->previousyear");
+        $date = strtotime("11-01-$this->previousyear");
         $nextlogviews = array();
         $nextlogviews[$previoususers[0]->id] = array(3, 1);
         $nextlogviews[$previoususers[1]->id] = array(0, 5);
