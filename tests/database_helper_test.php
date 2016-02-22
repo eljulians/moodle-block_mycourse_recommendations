@@ -196,15 +196,15 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
         $expected[0] = array($users[0], $users[1]);
         $expected[1] = array($users[2], $users[3]);
 
-        $output = array();
-        $output[0] = $this->databasehelper->get_students_from_course($courses[0]->id);
-        $output[1] = $this->databasehelper->get_students_from_course($courses[1]->id);
+        $actual = array();
+        $actual[0] = $this->databasehelper->get_students_from_course($courses[0]->id);
+        $actual[1] = $this->databasehelper->get_students_from_course($courses[1]->id);
 
         // Fails when trying to assert the equality of the arrays, so we iterate it to assert
         // the members.
-        for ($row = 0; $row < count($output); $row++) {
-            for ($column = 0; $column < count($output[$row]); $column++) {
-                $this->assertEquals($output[$row][$column], $expected[$row][$column]->id);
+        for ($row = 0; $row < count($actual); $row++) {
+            for ($column = 0; $column < count($actual[$row]); $column++) {
+                $this->assertEquals($expected[$row][$column]->id, $actual[$row][$column]);
             }
         }
     }
@@ -237,10 +237,10 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
 
         // The output array is indexed by user id.
         $index = 0;
-        foreach ($records as $output) {
-            $this->assertEquals($output->userid, $users[$index]);
-            $this->assertEquals($output->courseid, $course);
-            $this->assertEquals($output->year, $year);
+        foreach ($records as $actual) {
+            $this->assertEquals($users[$index], $actual->userid);
+            $this->assertEquals($course, $actual->courseid);
+            $this->assertEquals($year, $actual->year);
 
             $index++;
         }
@@ -296,13 +296,13 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
 
         // We get the method using reflection, and we invoke it.
         $findpreviousteachings = self::get_method('find_course_previous_teachings_ids');
-        $output = $findpreviousteachings->invokeArgs($this->databasehelper, array($currentcourse[0]->id, $currentyear));
+        $actual = $findpreviousteachings->invokeArgs($this->databasehelper, array($currentcourse[0]->id, $currentyear));
 
         // The arrays must be ordered in order to consider them equals.
-        sort($output);
+        sort($actual);
         sort($expected);
 
-        $this->assertEquals($output, $expected);
+        $this->assertEquals($expected, $actual);
     }
 
     public function test_get_previous_courses_students_number() {
@@ -340,9 +340,9 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
             }
         }
 
-        $output = $this->databasehelper->get_previous_courses_students_number($currentcourse[0]->id, $currentyear);
+        $actual = $this->databasehelper->get_previous_courses_students_number($currentcourse[0]->id, $currentyear);
 
-        $this->assertEquals($output, $expected);
+        $this->assertEquals($expected, $actual);
     }
 
     /**
@@ -396,9 +396,9 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
             }
         }
 
-        $output = $this->databasehelper->get_previous_courses_resources_number($currentcourse[0]->id, $currentyear);
+        $actual = $this->databasehelper->get_previous_courses_resources_number($currentcourse[0]->id, $currentyear);
 
-        $this->assertEquals($output, $expected);
+        $this->assertEquals($expected, $actual);
     }
 
     public function test_get_associations() {

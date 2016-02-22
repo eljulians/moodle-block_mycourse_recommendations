@@ -4,21 +4,21 @@ $current_userids = array(1, 2, 3)
 $current_courseid = 1
 $historic_userids = array(100, 200, 300)
 $historic_courseid = 2;
-$week = 1";Test that associations are inserted properly, as they are supposed to be inserted, with no exception thrown.;Exception;Yes;Ok;;Julen Pardo;09/02/2016
+$week = 1";Test that associations are inserted properly, as they are supposed to be inserted, with no exception thrown.;Exception;Yes;Pass;;Julen Pardo;09/02/2016
 2;db/database_helper;insert_associations;"$number = 4
 $current_userids = array(1, 2, 3, 4)
 $current_courseid = 1
 $historic_userids = array(100, 200, 300)
 $historic_courseid = 2;
-$week = 1";Test that exception is thrown, because $number parameter is specifying the length of all the arrays, and is higher than at least one of the arrays.;Exception;Yes;Ok;;Julen Pardo;09/02/2016
+$week = 1";Test that exception is thrown, because $number parameter is specifying the length of all the arrays, and is higher than at least one of the arrays.;Exception;Yes;Pass;;Julen Pardo;09/02/2016
 3;db/database_helper;insert_recommendations;"$number = 3
 $associationsids = array(1, 2, 3)
 $resourcesids = array(4, 5, 6)
-$priorities = array(7, 8, 9)";Test that recommendations are inserted properly, as they are supposed to be inserted, with no exception thrown.;Exception;Yes;Ok;;Julen Pardo;09/02/2016
+$priorities = array(7, 8, 9)";Test that recommendations are inserted properly, as they are supposed to be inserted, with no exception thrown.;Exception;Yes;Pass;;Julen Pardo;09/02/2016
 4;db/database_helper;insert_recommendations;"$number = 4
 $associationsids = array(1, 2, 3)
 $resourcesids = array(4, 5, 6)
-$priorities = array(7, 8, 9, 10)";Test that exception is thrown, because $number parameter is specifying the length of all the arrays, and is higher than at least one of the arrays.;Exception;Yes;Ok;;Julen Pardo;09/02/2016
+$priorities = array(7, 8, 9, 10)";Test that exception is thrown, because $number parameter is specifying the length of all the arrays, and is higher than at least one of the arrays.;Exception;Yes;Pass;;Julen Pardo;09/02/2016
 5;matrix/decimal_matrix;transform_queried_data;"$input[0]->userid = 1
 $input[0]->moduleid = 10
 $input[0]->log_views = 45
@@ -39,7 +39,7 @@ $input[5]->moduleid = 30
 $input[5]->log_views = 24
 $input[6]->userid = 4
 $input[6]->moduleid = 10
-$input[6]->log_views = 68";Test that, recieving the data queried from database (this input data is generated manually, to facilitate the process), generates a user/module matrix of log views.;Equivalence;Yes;Ok;;Julen Pardo;09/02/2016
+$input[6]->log_views = 68";Test that, recieving the data queried from database (this input data is generated manually, to facilitate the process), generates a user/module matrix of log views.;Equivalence;Yes;Pass;;Julen Pardo;09/02/2016
 6;associator/cosine_similarity_associator;dot_product;"$vector1[0] = 1
 $vector1[1] = 5
 $vector1[2] = 67
@@ -47,11 +47,11 @@ $vector1[3] = 14
 $vector2[0] = 7
 $vector2[1] = 71
 $vector2[2] = 154
-$vector2[3] = 9";"Test the mathematic operation (aka ""scalar product"") for the given vectors.";Equivalence;Yes;Ok;Using reflection to access the methods, since they're private.;Julen Pardo;10/02/2016
+$vector2[3] = 9";"Test the mathematic operation (aka ""scalar product"") for the given vectors.";Equivalence;Yes;Pass;Using reflection to access the methods, since they're private.;Julen Pardo;10/02/2016
 7;associator/cosine_similarity_associator;vector_module;"$vector[0] = 1
 $vector[1] = 5
 $vector[2] = 67
-$vector[3] = 14";Test the mathematic operation for the given vector.;Equivalence;Yes;Ok;Using reflection to access the methods, since they're private.;Julen Pardo;10/02/2016
+$vector[3] = 14";Test the mathematic operation for the given vector.;Equivalence;Yes;Pass;Using reflection to access the methods, since they're private.;Julen Pardo;10/02/2016
 8;associator/cosine_similarity_associator;cosine_similarity;"$vector1[0] = 1
 $vector1[1] = 5
 $vector1[2] = 67
@@ -59,7 +59,7 @@ $vector1[3] = 14
 $vector2[0] = 7
 $vector2[1] = 71
 $vector2[2] = 154
-$vector2[3] = 9";Test the cosine similarity between the given vectors. The formula is = dot_product($vector1, $vector2) / vector_module($vector1) * vector_module($vector2).;Equivalence;Yes;Ok;Using reflection to access the methods, since they're private.;Julen Pardo;10/02/2016
+$vector2[3] = 9";Test the cosine similarity between the given vectors. The formula is = dot_product($vector1, $vector2) / vector_module($vector1) * vector_module($vector2).;Equivalence;Yes;Pass;Using reflection to access the methods, since they're private.;Julen Pardo;10/02/2016
 9;associator/cosine_similarity_associator;create_associations_matrix;"$historicdata['1']['10'] = 54
 $historicdata['1']['11'] = 1
 $historicdata['1']['12'] = 35
@@ -96,42 +96,42 @@ $currentdata['101']['13'] = 34
 $currentdata['102']['10'] = 31
 $currentdata['102']['11'] = 87
 $currentdata['102']['12'] = 64
-$currentdata['102']['13'] = 12";Test that the association matrix between current and historic users is created, receiving matrixes of both types of users. These matrixes are the result of the query to database, which retrieves the log views of each user for each module.;Equivalence;Yes;Ok;;Julen Pardo;10/02/2016
-10;db/database_helper;get_students_from_course;<Using data generator>;Test that the function retrieves correctly users enrolled in a course.;Equivalence/Exception;Yes;Ok;;Julen Pardo;12/02/2016
+$currentdata['102']['13'] = 12";Test that the association matrix between current and historic users is created, receiving matrixes of both types of users. These matrixes are the result of the query to database, which retrieves the log views of each user for each module.;Equivalence;Yes;Pass;;Julen Pardo;10/02/2016
+10;db/database_helper;get_students_from_course;<Using data generator>;Test that the function retrieves correctly users enrolled in a course.;Equivalence/Exception;Yes;Pass;;Julen Pardo;12/02/2016
 11;db/database_helper;insert_selections;"$course = 50
 $year = 2016
 $users[0] = 100
 $users[1] = 101
-$users[2] = 102";Test that the function inserts correctly users for a course and year, after inserting, querying table's data and asserting that is equal to the inserted one.;Equivalence/Exception;Yes;Ok;;Julen Pardo;12/02/2016
+$users[2] = 102";Test that the function inserts correctly users for a course and year, after inserting, querying table's data and asserting that is equal to the inserted one.;Equivalence/Exception;Yes;Pass;;Julen Pardo;12/02/2016
 12;db/database_helper;find_course_previous_teachings_ids;"$currentcourseid = <generated>
 $currentyear = 2016";"The courses are created using the data generator, so the id is unknown.
-Tests that the function retrieves correctly  the number of previous teachings for the given id, finding courses with the same fullname.";Equivalence;Yes;Ok;Using reflection to access the methods, since it's protected.;Julen Pardo;15/02/2016
+Tests that the function retrieves correctly  the number of previous teachings for the given id, finding courses with the same fullname.";Equivalence;Yes;Pass;Using reflection to access the methods, since it's protected.;Julen Pardo;15/02/2016
 13;db/database_helper;get_previous_courses_students_number;"$currentcourseid = <generated>
 $currentyear = 2016";"The courses and students are created using the data generator, so the ids are unknown.
-Tests that the function retrieves correctly the number of students enroled in previous teachings of the given course id.";Equivalence;Yes;Ok;;Julen Pardo;15/02/2016
+Tests that the function retrieves correctly the number of students enroled in previous teachings of the given course id.";Equivalence;Yes;Pass;;Julen Pardo;15/02/2016
 14;db/database_helper;get_previous_courses_resources_number;"$currentcourseid = <generated>
 $currentyear = 2016";"The courses and resources are created using the data generator, so the ids are unknown.
-Tests that the function retrieves correctly the number of resources of previous teachings of the given course id.";Equivalence;Yes;Ok;The created resources are of the types hardcoded in class function.;Julen Pardo;15/02/2016
+Tests that the function retrieves correctly the number of resources of previous teachings of the given course id.";Equivalence;Yes;Pass;The created resources are of the types hardcoded in class function.;Julen Pardo;15/02/2016
 15;course_filter/course_filter;meets_minimum_previous_courses;"$currentcourseid = <generated>
 $currentyear = 2016";"There are three different tests for this method:
  - One that creates one course less than the minimum (expecting to return false).
  - One that creates the same courses as the minimum (expecting to return true).
  - One that creates one course more than the minimum (expecting to return true).
-The courses are created using the data generator, so the ids are unknown.";Boundary;Yes;Ok;"The results of the test of this method is the result of all the boundary tests created; if one of these boundary test fails, the result of the test of this method will be considered as failed.";Julen Pardo;16/02/2016
+The courses are created using the data generator, so the ids are unknown.";Boundary;Yes;Pass;"The results of the test of this method is the result of all the boundary tests created; if one of these boundary test fails, the result of the test of this method will be considered as failed.";Julen Pardo;16/02/2016
 16;course_filter/course_filter;meets_minimum_resources;"$currentcourseid = <generated>
 $currentyear = 2016";"There are three different tests for this method:
  - One that creates one resource less than the minimum (expecting to return false).
  - One that creates the same resources as the minimum (expecting to return true).
  - One that creates one more resource than the minimum (expecting to return true).
-The courses and resources are created using the data generator, so the ids are unknown.";Boundary;Yes;Ok;"The results of the test of this method is the result of all the boundary tests created; if one of these boundary test fails, the result of the test of this method will be considered as failed.";Julen Pardo;16/02/2016
+The courses and resources are created using the data generator, so the ids are unknown.";Boundary;Yes;Pass;"The results of the test of this method is the result of all the boundary tests created; if one of these boundary test fails, the result of the test of this method will be considered as failed.";Julen Pardo;16/02/2016
 17;course_filter/course_filter;meets_minimum_previous_students;"$currentcourseid = <generated>
 $currentyear = 2016";"There are three different tests for this method:
  - One that creates one student less than the minimum (expecting to return false).
  - One that creates the same student as the minimum (expecting to return true).
  - One that creates one more student than the minimum (expecting to return true).
-The courses and student are created using the data generator, so the ids are unknown.";Boundary;Yes;Ok;"The results of the test of this method is the result of all the boundary tests created; if one of these boundary test fails, the result of the test of this method will be considered as failed.";Julen Pardo;16/02/2016
+The courses and student are created using the data generator, so the ids are unknown.";Boundary;Yes;Pass;"The results of the test of this method is the result of all the boundary tests created; if one of these boundary test fails, the result of the test of this method will be considered as failed.";Julen Pardo;16/02/2016
 18;recommendator/abstract_recommendator;select_students;"$currentcourseid = <generated>
-$year = 2016";Test that, generating 20 students for a course, after calling the method, there are exactly 10 students in the table of the selected users.;Equivalence;Yes;Ok;;Julen Pardo;16/02/2016
+$year = 2016";Test that, generating 20 students for a course, after calling the method, there are exactly 10 students in the table of the selected users.;Equivalence;Yes;Pass;;Julen Pardo;16/02/2016
 19;recommendator/simple_recommendator;create_associations;"$courseid = <generated>
 $currentweek = 1";"Test that the associations are created and inserted correctly into the database, that is, that after querying the needed data (both current and previous), and using the associator (cosine_similarity_associator in this case), the associations are properly inserted into {block_mycourse_user_sel}.
 The following data will be generated:
@@ -143,11 +143,11 @@ The following data will be generated:
     - p2 = (4, 1, 2)
     - p3 = (0, 7, 7)
     - c1 = (3, 4, 6)
-    - c2 = (7, 3, 2)";Equivalence;Yes;Ok;;Julen Pardo;18/02/2016
+    - c2 = (7, 3, 2)";Equivalence;Yes;Pass;;Julen Pardo;18/02/2016
 20;db/database_helper;get_associations;"$courseid = 20 
-$currentweek = 1";Test that, after generating associations (with current and previous users and courses), there are properly retrieved from database.;Equivalence;Yes;Ok;;Julen Pardo;18/02/2016
+$currentweek = 1";Test that, after generating associations (with current and previous users and courses), there are properly retrieved from database.;Equivalence;Yes;Pass;;Julen Pardo;18/02/2016
 21;db/database_helper;get_recommendations;"$courseid = 20 
-$currentweek = 1";Test that, after generating recommendations (with current and previous users and courses), there are properly retrieved from database.;Equivalence;Yes;Ok;;Julen Pardo;18/02/2016
+$currentweek = 1";Test that, after generating recommendations (with current and previous users and courses), there are properly retrieved from database.;Equivalence;Yes;Pass;;Julen Pardo;18/02/2016
 22;recommendator/simple_recommendator;create_recommendations;"$courseid = <generated>
 $currentweek = 1";"Test that the recommendations are created and inserted correctly into the database, that is, after creating the associations between current and historic users, the recommendations are properly inserted into {block_mycourse_recs}.
 The following data will be generated:
@@ -161,9 +161,9 @@ The following data will be generated:
     (The first column is the $resource[0], the second the $resource[1])
  - With that data, the following recommendations will be created:
     · $currentuser[0] = (priority:0 => $resource[0]; priority:1 => $resource[1])
-    · $currentuser[1] = (priority:0 => $resource[1]; priority:1 => $resource[0])";Equivalence;Yes;Ok;;Julen Pardo;19/02/2016
-23;recommendator/simple_recommendator;;"$inputs = array();";Test that the function returns an array with the latest logviews, i.e., the logviews with the higher number of views. In this case, the expected value will be the same array of objects of the input, but without the 1-nd record.;Equivalence;Yes;Ok;Using reflection to access the methods, since it's protected.;Julen Pardo;21/02/2016
-24;recommendator/simple_recommendator;;"$inputs = array();";Test that the function creates properly an associative array from the query results, where the resource (module) id is the key, and the logviews the value.;Equivalence;Yes;Ok;Using reflection to access the methods, since it's protected.;Julen Pardo;21/02/2016
+    · $currentuser[1] = (priority:0 => $resource[1]; priority:1 => $resource[0])";Equivalence;Yes;Pass;;Julen Pardo;19/02/2016
+23;recommendator/simple_recommendator;;"$inputs = array();";Test that the function returns an array with the latest logviews, i.e., the logviews with the higher number of views. In this case, the expected value will be the same array of objects of the input, but without the 1-nd record.;Equivalence;Yes;Pass;Using reflection to access the methods, since it's protected.;Julen Pardo;21/02/2016
+24;recommendator/simple_recommendator;;"$inputs = array();";Test that the function creates properly an associative array from the query results, where the resource (module) id is the key, and the logviews the value.;Equivalence;Yes;Pass;Using reflection to access the methods, since it's protected.;Julen Pardo;21/02/2016
 ;;;"        $inputs[0] = new stdClass();";;;;;;;
 ;;;"        $inputs[0]->userid = 1;";;;;;;;
 ;;;"        $inputs[0]->courseid = 10;";;;;;;;

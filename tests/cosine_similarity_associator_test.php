@@ -146,13 +146,13 @@ class block_mycourse_recommendations_cosine_similarity_associator_testcase exten
                                          '6' => 0.8055)
                           );
 
-        $output = $this->associator->create_associations_matrix($currentdata, $historicdata);
+        $actual = $this->associator->create_associations_matrix($currentdata, $historicdata);
 
         // It seems that we have assert every value to make the assertion behave properly.
         // It doesn't matter if we take expected's or output's keys; they must be the same.
-        foreach (array_keys($output) as $row) {
-            foreach (array_keys($output[$row]) as $column) {
-                $this->assertEquals($output[$row][$column], $expected[$row][$column], '', $delta);
+        foreach (array_keys($actual) as $row) {
+            foreach (array_keys($actual[$row]) as $column) {
+                $this->assertEquals($expected[$row][$column], $actual[$row][$column], '', $delta);
             }
         }
     }
@@ -175,9 +175,9 @@ class block_mycourse_recommendations_cosine_similarity_associator_testcase exten
         $vector2[2] = 154;
         $vector2[3] = 9;
 
-        $output = $dotproduct->invokeArgs($this->associator, array($vector1, $vector2));
+        $actual = $dotproduct->invokeArgs($this->associator, array($vector1, $vector2));
 
-        $this->assertEquals($output, $expected);
+        $this->assertEquals($expected, $actual);
     }
 
     public function test_vector_module() {
@@ -194,9 +194,9 @@ class block_mycourse_recommendations_cosine_similarity_associator_testcase exten
         $vector[2] = 67;
         $vector[3] = 14;
 
-        $output = $vectormodule->invokeArgs($this->associator, array($vector));
+        $actual = $vectormodule->invokeArgs($this->associator, array($vector));
 
-        $this->assertEquals($output, $expected, '', $delta);
+        $this->assertEquals($expected, $actual, '', $delta);
     }
 
     public function test_cosine_similarity() {
@@ -218,9 +218,9 @@ class block_mycourse_recommendations_cosine_similarity_associator_testcase exten
         $vector2[2] = 154;
         $vector2[3] = 9;
 
-        $output = $cosinesimilarity->invokeArgs($this->associator, array($vector1, $vector2));
+        $actual = $cosinesimilarity->invokeArgs($this->associator, array($vector1, $vector2));
 
-        $this->assertEquals($output, $expected, '', $delta);
+        $this->assertEquals($expected, $actual, '', $delta);
     }
 
 }

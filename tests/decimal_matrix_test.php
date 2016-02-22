@@ -83,22 +83,22 @@ class block_mycourse_recommendations_decimal_matrix_testcase extends advanced_te
 
         $input[6] = new query_result(4, 1, 10, 'module 10', 68, 0);
 
-        $output = $this->matrix->transform_queried_data($input);
+        $actual = $this->matrix->transform_queried_data($input);
 
-        // Okay, let's assert this thing. $output should now be a 4x3 matrix, because we have generated
+        // Okay, let's assert this thing. $actual should now be a 4x3 matrix, because we have generated
         // an input with 4 different userids, and 3 different moduleids. So, we check matrix's values
         // (log views), accessing them by [$userid][$moduleid]. The access to the matrix is hardcoded because
-        // doing like "$output[$input[0]->userid][$input[0]->moduleid], $input[0]->log_views" is so unintelligible.
-        $this->assertEquals($output[1][10], 45);
-        $this->assertEquals($output[1][20], 31);
-        $this->assertEquals($output[1][30], 5);
+        // doing like "$actual[$input[0]->userid][$input[0]->moduleid], $input[0]->log_views" is so unintelligible.
+        $this->assertEquals(45, $actual[1][10]);
+        $this->assertEquals(31, $actual[1][20]);
+        $this->assertEquals(5, $actual[1][30]);
 
-        $this->assertEquals($output[2][10], 16);
+        $this->assertEquals(16, $actual[2][10]);
 
-        $this->assertEquals($output[3][20], 57);
-        $this->assertEquals($output[3][30], 24);
+        $this->assertEquals(57, $actual[3][20]);
+        $this->assertEquals(24, $actual[3][30]);
 
-        $this->assertEquals($output[4][10], 68);
+        $this->assertEquals(68, $actual[4][10]);
     }
 
 }
