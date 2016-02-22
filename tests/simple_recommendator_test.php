@@ -261,6 +261,9 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         foreach (array_keys($actuals) as $index) {
             $this->assertEquals($expecteds[$index], $actuals[$index]);
         }
+
+        $DB->delete_records('block_mycourse_recs');
+        $DB->delete_records('block_mycourse_assoc');
     }
 
     public function test_create_recommendations() {
@@ -323,11 +326,8 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
             }
         }
 
-        // After the logs are created, we can call the function we're testing.
-        $this->recommendator->create_recommendations($currentcourses[0]->id, 2);
-
         // We create the resources and log views of previous course for the week + 1.
-        $date = strtotime("13-01-$this->previousyear");
+        $date = strtotime("12-01-$this->previousyear");
         $nextlogviews = array();
         $nextlogviews[$previoususers[0]->id] = array(3, 1);
         $nextlogviews[$previoususers[1]->id] = array(0, 5);
@@ -347,6 +347,9 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         $currentunviewedresources = array();
         $currentunviewedresources[$currentcourses[0]->id]['mod_page'] = 2;
         $recommendedresources = $this->create_resources($currentunviewedresources, $resourcesnames);
+
+        // After the logs are created, we can call the function we're testing.
+        $this->recommendator->create_recommendations($currentcourses[0]->id, 2);
 
         // With the data in this test, the associations will be the following:
         // $currentuser[0] associated with $previoususer[2].
@@ -392,8 +395,6 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         foreach ($actuals as $index => $actual) {
             $this->assertEquals($expecteds[$index], $actual);
         }
-
-        var_dump($DB->get_records('block_mycourse_recs'));
     }
 
     protected function sort_recommendations($a, $b) {
