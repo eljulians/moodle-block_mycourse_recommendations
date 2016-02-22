@@ -133,7 +133,7 @@ The courses and student are created using the data generator, so the ids are unk
 18;recommendator/abstract_recommendator;select_students;"$currentcourseid = <generated>
 $year = 2016";Test that, generating 20 students for a course, after calling the method, there are exactly 10 students in the table of the selected users.;Equivalence;Yes;Ok;;Julen Pardo;16/02/2016
 19;recommendator/simple_recommendator;create_associations;"$courseid = <generated>
-$currentweek = ";"Test that the associations are created and inserted correctly into the database, that is, that after querying the needed data (both current and previous), and using the associator (cosine_similarity_associator in this case), the associations are properly inserted into {block_mycourse_user_sel}.
+$currentweek = 1";"Test that the associations are created and inserted correctly into the database, that is, that after querying the needed data (both current and previous), and using the associator (cosine_similarity_associator in this case), the associations are properly inserted into {block_mycourse_user_sel}.
 The following data will be generated:
  - 2 courses: one, current; the other, a previous teaching.
  - 6 resources: half for the current, half for the previous. Each current-previous course pair will have the same name.
@@ -148,3 +148,48 @@ The following data will be generated:
 $currentweek = 1";Test that, after generating associations (with current and previous users and courses), there are properly retrieved from database.;Equivalence;Yes;Ok;;Julen Pardo;18/02/2016
 21;db/database_helper;get_recommendations;"$courseid = 20 
 $currentweek = 1";Test that, after generating recommendations (with current and previous users and courses), there are properly retrieved from database.;Equivalence;Yes;Ok;;Julen Pardo;18/02/2016
+22;recommendator/simple_recommendator;create_recommendations;"$courseid = <generated>
+$currentweek = 1";"Test that the recommendations are created and inserted correctly into the database, that is, after creating the associations between current and historic users, the recommendations are properly inserted into {block_mycourse_recs}.
+The following data will be generated:
+ - Same associations generated for test #19, resulting in the following associations:
+    · $currentuser[0] with $previoususer[2].
+    · $currentuser[1] with $previoususer[0].
+ - There will be created the following views for the $currentweek+1 for new contents, from where the recommendations will be generated:
+    · $previoususer[0] = (3, 1) 
+    · $previoususer[1] = (0, 5)
+    · $previoususer[2] = (2, 6)
+    (The first column is the $resource[0], the second the $resource[1])
+ - With that data, the following recommendations will be created:
+    · $currentuser[0] = (priority:0 => $resource[0]; priority:1 => $resource[1])
+    · $currentuser[1] = (priority:0 => $resource[1]; priority:1 => $resource[0])";Equivalence;Yes;Ok;;Julen Pardo;19/02/2016
+23;recommendator/simple_recommendator;;"$inputs = array();";Test that the function returns an array with the latest logviews, i.e., the logviews with the higher number of views. In this case, the expected value will be the same array of objects of the input, but without the 1-nd record.;Equivalence;Yes;Ok;Using reflection to access the methods, since it's protected.;Julen Pardo;21/02/2016
+24;recommendator/simple_recommendator;;"$inputs = array();";Test that the function creates properly an associative array from the query results, where the resource (module) id is the key, and the logviews the value.;Equivalence;Yes;Ok;Using reflection to access the methods, since it's protected.;Julen Pardo;21/02/2016
+;;;"        $inputs[0] = new stdClass();";;;;;;;
+;;;"        $inputs[0]->userid = 1;";;;;;;;
+;;;"        $inputs[0]->courseid = 10;";;;;;;;
+;;;"        $inputs[0]->moduleid = 100;";;;;;;;
+;;;"        $inputs[0]->modulename = 'Module 100';";;;;;;;
+;;;"        $inputs[0]->logviews = 3;";;;;;;;
+;;;;;;;;;;
+;;;"        $inputs = array();";;;;;;;
+;;;"        $inputs[1] = new stdClass();";;;;;;;
+;;;"        $inputs[1]->userid = 2;";;;;;;;
+;;;"        $inputs[1]->courseid = 10;";;;;;;;
+;;;"        $inputs[1]->moduleid = 101;";;;;;;;
+;;;"        $inputs[1]->modulename = 'Module 101';";;;;;;;
+;;;"        $inputs[1]->logviews = 7;";;;;;;;
+;;;;;;;;;;
+;;;"        $inputs = array();";;;;;;;
+;;;"        $inputs[2] = new stdClass();";;;;;;;
+;;;"        $inputs[2]->userid = 2;";;;;;;;
+;;;"        $inputs[2]->courseid = 10;";;;;;;;
+;;;"        $inputs[2]->moduleid = 103;";;;;;;;
+;;;"        $inputs[2]->modulename = 'Module 102';";;;;;;;
+;;;"        $inputs[2]->logviews = 5;";;;;;;;
+;;;"        $inputs = array();";;;;;;;
+;;;"        $inputs[3] = new stdClass();";;;;;;;
+;;;"        $inputs[3]->userid = 2;";;;;;;;
+;;;"        $inputs[3]->courseid = 10;";;;;;;;
+;;;"        $inputs[3]->moduleid = 103;";;;;;;;
+;;;"        $inputs[3]->modulename = 'Module 102';";;;;;;;
+;;;"        $inputs[3]->logviews = 5;";;;;;;;

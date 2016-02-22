@@ -168,6 +168,7 @@ class database_helper {
  where logs.course = %courseid
    and ((extract(YEAR from logs.course_week) - %year) * 52) + extract(WEEK from logs.course_week)
        between %coursestartweek and %currentweek
+    and logs.log_views = 0
  order by logs.userid;
         ";
     }
@@ -191,15 +192,30 @@ class database_helper {
      *
      * @return array An object for each record in recordset.
      */
-    public function query_data($courseid, $year, $coursestartweek, $currentweek) {
+    public function query_data($courseid, $year, $coursestartweek, $currentweek, $userid = null,
+                               $ignoreweeks = false, $onlyunviewed = false) {
         global $DB;
 
         $sql = $this->sql;
 
+        if (!is_null($userid)) {
+            $sql = str_replace('where logs.course = %courseid', "where logs.userid = $userid and logs.course = %courseid ", $sql);
+        }
+
         $sql = str_replace('%courseid', $courseid, $sql);
-        $sql = str_replace('%year', $year, $sql);
-        $sql = str_replace('%coursestartweek', $coursestartweek, $sql);
-        $sql = str_replace('%currentweek', $currentweek, $sql);
+        if (!$ignoreweeks) {
+            $sql = str_replace('%year', $year, $sql);
+            $sql = str_replace('%coursestartweek', $coursestartweek, $sql);
+            $sql = str_replace('%currentweek', $currentweek, $sql);
+        } else {
+            $sql = str_replace('and ((extract(YEAR from logs.course_week) - %year) * 52) + extract(WEEK from logs.course_week)',
+                               '', $sql);
+            $sql = str_replace('between %coursestartweek and %currentweek', '', $sql);
+        }
+
+        if (!$onlyunviewed) {
+            $sql = str_replace('and logs.log_views = 0', '', $sql);
+        }
 
         $recordset = $DB->get_recordset_sql($sql);
 
