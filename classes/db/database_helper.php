@@ -359,7 +359,7 @@ class database_helper {
 
         $sql = "INSERT INTO {block_mycourse_course_sel} (courseid, year) VALUES(:v1, :v2)";
         $values = ['v1' => (int)$courseid, 'v2' => $year];
-        $DB ->execute($sql, $values);
+        $DB->execute($sql, $values);
 
         foreach ($selections as $selection) {
             $sql = "INSERT INTO {block_mycourse_user_sel} (userid, courseid, year) VALUES(:v1, :v2, :v3)";
@@ -367,6 +367,49 @@ class database_helper {
 
             $DB->execute($sql, $values);
         }
+    }
+
+    /**
+     * Queries the active courses to receive the recommendations.
+     *
+     * @return array Active courses.
+     */
+    public function get_selected_active_courses() {
+        global $DB;
+
+        $records = $DB->get_records('block_mycourse_course_sel', array('active' => '1'));
+
+        return $records;
+    }
+
+    /**
+     * Sets the given course to inactive, so, it won't receive recommendations anymore.
+     *
+     * @param int $courseid The course to set inactive.
+     */
+    public function set_course_inactive($courseid) {
+        global $DB;
+
+        $sql = "UPDATE {block_mycourse_course_sel} courses
+                SET    courses.active = 0
+                WHERE  courses.courseid = $courseid";
+
+        $DB->execute($sql);
+    }
+
+    /**
+     * Sets the courses for the given year to inactive, so, they won't receive recommendations anymore.
+     *
+     * @param int $year The year of the courses to set inactive.
+     */
+    public function set_courses_of_year_inactive($year) {
+        global $DB;
+
+        $sql = "UPDATE {block_mycourse_course_sel} courses
+                SET    courses.active = 0
+                WHERE  courses.year = $year";
+
+        $DB->execute($sql);
     }
 
     /**
