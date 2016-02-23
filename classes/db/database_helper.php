@@ -357,7 +357,9 @@ class database_helper {
     public function insert_selections($selections, $courseid, $year) {
         global $DB;
 
-        $index = 0;
+        $sql = "INSERT INTO {block_mycourse_course_sel} (courseid, year) VALUES(:v1, :v2)";
+        $values = ['v1' => (int)$courseid, 'v2' => $year];
+        $DB ->execute($sql, $values);
 
         foreach ($selections as $selection) {
             $sql = "INSERT INTO {block_mycourse_user_sel} (userid, courseid, year) VALUES(:v1, :v2, :v3)";
