@@ -6,14 +6,12 @@
   <TABLES>
     <TABLE NAME="block_mycourse_course_sel" COMMENT="The selection of the courses which are currently receiving the recommendations.">
       <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The id of the course that is receiving the recommendations."/>
         <FIELD NAME="active" TYPE="int" LENGHT="1" NOTNULL="true" SEQUENCE="false" DEFAULT="1" COMMENT="1 if the course is active to receive the recommendations; 0 if not."/>
         <FIELD NAME="year" TYPE="int" LENGTH="4" NOTNULL="true" SEQUENCE="false" COMMENT="The year the course belongs to."/>
       </FIELDS>
       <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-        <KEY NAME="courseid_uq" TYPE="unique" FIELDS="courseid"/>
+        <KEY NAME="primary" TYPE="primary" FIELDS="courseid"/>
         <KEY NAME="courseid_fk" TYPE="foreign" FIELDS="courseid" REFTABLE="course" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
@@ -27,7 +25,7 @@
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="userid, courseid"/>
         <KEY NAME="userid_fk" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
-        <KEY NAME="courseid_fk" TYPE="foreign" FIELDS="courseid" REFTABLE="course" REFFIELDS="id"/>
+        <KEY NAME="courseid_fk" TYPE="foreign" FIELDS="courseid" REFTABLE="block_mycourse_course_sel" REFFIELDS="courseid"/>
       </KEYS>
     </TABLE>
 
