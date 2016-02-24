@@ -162,7 +162,7 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         }
 
     }
-/*
+
     public function test_create_associations() {
         global $DB;
         global $CFG;
@@ -265,7 +265,7 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
 
         $DB->delete_records('block_mycourse_recs');
         $DB->delete_records('block_mycourse_assoc');
-    }*/
+    }
 
     public function test_create_recommendations() {
         global $DB;
@@ -283,9 +283,7 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         $resourcesnames = array('Page 1', 'Page 2', 'Page 3');
         $nextresourcesnames = array('Page 100', 'Page 101');
 
-        // *******************************************
-        // Previous course data
-        // *******************************************
+        // Previous course data...
 
         // We create the previous course...
         $previousyear = 2015;
@@ -318,7 +316,7 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         }
 
         // We create the previous resources for the week + 1...
-        /*
+
         $previousnexttimestamp = $previousstartdate + 7 * 24 * 60 * 60; // We add a week, in seconds...
         $previousnextresources = array();
         $previousnextresources[$previouscourse->id][$component] = count($nextresourcesnames);
@@ -335,11 +333,9 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
                 $this->create_logview($previoususerid, $previouscourse->id, $previousnextresources[$resourceindex]->id,
                                       $eventname, $component, $previousnexttimestamp, $resourceviews);
             }
-        }*/
+        }
 
-        // *******************************************
-        // Current course data
-        // *******************************************
+        // Current course data...
 
         // We create the current course...
         $currentyear = 2016;
@@ -375,16 +371,10 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         $currentnextresources[$currentcourse->id][$component] = count($nextresourcesnames);
         $currentnextresources = $this->create_resources($currentnextresources, $nextresourcesnames);
 
-        // *******************************
-        // Finally, we call the function
-        // *******************************
+        // Finally, we call the function.
         $this->recommendator->create_recommendations($currentcourse->id, 2);
 
         var_dump($DB->get_records('block_mycourse_assoc'));
-
-        /*        
-        usort($expecteds, array($this, 'sort_recommendations'));
-        usort($actuals, array($this, 'sort_recommendations'));*/
     }
 
     protected function sort_recommendations($a, $b) {
