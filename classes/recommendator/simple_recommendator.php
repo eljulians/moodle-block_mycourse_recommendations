@@ -69,13 +69,22 @@ class simple_recommendator extends abstract_recommendator {
             $userid = $association->historic_userid;
             $previouscourseid = $association->historic_courseid;
             $year = $this->db->get_course_start_week_and_year($previouscourseid)['year'];
+            $coursestartweek = $this->db->get_course_start_week_and_year($courseid)['week'];
 
-            $records = $this->db->query_data($previouscourseid, $year, $currentweek, $currentweek + 1, $userid);
+            $lowerlimitweek = $currentweek -= parent::TIME_WINDOW;
+            $lowerlimitweek -= parent::TIME_WINDOW;
+            $yearchange = $coursestartweek > $currentweek;
+            $upperlimitweek = $currentweek;
+            if ($yearchange) {
+                $upperlimitweek = $currentweek + 52;
+            }
+            $upperlimitweek += parent::TIME_WINDOW;
+            $previousrecords = $this->db->query_data($previouscourseid, $year, $lowerlimitweek, $upperlimitweek, $userid);
 
-            $currentrecords = $this->db->query_data($courseid, $year, $currentweek, $currentweek + 1,
+            $currentrecords = $this->db->query_data($courseid, $year, $lowerlimitweek, $upperlimitweek,
                                                     $association->current_userid, true, true);
 
-            $associatedresources = $this->associate_resources($records, $currentrecords);
+            $associatedresources = $this->associate_resources($previousrecords, $currentrecords);
             $previousresources = $associatedresources['previous'];
             $currentresources = $associatedresources['current'];
 
@@ -109,6 +118,8 @@ class simple_recommendator extends abstract_recommendator {
     /**
      * Creates the associations between the current users and historic users. In this simple_recommendator implementation,
      * each current user is associated with a UNIQUE previous user.
+     * If $currentweek is the week of the year after the course start, we have to add 52 to $currentweek, otherwise, the
+     * query won't return results, because $currentweek will be lower than the start week.
      *
      * @see get_selected_users($courseid) in database_helper.php.
      * @see get_course_start_week_and_year($courseid) in database_helper.php.
@@ -128,7 +139,15 @@ class simple_recommendator extends abstract_recommendator {
         $startweek = $coursedates['week'];
         $year = $coursedates['year'];
 
-        $currentdata = $this->db->query_data($courseid, $year, $startweek, $currentweek);
+
+        $yearchange = $startweek > $currentweek;
+        $endweek = $currentweek;
+        if ($yearchange) {
+            $endweek = $currentweek + 52;
+        }
+        $endweek += parent::TIME_WINDOW;
+
+        $currentdata = $this->db->query_data($courseid, $year, $startweek, $endweek);
 
         $previouscourses = $this->db->find_course_previous_teachings_ids($courseid, $year);
         $previouscourse = max($previouscourses);
@@ -137,7 +156,14 @@ class simple_recommendator extends abstract_recommendator {
         $startweek = $coursedates['week'];
         $year = $coursedates['year'];
 
-        $previousdata = $this->db->query_data($previouscourse, $year, $startweek, $currentweek);
+        $yearchange = $startweek > $currentweek;
+        $endweek = $currentweek;
+        if ($yearchange) {
+            $currentweek += 52;
+        }
+        $endweek += parent::TIME_WINDOW;
+
+        $previousdata = $this->db->query_data($previouscourse, $year, $startweek, $endweek);
 
         $associatedresources = $this->associate_resources($previousdata, $currentdata);
         $previousdata = $associatedresources['previous'];
