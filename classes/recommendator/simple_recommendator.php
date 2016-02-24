@@ -71,9 +71,9 @@ class simple_recommendator extends abstract_recommendator {
             $year = $this->db->get_course_start_week_and_year($previouscourseid)['year'];
             $coursestartweek = $this->db->get_course_start_week_and_year($courseid)['week'];
 
-            $lowerlimitweek = $currentweek -= parent::TIME_WINDOW;
-            $lowerlimitweek -= parent::TIME_WINDOW;
+            $lowerlimitweek = $currentweek - parent::TIME_WINDOW;
             $yearchange = $coursestartweek > $currentweek;
+
             $upperlimitweek = $currentweek;
             if ($yearchange) {
                 $upperlimitweek = $currentweek + 52;
