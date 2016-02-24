@@ -162,7 +162,7 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         }
 
     }
-
+/*
     public function test_create_associations() {
         global $DB;
         global $CFG;
@@ -265,7 +265,7 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
 
         $DB->delete_records('block_mycourse_recs');
         $DB->delete_records('block_mycourse_assoc');
-    }
+    }*/
 
     public function test_create_recommendations() {
         global $DB;
@@ -274,128 +274,117 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         $this->resetAfterTest();
         $this->setAdminUser();
 
+        $DB->execute('delete from {course} course where course.id <> 1');
+        $coursesname = 'Operating Systems';
+
         $eventname = '\\mod_page\\event\\course_module_viewed';
         $component = 'mod_page';
 
         $resourcesnames = array('Page 1', 'Page 2', 'Page 3');
-        // We have to creates a course before creating resources, with the attributes defined in setUp.
-        $previouscourses = $this->create_courses($this->previouscourseattributes, 1);
+        $nextresourcesnames = array('Page 100', 'Page 101');
 
-        // We create the previous users...
-        $previoususers = $this->create_and_enrol_students($previouscourses[0]->id, 3);
+        // *******************************************
+        // Previous course data
+        // *******************************************
 
-        // We create the resources...
-        $numberofresources = 3;
+        // We create the previous course...
+        $previousyear = 2015;
+        $previousstartdate = strtotime("06-01-$previousyear");
+        $previousattributes = array('fullname' => $coursesname,
+                                    'startdate' => $previousstartdate);
+
+        $previouscourse = $this->create_courses($previousattributes, 1)[0];
+
+        // We create and enrol the previous users...
+        $previoususers = $this->create_and_enrol_students($previouscourse->id, 3);
+
+        // We create the previous resources...
+        $previousresourcesnumber = count($resourcesnames);
         $previousresources = array();
-        $previousresources[$previouscourses[0]->id]['mod_page'] = $numberofresources;
-        $resources = $this->create_resources($previousresources, $resourcesnames);
+        $previousresources[$previouscourse->id][$component] = $previousresourcesnumber;
+        $previousresources = $this->create_resources($previousresources, $resourcesnames);
 
-        // We create the log views for the previous users...
+        // We create the log views of the previous course for previous resources and previous users...
         $previouslogviews = array();
         $previouslogviews[$previoususers[0]->id] = array(10, 3, 5);
         $previouslogviews[$previoususers[1]->id] = array(4, 1, 2);
         $previouslogviews[$previoususers[2]->id] = array(0, 7, 7);
 
-        foreach ($previouslogviews as $userid => $resourceslogviews) {
-            foreach ($resourceslogviews as $resourceindex => $logviews) {
-                $this->create_logview($userid, $previouscourses[0]->id, $resources[$resourceindex]->id,
-                                      $eventname, $component, $this->previousstartdate, $logviews);
+        foreach ($previouslogviews as $previoususerid => $previousresourcesviews) {
+            foreach ($previousresourcesviews as $resourceindex => $resourceviews) {
+                $this->create_logview($previoususerid, $previouscourse->id, $previousresources[$resourceindex]->id, $eventname,
+                                      $component, $previousstartdate, $resourceviews);
             }
         }
 
-        // We create the current users...
-        $currentcourses = $this->create_courses($this->currentcourseattributes, 1);
+        // We create the previous resources for the week + 1...
+        /*
+        $previousnexttimestamp = $previousstartdate + 7 * 24 * 60 * 60; // We add a week, in seconds...
+        $previousnextresources = array();
+        $previousnextresources[$previouscourse->id][$component] = count($nextresourcesnames);
+        $previousnextresources = $this->create_resources($previousnextresources, $nextresourcesnames);
 
-        $currentusers = $this->create_and_enrol_students($currentcourses[0]->id, 2);
+        // We create the log views of the previous course for previous next resources...
+        $previousnextlogviews = array();
+        $previousnextlogviews[$previoususers[0]->id] = array(1, 3);
+        $previousnextlogviews[$previoususers[0]->id] = array(2, 2);
+        $previousnextlogviews[$previoususers[0]->id] = array(6, 2);
 
-        // We create the resources...
-        $numberofresources = 3;
+        foreach ($previousnextlogviews as $previoususerid => $previousnextresourcesviews) {
+            foreach ($previousnextresourcesviews as $resourceindex => $resourceviews) {
+                $this->create_logview($previoususerid, $previouscourse->id, $previousnextresources[$resourceindex]->id,
+                                      $eventname, $component, $previousnexttimestamp, $resourceviews);
+            }
+        }*/
+
+        // *******************************************
+        // Current course data
+        // *******************************************
+
+        // We create the current course...
+        $currentyear = 2016;
+        $currentstartdate = strtotime("06-01-$currentyear");
+        $currentattributes = array('fullname' => $coursesname,
+                                    'startdate' => $currentstartdate);
+        $currentcourse = $this->create_courses($currentattributes, 1)[0];
+
+        // We create and enrol the current users...
+        $currentusers = $this->create_and_enrol_students($currentcourse->id, 2);
+
+        // We create the previous resources...
+        $currentresourcesnumber = count($resourcesnames);
         $currentresources = array();
-        $currentresources[$currentcourses[0]->id]['mod_page'] = $numberofresources;
-        $resources = array();
-        $resources = $this->create_resources($currentresources, $resourcesnames);
+        $currentresources[$currentcourse->id][$component] = $currentresourcesnumber;
+        $currentresources = $this->create_resources($currentresources, $resourcesnames);
 
-        // We create the log views for the current users...
+        // We create the log views of the current course for current resources and current users...
         $currentlogviews = array();
         $currentlogviews[$currentusers[0]->id] = array(3, 4, 6);
         $currentlogviews[$currentusers[1]->id] = array(7, 3, 2);
 
-        foreach ($currentlogviews as $userid => $resourceslogviews) {
-            foreach ($resourceslogviews as $resourceindex => $logviews) {
-                $this->create_logview($userid, $currentcourses[0]->id, $resources[$resourceindex]->id,
-                                      $eventname, $component, $this->currentstartdate, $logviews);
+        foreach ($currentlogviews as $currentuserid => $currentresourcesviews) {
+            foreach ($currentresourcesviews as $resourceindex => $resourceviews) {
+                $this->create_logview($currentuserid, $currentcourse->id, $currentresources[$resourceindex]->id, $eventname,
+                                      $component, $currentstartdate, $resourceviews);
             }
         }
 
-        // We create the resources and log views of previous course for the week + 1.
-        $date = strtotime("11-01-$this->previousyear");
-        $nextlogviews = array();
-        $nextlogviews[$previoususers[0]->id] = array(3, 1);
-        $nextlogviews[$previoususers[1]->id] = array(0, 5);
-        $nextlogviews[$previoususers[2]->id] = array(2, 6);
-        $resourcesnames = array('Page 100', 'Page 101');
-        $nextresources = array();
-        $nextresources[$previouscourses[0]->id]['mod_page'] = 2;
-        $resources = $this->create_resources($nextresources, $resourcesnames);
+        // We create the next resources for the week + 1...
+        $currentnexttimestamp = $currentstartdate + 7 * 24 * 60 * 60; // We add a week, in seconds...
+        $currentnextresources = array();
+        $currentnextresources[$currentcourse->id][$component] = count($nextresourcesnames);
+        $currentnextresources = $this->create_resources($currentnextresources, $nextresourcesnames);
 
-        foreach ($nextlogviews as $userid => $resourceslogviews) {
-            foreach ($resourceslogviews as $resourceindex => $logviews) {
-                $this->create_logview($userid, $previouscourses[0]->id, $resources[$resourceindex]->id,
-                                      $eventname, $component, $date, $logviews);
-            }
-        }
+        // *******************************
+        // Finally, we call the function
+        // *******************************
+        $this->recommendator->create_recommendations($currentcourse->id, 2);
 
-        $currentunviewedresources = array();
-        $currentunviewedresources[$currentcourses[0]->id]['mod_page'] = 2;
-        $recommendedresources = $this->create_resources($currentunviewedresources, $resourcesnames);
+        var_dump($DB->get_records('block_mycourse_assoc'));
 
-        // After the logs are created, we can call the function we're testing.
-        $this->recommendator->create_recommendations($currentcourses[0]->id, 2);
-
-        // With the data in this test, the associations will be the following:
-        // $currentuser[0] associated with $previoususer[2].
-        // $currentuser[1] associated with $previoususer[0].
-        // So, the recommendations for these will be, respectively, the resources that $previoususer[2] and $previoususer[0]
-        // viewed in the following weeek.
-        $expecteds = array();
-        $expecteds[0] = new stdClass();
-        $expecteds[0]->resourceid = $recommendedresources[0]->id;
-        $expecteds[0]->priority = "0";
-
-        $expecteds[1] = new stdClass();
-        $expecteds[1]->resourceid = $recommendedresources[1]->id;
-        $expecteds[1]->priority = "1";
-
-        $expecteds[2] = new stdClass();
-        $expecteds[2]->resourceid = $recommendedresources[1]->id;
-        $expecteds[2]->priority = "0";
-
-        $expecteds[3] = new stdClass();
-        $expecteds[3]->resourceid = $recommendedresources[0]->id;
-        $expecteds[3]->priority = "1";
-
-        $sql = 'SELECT id,
-                       resourceid,
-                       priority
-                FROM   {block_mycourse_recs}';
-        $actuals = $DB->get_records_sql($sql);
-        $actuals = array_values($actuals);
-
-        // If there's no record, something is wrong.
-        $this->assertFalse(empty($actuals));
-
-        // We remove the "id" attribute, otherwise, the objects won't be equal to the expected ones.
-        foreach ($actuals as $index => $actual) {
-            unset($actual->id);
-            $actuals[$index] = $actual;
-        }
-
+        /*        
         usort($expecteds, array($this, 'sort_recommendations'));
-        usort($actuals, array($this, 'sort_recommendations'));
-
-        foreach ($actuals as $index => $actual) {
-            $this->assertEquals($expecteds[$index], $actual);
-        }
+        usort($actuals, array($this, 'sort_recommendations'));*/
     }
 
     protected function sort_recommendations($a, $b) {

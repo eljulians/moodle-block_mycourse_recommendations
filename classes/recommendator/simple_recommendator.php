@@ -139,7 +139,6 @@ class simple_recommendator extends abstract_recommendator {
         $startweek = $coursedates['week'];
         $year = $coursedates['year'];
 
-
         $yearchange = $startweek > $currentweek;
         $endweek = $currentweek;
         if ($yearchange) {
@@ -207,6 +206,9 @@ class simple_recommendator extends abstract_recommendator {
         $previousresources = array();
         $currentresources = array();
         $currenttransformedindex = 0;
+
+        sort($previousdata);
+        sort($currentdata);
 
         foreach ($currentdata as $currentindex => $currentresource) {
             foreach ($previousdata as $previousindex => $previousresource) {
