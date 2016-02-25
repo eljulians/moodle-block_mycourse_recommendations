@@ -306,7 +306,7 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         $previouslogviews = array();
         $previouslogviews[$previoususers[0]->id] = array(10, 3, 5);
         $previouslogviews[$previoususers[1]->id] = array(4, 1, 2);
-        $previouslogviews[$previoususers[2]->id] = array(0, 7, 7);
+        $previouslogviews[$previoususers[2]->id] = array(3, 5, 7);
 
         foreach ($previouslogviews as $previoususerid => $previousresourcesviews) {
             foreach ($previousresourcesviews as $resourceindex => $resourceviews) {
@@ -325,8 +325,8 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         // We create the log views of the previous course for previous next resources...
         $previousnextlogviews = array();
         $previousnextlogviews[$previoususers[0]->id] = array(1, 3);
-        $previousnextlogviews[$previoususers[0]->id] = array(2, 2);
-        $previousnextlogviews[$previoususers[0]->id] = array(6, 2);
+        $previousnextlogviews[$previoususers[1]->id] = array(2, 2);
+        $previousnextlogviews[$previoususers[2]->id] = array(6, 2);
 
         foreach ($previousnextlogviews as $previoususerid => $previousnextresourcesviews) {
             foreach ($previousnextresourcesviews as $resourceindex => $resourceviews) {
