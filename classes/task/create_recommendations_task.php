@@ -58,7 +58,7 @@ class create_recommendations_task extends \core\task\scheduled_task {
      * @return string Task name.
      */
     public function get_name() {
-        return 'My_course recommendations task (hardcoded!)';
+        return get_string('crontask', 'block_mycourse_recommendations');
     }
 
     /**

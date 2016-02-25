@@ -24,3 +24,4 @@
  */
 
 $string['pluginname'] = 'MYCOURSE Recommendations';
+$string['crontask'] = 'Recommendations creation job.';
