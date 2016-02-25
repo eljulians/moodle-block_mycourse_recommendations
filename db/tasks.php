@@ -15,13 +15,24 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Strings for component 'block_mycourse_recommendations', language 'en'.
+ * Definition of 'Mycourse recommendations' scheduled tasks.
  *
- * @package   block_mycourse_recommendations
- * @copyright 2015 onwards Iñaki Arenaza & Mondragon Unibertsitatea
- *            2016 onwards Julen Pardo & Mondragon Unibertsitatea
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    block_mycourse_recommendations
+ * @copyright  2016 onwards Julen Pardo & Mondragon Unibertsitatea
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'MYCOURSE Recommendations';
-$string['crontask'] = 'Recommendations creation job.';
+defined('MOODLE_INTERNAL') || die();
+
+// Execute the task every Sunday at 04:00 am.
+$tasks = array(
+    array(
+        'classname' => 'block_mycourse_recommendations\task\create_recommendations_task',
+        'blocking' => '0',
+        'minute' => '00',
+        'hour' => '4',
+        'day' => '*',
+        'dayofweek' => '0',
+        'month' => '*'
+    )
+);
