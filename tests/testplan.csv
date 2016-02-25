@@ -172,9 +172,9 @@ The following data will be generated:
     · $currentuser[1] = (priority:0 => $resource[1]; priority:1 => $resource[0])";Equivalence;Yes;Pass;;Julen Pardo;19/02/2016
 23;recommendator/simple_recommendator;;"$inputs = array();";Test that the function returns an array with the latest logviews, i.e., the logviews with the higher number of views. In this case, the expected value will be the same array of objects of the input, but without the 1-nd record.;Equivalence;Yes;Pass;Using reflection to access the methods, since it's protected.;Julen Pardo;21/02/2016
 24;recommendator/simple_recommendator;;"$inputs = array();";Test that the function creates properly an associative array from the query results, where the resource (module) id is the key, and the logviews the value.;Equivalence;Yes;Pass;Using reflection to access the methods, since it's protected.;Julen Pardo;21/02/2016
-;;;"        $inputs[0] = new stdClass();";;;;;;;
-;;;"        $inputs[0]->userid = 1;";;;;;;;
-;;;"        $inputs[0]->courseid = 10;";;;;;;;
+25;db/database_helper;get_selected_active_courses;<none>;Test, after inserting manually some courses (some active, some inactive), that the function retrieves correctly the active courses.;Equivalence;No;;;;
+26;db/database_helper;set_course_inactive;$courseid =100;Test, after inserting some courses, that the function sets them all inactive.;Equivalence;No;;;;
+27;db/database_helper;set_courses_of_year_inactive;$year = 2014;Test, after inserting some courses, that the function sets the courses of a year inactive, while the courses of other years are not modified.;Equivalence;No;;;;
 ;;;"        $inputs[0]->moduleid = 100;";;;;;;;
 ;;;"        $inputs[0]->modulename = 'Module 100';";;;;;;;
 ;;;"        $inputs[0]->logviews = 3;";;;;;;;
