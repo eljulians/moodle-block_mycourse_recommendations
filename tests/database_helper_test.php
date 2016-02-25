@@ -508,4 +508,166 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
             $this->assertEquals($expecteds[$index], $actual);
         }
     }
+
+    public function test_get_selected_active_courses() {
+        global $DB;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $courses = array();
+        $courses[0] = new stdClass();
+        $courses[0]->courseid = 100;
+        $courses[0]->active = 1;
+        $courses[0]->year = 2015;
+
+        $courses[1] = new stdClass();
+        $courses[1]->courseid = 200;
+        $courses[1]->active = 0;
+        $courses[1]->year = 2017;
+
+        $courses[2] = new stdClass();
+        $courses[2]->courseid = 101;
+        $courses[2]->active = 1;
+        $courses[2]->year = 2015;
+
+        foreach ($courses as $course) {
+            $DB->execute("INSERT INTO {block_mycourse_course_sel} (courseid, active, year)
+                          VALUES($course->courseid, $course->active, $course->year)");
+        }
+
+        $actuals = $this->databasehelper->get_selected_active_courses();
+        $actuals = array_values($actuals);
+
+        // If the function output returns an empty array, something is wrong.
+        $this->assertFalse(empty($actuals));
+
+        // The expected values will be the same as input, but without the course that is not active.
+        $expecteds = $courses;
+        unset($expecteds[1]);
+        $expecteds = array_values($expecteds);
+
+        // We sort the objects to have them in the same order, to compare them in a loop.
+        usort($expecteds, function($a, $b){
+            return strcmp($a->courseid, $b->courseid);
+        });
+        usort($actuals, function($a, $b){
+            return strcmp($a->courseid, $b->courseid);
+        });
+
+        foreach ($actuals as $index => $actual) {
+            $this->assertEquals($expecteds[$index], $actual);
+        }
+    }
+
+
+    public function test_set_course_inactive() {
+        global $DB;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $courses = array();
+        $courses[0] = new stdClass();
+        $courses[0]->courseid = 100;
+        $courses[0]->active = 1;
+        $courses[0]->year = 2015;
+
+        $courses[2] = new stdClass();
+        $courses[2]->courseid = 101;
+        $courses[2]->active = 1;
+        $courses[2]->year = 2015;
+
+        $courses[1] = new stdClass();
+        $courses[1]->courseid = 200;
+        $courses[1]->active = 1;
+        $courses[1]->year = 2017;
+
+        foreach ($courses as $course) {
+            $DB->execute("INSERT INTO {block_mycourse_course_sel} (courseid, active, year)
+                          VALUES($course->courseid, $course->active, $course->year)");
+        }
+
+        $this->databasehelper->set_course_inactive($courses[1]->courseid);
+
+        $actuals = $DB->get_records_sql("SELECT courseid, active, year
+                                         FROM   {block_mycourse_course_sel} sel
+                                         WHERE  sel.active = 1");
+        $actuals = array_values($actuals);
+
+        // If the function output returns an empty array, something is wrong.
+        $this->assertFalse(empty($actuals));
+
+        // The expected values will be the same as input, but without the course that is not active.
+        $expecteds = $courses;
+        unset($expecteds[1]);
+        $expecteds = array_values($expecteds);
+
+        // We sort the objects to have them in the same order, to compare them in a loop.
+        usort($expecteds, function($a, $b){
+            return strcmp($a->courseid, $b->courseid);
+        });
+        usort($actuals, function($a, $b){
+            return strcmp($a->courseid, $b->courseid);
+        });
+
+        foreach ($actuals as $index => $actual) {
+            $this->assertEquals($expecteds[$index], $actual);
+        }
+    }
+
+    public function test_set_courses_of_year_inactive() {
+        global $DB;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $courses = array();
+        $courses[0] = new stdClass();
+        $courses[0]->courseid = 100;
+        $courses[0]->active = 1;
+        $courses[0]->year = 2015;
+
+        $courses[1] = new stdClass();
+        $courses[1]->courseid = 200;
+        $courses[1]->active = 1;
+        $courses[1]->year = 2017;
+
+        $courses[2] = new stdClass();
+        $courses[2]->courseid = 101;
+        $courses[2]->active = 1;
+        $courses[2]->year = 2015;
+
+        foreach ($courses as $course) {
+            $DB->execute("INSERT INTO {block_mycourse_course_sel} (courseid, active, year)
+                          VALUES($course->courseid, $course->active, $course->year)");
+        }
+
+        $this->databasehelper->set_courses_of_year_inactive($courses[1]->year);
+
+        $actuals = $DB->get_records_sql("SELECT courseid, active, year
+                                         FROM   {block_mycourse_course_sel} sel
+                                         WHERE  sel.active = 1");
+        $actuals = array_values($actuals);
+
+        // If the function output returns an empty array, something is wrong.
+        $this->assertFalse(empty($actuals));
+
+        // The expected values will be the same as input, but without the course that is not active.
+        $expecteds = $courses;
+        unset($expecteds[1]);
+        $expecteds = array_values($expecteds);
+
+        // We sort the objects to have them in the same order, to compare them in a loop.
+        usort($expecteds, function($a, $b){
+            return strcmp($a->courseid, $b->courseid);
+        });
+        usort($actuals, function($a, $b){
+            return strcmp($a->courseid, $b->courseid);
+        });
+
+        foreach ($actuals as $index => $actual) {
+            $this->assertEquals($expecteds[$index], $actual);
+        }
+    }
 }

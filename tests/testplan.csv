@@ -133,7 +133,7 @@ The courses and student are created using the data generator, so the ids are unk
 18;recommendator/abstract_recommendator;select_students;"$currentcourseid = <generated>
 $year = 2016";Test that, generating 20 students for a course, after calling the method, there are exactly 10 students in the table of the selected users.;Equivalence;Yes;Pass;;Julen Pardo;16/02/2016
 19;recommendator/simple_recommendator;create_associations;"$courseid = <generated>
-$currentweek = 1";"Test that the associations are created and inserted correctly into the database, that is, that after querying the needed data (both current and previous), and using the associator (cosine_similarity_associator in this case), the associations are properly inserted into {block_mycourse_user_sel}.
+$currentweek = 2";"Test that the associations are created and inserted correctly into the database, that is, that after querying the needed data (both current and previous), and using the associator (cosine_similarity_associator in this case), the associations are properly inserted into {block_mycourse_user_sel}.
 The following data will be generated:
  - 2 courses: one, current; the other, a previous teaching.
  - 6 resources: half for the current, half for the previous. Each current-previous course pair will have the same name.
@@ -141,9 +141,17 @@ The following data will be generated:
  - Log views ('p' for previous, 'c' for current): 
     - p1 = (10, 3, 5)
     - p2 = (4, 1, 2)
-    - p3 = (0, 7, 7)
+    - p3 = (3, 5, 7)
     - c1 = (3, 4, 6)
-    - c2 = (7, 3, 2)";Equivalence;Yes;Pass;;Julen Pardo;18/02/2016
+    - c2 = (7, 3, 2)
+ - The expecting associations will be:
+     - c1 with p3
+     - c2 with p1
+ - Log views for the following week of the previous course:
+    - p1 = (1, 3)
+    - p3 = (6, 2)
+    - p2 doesn't matter here since it's not a reference for the recs.
+ - So, for the c1, the content with more priority will be the one with 6 views of p3, and then, the one with 2. For c2, first, the one with 3 views, and then the one with 1 view.";Equivalence;Yes;Pass;;Julen Pardo;25/02/2016
 20;db/database_helper;get_associations;"$courseid = 20 
 $currentweek = 1";Test that, after generating associations (with current and previous users and courses), there are properly retrieved from database.;Equivalence;Yes;Pass;;Julen Pardo;18/02/2016
 21;db/database_helper;get_recommendations;"$courseid = 20 
@@ -164,9 +172,9 @@ The following data will be generated:
     · $currentuser[1] = (priority:0 => $resource[1]; priority:1 => $resource[0])";Equivalence;Yes;Pass;;Julen Pardo;19/02/2016
 23;recommendator/simple_recommendator;;"$inputs = array();";Test that the function returns an array with the latest logviews, i.e., the logviews with the higher number of views. In this case, the expected value will be the same array of objects of the input, but without the 1-nd record.;Equivalence;Yes;Pass;Using reflection to access the methods, since it's protected.;Julen Pardo;21/02/2016
 24;recommendator/simple_recommendator;;"$inputs = array();";Test that the function creates properly an associative array from the query results, where the resource (module) id is the key, and the logviews the value.;Equivalence;Yes;Pass;Using reflection to access the methods, since it's protected.;Julen Pardo;21/02/2016
-;;;"        $inputs[0] = new stdClass();";;;;;;;
-;;;"        $inputs[0]->userid = 1;";;;;;;;
-;;;"        $inputs[0]->courseid = 10;";;;;;;;
+25;db/database_helper;get_selected_active_courses;<none>;Test, after inserting manually some courses (some active, some inactive), that the function retrieves correctly the active courses.;Equivalence;Yes;Pass;;Julen Pardo;25/02/2016
+26;db/database_helper;set_course_inactive;$courseid =100;Test, after inserting some courses, that the function sets them all inactive.;Equivalence;Yes;Pass;;Julen Pardo;25/02/2016
+27;db/database_helper;set_courses_of_year_inactive;$year = 2014;Test, after inserting some courses, that the function sets the courses of a year inactive, while the courses of other years are not modified.;Equivalence;Yes;Pass;;Julen Pardo;25/02/2016
 ;;;"        $inputs[0]->moduleid = 100;";;;;;;;
 ;;;"        $inputs[0]->modulename = 'Module 100';";;;;;;;
 ;;;"        $inputs[0]->logviews = 3;";;;;;;;
