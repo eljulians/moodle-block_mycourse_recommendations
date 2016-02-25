@@ -407,7 +407,7 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         $expecteds[2]->followed = 0;
 
         $expecteds[3] = new stdClass();
-        $expecteds[3]->resourceid = $currentnextresources[1]->id;  
+        $expecteds[3]->resourceid = $currentnextresources[1]->id;
         $expecteds[3]->priority = 1;
         $expecteds[3]->followed = 0;
 

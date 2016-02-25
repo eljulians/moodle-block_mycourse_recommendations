@@ -151,7 +151,7 @@ The following data will be generated:
     - p1 = (1, 3)
     - p3 = (6, 2)
     - p2 doesn't matter here since it's not a reference for the recs.
- - So, for the c1, the content with more priority will be the one with 6 views of p3, and then, the one with 2. For c2, first, the one with 3 views, and then the one with 1 view.";Equivalence;No;;;;
+ - So, for the c1, the content with more priority will be the one with 6 views of p3, and then, the one with 2. For c2, first, the one with 3 views, and then the one with 1 view.";Equivalence;Yes;Pass;;Julen Pardo;25/02/2016
 20;db/database_helper;get_associations;"$courseid = 20 
 $currentweek = 1";Test that, after generating associations (with current and previous users and courses), there are properly retrieved from database.;Equivalence;Yes;Pass;;Julen Pardo;18/02/2016
 21;db/database_helper;get_recommendations;"$courseid = 20 
