@@ -390,9 +390,9 @@ class database_helper {
     public function set_course_inactive($courseid) {
         global $DB;
 
-        $sql = "UPDATE {block_mycourse_course_sel} courses
-                SET    courses.active = 0
-                WHERE  courses.courseid = $courseid";
+        $sql = "UPDATE {block_mycourse_course_sel}
+                SET    active = 0
+                WHERE  courseid = $courseid";
 
         $DB->execute($sql);
     }
@@ -405,9 +405,9 @@ class database_helper {
     public function set_courses_of_year_inactive($year) {
         global $DB;
 
-        $sql = "UPDATE {block_mycourse_course_sel} courses
-                SET    courses.active = 0
-                WHERE  courses.year = $year";
+        $sql = "UPDATE {block_mycourse_course_sel}
+                SET    active = 0
+                WHERE  year = $year";
 
         $DB->execute($sql);
     }
