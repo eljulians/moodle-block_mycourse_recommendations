@@ -11,7 +11,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
-// You should have received a copy of the GNU General Public License
+// You should have received a copy of the GNU General Public license
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
@@ -25,13 +25,68 @@ namespace block_mycourse_recommendations\task;
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/db/database_helper.php');
+require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/matrix/decimal_matrix.php');
+require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/associator/cosine_similarity_associator.php');
+require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/recommendator/simple_recommendator.php');
+
+use blocks_mycourse_recommendations\database_helper;
+use blocks_mycourse_recommendations\decimal_matrix;
+use blocks_mycourse_recommendations\cosine_similarity_associator;
+use blocks_mycourse_recommendations\simple_recommendator;
+
 class create_recommendations_task extends \core\task\scheduled_task {
 
+    private $db;
+    private $matrix;
+    private $associator;
+    private $recommendator;
+
+    /**
+     * Creates the instances of the components to use to calculate the recommendations.
+     */
+    protected initialize() {
+        $this->db = new database_helper();
+        $this->matrix = new decimal_matrix();
+        $this->associator = new cosine_similarity_associator($this->matrix);
+        $this->recommendator = new simple_recommendator($this->associator);
+    }
+
+    /**
+     * Get a descriptive name for this task (shown to admins).
+     *
+     * @return string Task name.
+     */
     public function get_name() {
         return 'My_course recommendations task (hardcoded!)';
     }
 
+    /**
+     * Run MyCourse recommendations cron.
+     *
+     * @see initialize().
+     * @see get_current_week().
+     */
     public function execute() {
+        $this->initialize();
 
+        $coursestorecommend = $this->db->get_selected_active_courses();
+
+        foreach ($coursestorecommend as $course) {
+            $week = $this->get_current_week();
+            $this->create_recommendations($courseid, $week);
+        }
+    }
+
+    /**
+     * Calculates current year's week number [1, 52].
+     *
+     * @return int Week number.
+     */
+    protected get_current_week() {
+        $week = date('W', time());
+        $week = intval($week);
+
+        return $week;
     }
 }
