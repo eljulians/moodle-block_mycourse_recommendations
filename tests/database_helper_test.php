@@ -555,7 +555,7 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
             return strcmp($a->courseid, $b->courseid);
         });
 
-        foreach($actuals as $index => $actual) {
+        foreach ($actuals as $index => $actual) {
             $this->assertEquals($expecteds[$index], $actual);
         }
     }
@@ -611,7 +611,7 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
             return strcmp($a->courseid, $b->courseid);
         });
 
-        foreach($actuals as $index => $actual) {
+        foreach ($actuals as $index => $actual) {
             $this->assertEquals($expecteds[$index], $actual);
         }
     }
@@ -666,7 +666,7 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
             return strcmp($a->courseid, $b->courseid);
         });
 
-        foreach($actuals as $index => $actual) {
+        foreach ($actuals as $index => $actual) {
             $this->assertEquals($expecteds[$index], $actual);
         }
     }
