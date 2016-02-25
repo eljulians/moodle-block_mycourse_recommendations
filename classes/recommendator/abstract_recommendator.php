@@ -33,6 +33,15 @@ use block_mycourse_recommendations\abstract_associator;
 
 abstract class abstract_recommendator {
 
+    /**
+     * Determines how many weeks to look after the current one, when finding associations and resources to
+     * recommend. For example, if the current week is the 4th, and the value of the constant is 1, the data
+     * will be queried from the beginning to the 5th week.
+     *
+     * @var int
+     */
+    const TIME_WINDOW = 2;
+
     protected $db;
     protected $associator;
 
