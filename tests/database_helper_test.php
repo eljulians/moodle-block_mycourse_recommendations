@@ -532,7 +532,7 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
         $courses[2]->year = 2015;
 
         foreach ($courses as $course) {
-            $DB->execute("INSERT INTO {block_mycourse_course_sel} sel(courseid, active, year)
+            $DB->execute("INSERT INTO {block_mycourse_course_sel} (courseid, active, year)
                           VALUES($course->courseid, $course->active, $course->year)");
         }
 
@@ -584,11 +584,11 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
         $courses[1]->year = 2017;
 
         foreach ($courses as $course) {
-            $DB->execute("INSERT INTO {block_mycourse_course_sel} sel(courseid, active, year)
+            $DB->execute("INSERT INTO {block_mycourse_course_sel} (courseid, active, year)
                           VALUES($course->courseid, $course->active, $course->year)");
         }
 
-        $this->databasehelper->set_course_inactive($courses[1]->id);
+        $this->databasehelper->set_course_inactive($courses[1]->courseid);
 
         $actuals = $DB->get_records_sql("SELECT courseid, active, year
                                          FROM   {block_mycourse_course_sel} sel
@@ -639,7 +639,7 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
         $courses[2]->year = 2015;
 
         foreach ($courses as $course) {
-            $DB->execute("INSERT INTO {block_mycourse_course_sel} sel(courseid, active, year)
+            $DB->execute("INSERT INTO {block_mycourse_course_sel} (courseid, active, year)
                           VALUES($course->courseid, $course->active, $course->year)");
         }
 
