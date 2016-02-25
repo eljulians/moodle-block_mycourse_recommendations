@@ -11,7 +11,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
-// You should have received a copy of the GNU General Public license
+// You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
@@ -45,7 +45,7 @@ class create_recommendations_task extends \core\task\scheduled_task {
     /**
      * Creates the instances of the components to use to calculate the recommendations.
      */
-    protected initialize() {
+    protected function initialize() {
         $this->db = new database_helper();
         $this->matrix = new decimal_matrix();
         $this->associator = new cosine_similarity_associator($this->matrix);
@@ -83,7 +83,7 @@ class create_recommendations_task extends \core\task\scheduled_task {
      *
      * @return int Week number.
      */
-    protected get_current_week() {
+    protected function get_current_week() {
         $week = date('W', time());
         $week = intval($week);
 
