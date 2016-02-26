@@ -33,8 +33,6 @@ use block_mycourse_recommendations\recommendations_renderer;
 
 class block_mycourse_recommendations_recommendations_renderer_testcase extends advanced_testcase {
 
-    protected $renderer;
-
     protected function setUp() {
         parent::setUp();
         null;
@@ -43,21 +41,6 @@ class block_mycourse_recommendations_recommendations_renderer_testcase extends a
     protected function tearDown() {
         parent::tearDown();
         null;
-    }
-
-    public function test_render_recommendations_emtpy() {
-        global $DB;
-
-        $this->resetAfterTest();
-        $this->setAdminUser();
-
-        $recommendations = array();
-
-        $expected = get_string('norecommendations', 'block_mycourse_recommendations');
-
-        $actual = recommendations_renderer::render_recommendations($recommendations);
-
-        $this->assertEquals($expected, $actual);
     }
 
     protected function create_resources($courseid, $number) {
@@ -72,7 +55,22 @@ class block_mycourse_recommendations_recommendations_renderer_testcase extends a
         return $resources;
     }
 
+    public function test_render_recommendations_empty() {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $recommendations = array();
+
+        $expected = get_string('norecommendations', 'block_mycourse_recommendations');
+
+        $actual = recommendations_renderer::render_recommendations($recommendations);
+
+        $this->assertEquals($expected, $actual);
+    }
+
     public function test_render_recommendations_below() {
+        global $COURSE;
+
         $this->resetAfterTest();
         $this->setAdminUser();
 
@@ -80,6 +78,7 @@ class block_mycourse_recommendations_recommendations_renderer_testcase extends a
 
         $course = $this->getDataGenerator()->create_course();
         $courseid = $course->id;
+        $COURSE = $course;
 
         $resources = $this->create_resources($courseid, $resourcenumber);
 
@@ -87,7 +86,7 @@ class block_mycourse_recommendations_recommendations_renderer_testcase extends a
 
         foreach ($resources as $index => $resource) {
             $recommendations[$index] = new stdClass();
-            $recommendations[$index]->resourceid = $resource->id;
+            $recommendations[$index]->resourceid = $resource->cmid;
             $recommendations[$index]->priority = $index;
         }
 
@@ -105,6 +104,8 @@ class block_mycourse_recommendations_recommendations_renderer_testcase extends a
     }
 
     public function test_render_recommendations_equal() {
+        global $COURSE;
+
         $this->resetAfterTest();
         $this->setAdminUser();
 
@@ -112,6 +113,7 @@ class block_mycourse_recommendations_recommendations_renderer_testcase extends a
 
         $course = $this->getDataGenerator()->create_course();
         $courseid = $course->id;
+        $COURSE = $course;
 
         $resources = $this->create_resources($courseid, $resourcenumber);
 
@@ -119,7 +121,7 @@ class block_mycourse_recommendations_recommendations_renderer_testcase extends a
 
         foreach ($resources as $index => $resource) {
             $recommendations[$index] = new stdClass();
-            $recommendations[$index]->resourceid = $resource->id;
+            $recommendations[$index]->resourceid = $resource->cmid;
             $recommendations[$index]->priority = $index;
         }
 
@@ -137,6 +139,8 @@ class block_mycourse_recommendations_recommendations_renderer_testcase extends a
     }
 
     public function test_render_recommendations_above() {
+        global $COURSE;
+
         $this->resetAfterTest();
         $this->setAdminUser();
 
@@ -144,6 +148,7 @@ class block_mycourse_recommendations_recommendations_renderer_testcase extends a
 
         $course = $this->getDataGenerator()->create_course();
         $courseid = $course->id;
+        $COURSE = $course;
 
         $resources = $this->create_resources($courseid, $resourcenumber);
 
@@ -151,7 +156,7 @@ class block_mycourse_recommendations_recommendations_renderer_testcase extends a
 
         foreach ($resources as $index => $resource) {
             $recommendations[$index] = new stdClass();
-            $recommendations[$index]->resourceid = $resource->id;
+            $recommendations[$index]->resourceid = $resource->cmid;
             $recommendations[$index]->priority = $index;
         }
 
@@ -167,5 +172,6 @@ class block_mycourse_recommendations_recommendations_renderer_testcase extends a
 
         $this->assertEquals($expected, $actual);
     }
+
 }
 
