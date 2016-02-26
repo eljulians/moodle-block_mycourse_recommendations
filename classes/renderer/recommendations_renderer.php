@@ -49,7 +49,7 @@ class recommendations_renderer {
         $recommendations = array_values($recommendations);
         $output = '<ol>';
 
-        for ($index = 0; $index < self::MAX_RECOMMENDATIONS; $index++) {
+        for ($index = 0; $index < self::MAX_RECOMMENDATIONS && $index < count($recommendations); $index++) {
             $recommendation = $recommendations[$index];
             $cminfo = $modinfo->get_cm($recommendation->resourceid);
 
