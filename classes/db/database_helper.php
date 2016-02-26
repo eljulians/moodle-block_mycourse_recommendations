@@ -620,7 +620,8 @@ class database_helper {
                 INNER JOIN {block_mycourse_assoc} associations
                     ON recommendations.associationid = associations.id
                 WHERE  associations.current_courseid = ?
-                    AND associations.week = ?';
+                    AND associations.week = ?
+                ORDER BY recommendations.priority ASC';
 
         $records = $DB->get_records_sql($sql, array($courseid, $week));
 
