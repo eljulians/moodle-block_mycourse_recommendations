@@ -520,20 +520,23 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
         $courses[0]->courseid = 100;
         $courses[0]->active = 1;
         $courses[0]->year = 2015;
+        $courses[0]->personalizable = true;
 
         $courses[1] = new stdClass();
         $courses[1]->courseid = 200;
         $courses[1]->active = 0;
         $courses[1]->year = 2017;
+        $courses[1]->personalizable = true;
 
         $courses[2] = new stdClass();
         $courses[2]->courseid = 101;
         $courses[2]->active = 1;
         $courses[2]->year = 2015;
+        $courses[2]->personalizable = true;
 
         foreach ($courses as $course) {
-            $DB->execute("INSERT INTO {block_mycourse_course_sel} (courseid, active, year)
-                          VALUES($course->courseid, $course->active, $course->year)");
+            $DB->execute("INSERT INTO {block_mycourse_course_sel} (courseid, active, year, personalizable)
+                          VALUES($course->courseid, $course->active, $course->year, $course->personalizable)");
         }
 
         $actuals = $this->databasehelper->get_selected_active_courses();
@@ -572,25 +575,28 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
         $courses[0]->courseid = 100;
         $courses[0]->active = 1;
         $courses[0]->year = 2015;
+        $courses[0]->personalizable = true;
 
         $courses[2] = new stdClass();
         $courses[2]->courseid = 101;
         $courses[2]->active = 1;
         $courses[2]->year = 2015;
+        $courses[2]->personalizable = true;
 
         $courses[1] = new stdClass();
         $courses[1]->courseid = 200;
         $courses[1]->active = 1;
         $courses[1]->year = 2017;
+        $courses[1]->personalizable = true;
 
         foreach ($courses as $course) {
-            $DB->execute("INSERT INTO {block_mycourse_course_sel} (courseid, active, year)
-                          VALUES($course->courseid, $course->active, $course->year)");
+            $DB->execute("INSERT INTO {block_mycourse_course_sel} (courseid, active, year, personalizable)
+                          VALUES($course->courseid, $course->active, $course->year, $course->personalizable)");
         }
 
         $this->databasehelper->set_course_inactive($courses[1]->courseid);
 
-        $actuals = $DB->get_records_sql("SELECT courseid, active, year
+        $actuals = $DB->get_records_sql("SELECT courseid, active, year, personalizable
                                          FROM   {block_mycourse_course_sel} sel
                                          WHERE  sel.active = 1");
         $actuals = array_values($actuals);
@@ -627,25 +633,28 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
         $courses[0]->courseid = 100;
         $courses[0]->active = 1;
         $courses[0]->year = 2015;
+        $courses[0]->personalizable = true;
 
         $courses[1] = new stdClass();
         $courses[1]->courseid = 200;
         $courses[1]->active = 1;
         $courses[1]->year = 2017;
+        $courses[1]->personalizable = true;
 
         $courses[2] = new stdClass();
         $courses[2]->courseid = 101;
         $courses[2]->active = 1;
         $courses[2]->year = 2015;
+        $courses[2]->personalizable = true;
 
         foreach ($courses as $course) {
-            $DB->execute("INSERT INTO {block_mycourse_course_sel} (courseid, active, year)
-                          VALUES($course->courseid, $course->active, $course->year)");
+            $DB->execute("INSERT INTO {block_mycourse_course_sel} (courseid, active, year, personalizable)
+                          VALUES($course->courseid, $course->active, $course->year, $course->personalizable)");
         }
 
         $this->databasehelper->set_courses_of_year_inactive($courses[1]->year);
 
-        $actuals = $DB->get_records_sql("SELECT courseid, active, year
+        $actuals = $DB->get_records_sql("SELECT courseid, active, year, personalizable
                                          FROM   {block_mycourse_course_sel} sel
                                          WHERE  sel.active = 1");
         $actuals = array_values($actuals);
