@@ -358,7 +358,7 @@ class database_helper {
      * @param int $year
      * @param bool $personalizable
      */
-    public function insert_selections($selections, $courseid, $year, $personalizable = 0) {
+    public function insert_selections($selections, $courseid, $year, $personalizable = 1) {
         global $DB;
 
         $active = ($personalizable === 1) ? true : false;
