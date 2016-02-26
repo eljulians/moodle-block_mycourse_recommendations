@@ -369,8 +369,8 @@ class database_helper {
 
         if ($personalizable) {
             foreach ($selections as $selection) {
-                $sql = "INSERT INTO {block_mycourse_user_sel} (userid, courseid, year, personalizable) VALUES(:v1, :v2, :v3, :v4)";
-                $values = ['v1' => (int)$selection, 'v2' => $courseid, 'v3' => $year, 'v4' => $personalizable];
+                $sql = "INSERT INTO {block_mycourse_user_sel} (userid, courseid, year) VALUES(:v1, :v2, :v3)";
+                $values = ['v1' => (int)$selection, 'v2' => $courseid, 'v3' => $year];
 
                 $DB->execute($sql, $values);
             }
