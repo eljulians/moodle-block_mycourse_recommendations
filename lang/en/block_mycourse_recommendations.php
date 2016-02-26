@@ -25,3 +25,4 @@
 
 $string['pluginname'] = 'MYCOURSE Recommendations';
 $string['crontask'] = 'Recommendations creation job.';
+$string['norecommendations'] = 'There are no recommendations for you for this week.';

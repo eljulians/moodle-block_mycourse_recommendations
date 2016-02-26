@@ -35,13 +35,14 @@ class recommendations_renderer {
      * self::MAX_RECOMMENDATIONS constant.
      *
      * @param array $recommendations Recommendations of the week and course.
-     * @return string The formatted HTML for the recommendations.
+     * @return string The formatted HTML for the recommendations; or string indicating that there are no recommendations,
+     * if $recommendations is empty.
      */
     public static function render_recommendations($recommendations) {
         global $COURSE;
 
         if (empty($recommendations)) {
-            return self::NO_RECOMMENDATIONS;
+            return get_string('norecommendations', 'block_mycourse_recommendations');
         }
 
         $modinfo = get_fast_modinfo($COURSE->id);
