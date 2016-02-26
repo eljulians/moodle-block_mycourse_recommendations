@@ -619,8 +619,6 @@ class database_helper {
                 FROM   {block_mycourse_recs} recommendations
                 INNER JOIN {block_mycourse_assoc} associations
                     ON recommendations.associationid = associations.id
-                INNER JOIN {course} course
-                    ON recommendations
                 WHERE  associations.current_courseid = ?
                     AND associations.week = ?
                 ORDER BY recommendations.priority ASC';
