@@ -168,11 +168,19 @@ class block_mycourse_recommendations_recommendations_renderer_testcase extends a
 
         $expected = '<ol>';
 
-        foreach ($resources as $resource) {
+        $resources = array_values($resources);
+
+        foreach ($resources as $index => $resource) {
+            if ($index === 3) {
+                break;
+            }
+
             $expected .= '<li>';
             $expected .= $resource->name;
             $expected .= '</li>';
         }
+
+
 
         $expected .= '</ol>';
 
