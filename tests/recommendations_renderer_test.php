@@ -180,8 +180,6 @@ class block_mycourse_recommendations_recommendations_renderer_testcase extends a
             $expected .= '</li>';
         }
 
-
-
         $expected .= '</ol>';
 
         $this->assertEquals($expected, $actual);
