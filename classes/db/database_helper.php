@@ -349,23 +349,31 @@ class database_helper {
      * Inserts the randomly selected user for the given course and year in the corresponding table.
      * The DML instruction is constructed manually because the table doesn't have an 'id' column,
      * and the '$BD->insert_record' throws an exception if it doesn't find a column with that name.
+     * If the course is not going to receive recommendations because it is not personalizable, we
+     * save it also, because we need to know that we don't have to calculate recommendations for the
+     * course, even if it has a block instance. If it is not personalizable, we don't select users.
      *
      * @param array $selection The ids of the users that will receive the recommendations.
      * @param int $courseid The course where the users will receive the recommendations.
      * @param int $year
+     * @param bool $personalizable
      */
-    public function insert_selections($selections, $courseid, $year) {
+    public function insert_selections($selections, $courseid, $year, $personalizable = 1) {
         global $DB;
 
-        $sql = "INSERT INTO {block_mycourse_course_sel} (courseid, year) VALUES(:v1, :v2)";
-        $values = ['v1' => (int)$courseid, 'v2' => $year];
+        $active = ($personalizable === 1) ? true : false;
+
+        $sql = "INSERT INTO {block_mycourse_course_sel} (courseid, year, active, personalizable) VALUES(:v1, :v2, :v3, :v4)";
+        $values = ['v1' => (int)$courseid, 'v2' => $year, 'v3' => $active, 'v4' => $personalizable];
         $DB->execute($sql, $values);
 
-        foreach ($selections as $selection) {
-            $sql = "INSERT INTO {block_mycourse_user_sel} (userid, courseid, year) VALUES(:v1, :v2, :v3)";
-            $values = ['v1' => (int)$selection, 'v2' => $courseid, 'v3' => $year];
+        if ($personalizable) {
+            foreach ($selections as $selection) {
+                $sql = "INSERT INTO {block_mycourse_user_sel} (userid, courseid, year) VALUES(:v1, :v2, :v3)";
+                $values = ['v1' => (int)$selection, 'v2' => $courseid, 'v3' => $year];
 
-            $DB->execute($sql, $values);
+                $DB->execute($sql, $values);
+            }
         }
     }
 
