@@ -679,4 +679,40 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
             $this->assertEquals($expecteds[$index], $actual);
         }
     }
+
+    public function test_is_blocks_first_instance_true() {
+        global $DB;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $courseid = 100;
+
+        $actual = $this->databasehelper->is_blocks_first_instance($courseid);
+
+        $this->assertTrue($actual);
+    }
+
+    public function test_is_blocks_first_instance_false() {
+        global $DB;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $courseid = 100;
+
+        $record = new stdClass();
+        $record->courseid = $courseid;
+        $record->active = 1;
+        $record->personalizable = 1;
+        $record->year = 2016;
+
+        $sql = "INSERT INTO {block_mycourse_course_sel} (courseid, year, active, personalizable) VALUES(:v1, :v2, :v3, :v4)";
+        $values = ['v1' => $courseid, 'v2' => 2016, 'v3' => 1, 'v4' => 1];
+        $DB->execute($sql, $values);
+
+        $actual = $this->databasehelper->is_blocks_first_instance($courseid);
+
+        $this->assertFalse($actual);
+    }
 }
