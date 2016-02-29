@@ -201,7 +201,9 @@ The following data will be generated:
 29;db/database_helper;is_blocks_first_instance;$courseid = 100;"There are two different tests for this method:
   1. One that checks that the function returns true if the given $courseid exists in the course selection table.
   2. One that checks that the function returns false if the given $courseid does not exist in the course selection table.";Equivalence;Yes;Pass;;Julen Pardo;29/02/2016
-;;;"        $inputs[0]->logviews = 3;";;;;;;;
+30;db/database_helper;is_course_personalizable;$courseid = 100;"There are two different tests for this method:
+  1. One that checks that the function returns true if the given $courseid is registered as personalizable.
+  2. One that checks that the function returns false if the given $courseid is registered as not personalizable, or no record is returned.";Equivalence;No;;;;
 ;;;;;;;;;;
 ;;;"        $inputs = array();";;;;;;;
 ;;;"        $inputs[1] = new stdClass();";;;;;;;

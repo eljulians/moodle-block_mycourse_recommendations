@@ -651,4 +651,28 @@ class database_helper {
 
         return $exists;
     }
+
+    /**
+     * Queries if the given course is registered as personalizable, or not.
+     *
+     * @param int $courseid The course to check if is personalizable or not.
+     * @return boolean If the course is personalizable or not.
+     */
+    public function is_course_personalizable($courseid) {
+        global $DB;
+
+        $sql = 'SELECT personalizable
+                FROM   {block_mycourse_course_sel} course
+                WHERE  course.courseid = ?';
+
+        $record = $DB->execute($sql, array($courseid));
+
+        if (!empty($record)) {
+            $personalizable = ($record->personalizable === 1) ? true : false;
+        } else {
+            $personalizable = false;
+        }
+
+        return $personalizable;
+    }
 }
