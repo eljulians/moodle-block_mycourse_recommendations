@@ -108,7 +108,7 @@ class block_mycourse_recommendations extends block_base {
 
         if ($personalizable) {
             $this->db->insert_course_selection($courseid, $courseyear, 1);
-            $this->associator->select_students($courseid, $courseyear);
+            $this->recommendator->select_students($courseid, $courseyear);
         } else {
             $this->db->insert_course_selection($courseid, $courseyear, 0);
         }

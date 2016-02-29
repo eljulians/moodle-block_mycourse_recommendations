@@ -54,19 +54,20 @@ class course_filter {
         $db = new database_helper();
 
         $personalizable = true;
+        $coursestartyear = $db->get_course_start_week_and_year($courseid)['year'];
 
-        $personalizable .= self::meets_minimum_previous_courses($courseid, $db);
+        $personalizable .= self::meets_minimum_previous_courses($courseid, $coursestartyear, $db);
 
         if ($personalizable) {
             $personalizable .= self::meets_minimum_weeks($courseid, $db);
         }
 
         if ($personalizable) {
-            $personalizable .= self::meets_minimum_resources($courseid, $db);
+            $personalizable .= self::meets_minimum_resources($courseid, $coursestartyear, $db);
         }
 
         if ($personalizable) {
-            $personalizable .= self::meets_minimum_previous_students($courseid, $db);
+            $personalizable .= self::meets_minimum_previous_students($courseid, $coursestartyear, $db);
         }
 
         if ($personalizable) {
