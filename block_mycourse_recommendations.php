@@ -79,7 +79,7 @@ class block_mycourse_recommendations extends block_base {
         $this->content->text = '';
         $this->content->footer = '';
 
-        $courseyear = $this->db->get_course_start_week_and_year($COURSE->id);
+        $courseyear = $this->db->get_course_start_week_and_year($COURSE->id)['year'];
         $firstinstance = $this->db->is_blocks_first_instance($COURSE->id);
 
         if ($firstinstance) {
@@ -89,7 +89,8 @@ class block_mycourse_recommendations extends block_base {
         $personalizable = $this->db->is_course_personalizable($COURSE->id);
 
         if ($personalizable) {
-            $recommendations = $this->db->get_recommendations($COURSE->id, $courseweek);
+            $currentweek = $this->get_current_week();
+            $recommendations = $this->db->get_recommendations($COURSE->id, $currentweek);
             $this->content->text = recommendations_renderer::render_recommendations($recommendations);
         } else {
             $this->content->text = get_string('notpersonalizable', 'block_mycourse_recommendations');
@@ -111,6 +112,18 @@ class block_mycourse_recommendations extends block_base {
         } else {
             $this->db->insert_course_selection($courseid, $courseyear, 0);
         }
+    }
+
+    /**
+     * Calculates current year's week number [1, 52].
+     *
+     * @return int Week number.
+     */
+    private function get_current_week() {
+        $week = date('W', time());
+        $week = intval($week);
+
+        return $week;
     }
 
 }
