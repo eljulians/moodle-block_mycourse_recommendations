@@ -203,7 +203,7 @@ The following data will be generated:
   2. One that checks that the function returns false if the given $courseid does not exist in the course selection table.";Equivalence;Yes;Pass;;Julen Pardo;29/02/2016
 30;db/database_helper;is_course_personalizable;$courseid = 100;"There are two different tests for this method:
   1. One that checks that the function returns true if the given $courseid is registered as personalizable.
-  2. One that checks that the function returns false if the given $courseid is registered as not personalizable, or no record is returned.";Equivalence;Yes;Fail;"Used $DB->execute() method; a method to get fields or records is required.";Julen Pardo;29/02/2016
+  2. One that checks that the function returns false if the given $courseid is registered as not personalizable, or no record is returned.";Equivalence;Yes;Pass;;Julen Pardo;29/02/2016
 ;;;;;;;;;;
 ;;;"        $inputs = array();";;;;;;;
 ;;;"        $inputs[1] = new stdClass();";;;;;;;
