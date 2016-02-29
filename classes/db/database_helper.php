@@ -640,7 +640,7 @@ class database_helper {
      * Queries if it is the first time that the block is loaded, necessary to know if it has to pass the course filter,
      * or if it has to display the recommendations.
      *
-     * @param $courseid The course to check if is selected.
+     * @param int $courseid The course to check if is selected.
      * @return boolean If the course is selected or not.
      */
     public function is_blocks_first_instance($courseid) {
