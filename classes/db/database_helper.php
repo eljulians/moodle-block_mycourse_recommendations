@@ -665,10 +665,10 @@ class database_helper {
                 FROM   {block_mycourse_course_sel} course
                 WHERE  course.courseid = ?';
 
-        $record = $DB->execute($sql, array($courseid));
+        $field = $DB->get_field_sql($sql, array($courseid));
 
-        if (!empty($record)) {
-            $personalizable = ($record->personalizable === 1) ? true : false;
+        if ($field !== null) {
+            $personalizable = (intval($field) === 1) ? true : false;
         } else {
             $personalizable = false;
         }
