@@ -612,7 +612,7 @@ class database_helper {
     }
 
     /**
-     * Quieres the recommenadtions calculated for a course in a specific week.
+     * Queries the recommendations calculated for a course in a specific week.
      *
      * @param int $courseid The course to query the associations of.
      * @param int $week The week to query the associations in.
@@ -636,4 +636,18 @@ class database_helper {
         return $records;
     }
 
+    /**
+     * Queries if it is the first time that the block is loaded, necessary to know if it has to pass the course filter,
+     * or if it has to display the recommendations.
+     *
+     * @param $courseid The course to check if is selected.
+     * @return boolean If the course is selected or not.
+     */
+    public function is_blocks_first_instance($courseid) {
+        global $DB;
+
+        $exists = $DB->record_exists('block_mycourse_course_sel', array('courseid' => $courseid));
+
+        return $exists;
+    }
 }
