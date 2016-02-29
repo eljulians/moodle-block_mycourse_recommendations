@@ -353,28 +353,40 @@ class database_helper {
      * save it also, because we need to know that we don't have to calculate recommendations for the
      * course, even if it has a block instance. If it is not personalizable, we don't select users.
      *
-     * @param array $selection The ids of the users that will receive the recommendations.
+     * @param array $selections The ids of the users that will receive the recommendations.
      * @param int $courseid The course where the users will receive the recommendations.
-     * @param int $year
-     * @param bool $personalizable
+     * @param int $year Course's year.
      */
-    public function insert_selections($selections, $courseid, $year, $personalizable = 1) {
+    public function insert_selections($selections, $courseid, $year) {
         global $DB;
 
-        $active = ($personalizable === 1) ? true : false;
+        foreach ($selections as $selection) {
+            $sql = "INSERT INTO {block_mycourse_user_sel} (userid, courseid, year) VALUES(:v1, :v2, :v3)";
+            $values = ['v1' => (int)$selection, 'v2' => $courseid, 'v3' => $year];
+
+            $DB->execute($sql, $values);
+        }
+    }
+
+    /**
+     * Inserts the given course into the table where the selected courses are kept. If the course is not going to
+     * be personalizable, the "active" field will be set to false, since it won't receive recommendations.
+     * Both "personalizable" and "active" fields are defined as integer in the database, so it's needed to "parse" the
+     * boolean values to integers.
+     *
+     * @param int $courseid The course id.
+     * @param int $year Course's teaching year.
+     * @param boolean $personalizable If the course is personalizable or not.
+     */
+    public function insert_course_selection($courseid, $year, $personalizable) {
+        global $DB;
+
+        $active = ($personalizable) ? 1 : 0;
+        $personalizable = ($personalizable) ? 1 : 0;
 
         $sql = "INSERT INTO {block_mycourse_course_sel} (courseid, year, active, personalizable) VALUES(:v1, :v2, :v3, :v4)";
         $values = ['v1' => (int)$courseid, 'v2' => $year, 'v3' => $active, 'v4' => $personalizable];
         $DB->execute($sql, $values);
-
-        if ($personalizable) {
-            foreach ($selections as $selection) {
-                $sql = "INSERT INTO {block_mycourse_user_sel} (userid, courseid, year) VALUES(:v1, :v2, :v3)";
-                $values = ['v1' => (int)$selection, 'v2' => $courseid, 'v3' => $year];
-
-                $DB->execute($sql, $values);
-            }
-        }
     }
 
     /**
