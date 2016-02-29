@@ -701,17 +701,52 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
 
         $courseid = 100;
 
-        $record = new stdClass();
-        $record->courseid = $courseid;
-        $record->active = 1;
-        $record->personalizable = 1;
-        $record->year = 2016;
-
         $sql = "INSERT INTO {block_mycourse_course_sel} (courseid, year, active, personalizable) VALUES(:v1, :v2, :v3, :v4)";
         $values = ['v1' => $courseid, 'v2' => 2016, 'v3' => 1, 'v4' => 1];
         $DB->execute($sql, $values);
 
         $actual = $this->databasehelper->is_blocks_first_instance($courseid);
+
+        $this->assertFalse($actual);
+    }
+
+    public function test_is_course_personalizable_true() {
+        global $DB;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $courseid = 100;
+        $personalizable = 1;
+
+        $sql = "INSERT INTO {block_mycourse_course_sel} (courseid, year, active, personalizable) VALUES(:v1, :v2, :v3, :v4)";
+        $values = ['v1' => $courseid, 'v2' => 2016, 'v3' => 1, 'v4' => $personalizable];
+        $DB->execute($sql, $values);
+
+        $actual = $this->databasehelper->is_course_personalizable($courseid);
+
+        $this->assertTrue($actual);
+    }
+
+    public function test_is_course_personalizable_false() {
+        global $DB;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $courseid = 100;
+        $personalizable = 0;
+
+        // First, having the course no row in the table, the function should also return false.
+        $actual = $this->databasehelper->is_course_personalizable($courseid);
+
+        $this->assertFalse($actual);
+
+        $sql = "INSERT INTO {block_mycourse_course_sel} (courseid, year, active, personalizable) VALUES(:v1, :v2, :v3, :v4)";
+        $values = ['v1' => $courseid, 'v2' => 2016, 'v3' => 1, 'v4' => $personalizable];
+        $DB->execute($sql, $values);
+
+        $actual = $this->databasehelper->is_course_personalizable($courseid);
 
         $this->assertFalse($actual);
     }
