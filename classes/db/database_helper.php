@@ -647,6 +647,7 @@ class database_helper {
         global $DB;
 
         $exists = $DB->record_exists('block_mycourse_course_sel', array('courseid' => $courseid));
+        $exists = !$exists;
 
         return $exists;
     }
