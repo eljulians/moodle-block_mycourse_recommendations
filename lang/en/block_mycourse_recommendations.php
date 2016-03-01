@@ -26,3 +26,4 @@
 $string['pluginname'] = 'MYCOURSE Recommendations';
 $string['crontask'] = 'Recommendations creation job.';
 $string['norecommendations'] = 'There are no recommendations for you for this week.';
+$string['notpersonalizable'] = 'This course won\'t receive recommendations because it is not personalizable.';
