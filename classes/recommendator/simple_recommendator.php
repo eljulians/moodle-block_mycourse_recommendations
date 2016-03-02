@@ -131,9 +131,7 @@ class simple_recommendator extends abstract_recommendator {
      * @param int $currentweek The current week of the current course.
      */
     public function create_associations($courseid, $currentweek) {
-        global $DB;
-
-        $users = $this->db->get_selected_users($courseid);
+        $selectedusers = $this->db->get_selected_users($courseid);
 
         $coursedates = $this->db->get_course_start_week_and_year($courseid);
         $startweek = $coursedates['week'];
@@ -147,6 +145,15 @@ class simple_recommendator extends abstract_recommendator {
         $endweek += parent::TIME_WINDOW;
 
         $currentdata = $this->db->query_data($courseid, $year, $startweek, $endweek);
+
+        // We keep only the users that are selected to receive the recommendations.
+        $currentselecteddata = array();
+        foreach ($currentdata as $currentuserrow) {
+            $isselecteduser = in_array($currentuserrow->get_userid(), $selectedusers);
+            if ($isselecteduser) {
+                array_push($currentselecteddata, $currentuserrow);
+            }
+        }
 
         $previouscourses = $this->db->find_course_previous_teachings_ids($courseid, $year);
         $previouscourse = max($previouscourses);
@@ -164,7 +171,7 @@ class simple_recommendator extends abstract_recommendator {
 
         $previousdata = $this->db->query_data($previouscourse, $year, $startweek, $endweek);
 
-        $associatedresources = $this->associate_resources($previousdata, $currentdata);
+        $associatedresources = $this->associate_resources($previousdata, $currentselecteddata);
         $previousdata = $associatedresources['previous'];
         $currentdata = $associatedresources['current'];
 
