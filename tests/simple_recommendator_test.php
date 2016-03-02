@@ -239,9 +239,10 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         // After the logs are created, we can call the function we're testing.
         $this->recommendator->create_associations($currentcourses[0]->id, 2);
 
-        // The number of rows of the table has to be equal to the number of current students, otherwise, something is wrong.
-        $rowcount = $DB->count_records('block_mycourse_assoc');
-        $this->assertEquals(count($currentusers), $rowcount);
+        // The number of rows of the table has to be equal to the number of selected students, otherwise, something is wrong.
+        $actualrowcount = $DB->count_records('block_mycourse_assoc');
+        $expectedrowcount = $DB->count_records('block_mycourse_user_sel');
+        $this->assertEquals($expectedrowcount, $actualrowcount);
 
         // We query the actual values, and we store them in an index-based array beginning from 0, not using the ids as keys.
         $actuals = array();
