@@ -14,7 +14,7 @@
     <property name="testsuite.name" value="block_mycourse_recommendations_testsuite"/>
     <property name="success.code" value="0"/>
 
-    <property name="behat.wwwroot" value="/var/www/behat_${parameter.version}"/>
+    <property name="behat.wwwroot" value="/var/www/html/behat_${parameter.version}"/>
     <property name="behat.dataroot" value="/var/behat_${parameter.version}"/>
     <property name="behat.yml" value="${behat.dataroot}/behat/behat.yml"/>
 
