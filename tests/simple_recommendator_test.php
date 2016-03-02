@@ -202,10 +202,14 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         // We create the current users...
         $currentcourses = $this->create_courses($this->currentcourseattributes, 1);
 
-        $currentusers = $this->create_and_enrol_students($currentcourses[0]->id, 2);
+        $currentusers = $this->create_and_enrol_students($currentcourses[0]->id, 3);
 
-        // We set the created users as selected for receiving recommendations...
-        foreach ($currentusers as $currentuser) {
+        // We set the created users as selected for receiving recommendations, but excluding the last one, to check that
+        // effectively only the selected users are taken into account.
+        foreach ($currentusers as $index => $currentuser) {
+            if ($index + 1 === count($currentusers)) {
+                break;
+            }
             $sql = "INSERT INTO {block_mycourse_user_sel} (userid, courseid, year) VALUES(:v1, :v2, :v3)";
             $values = ['v1' => (int)$currentuser->id, 'v2' => $currentcourses[0]->id, 'v3' => 2016];
             $DB->execute($sql, $values);
@@ -222,6 +226,8 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         $currentlogviews = array();
         $currentlogviews[$currentusers[0]->id] = array(3, 4, 6);
         $currentlogviews[$currentusers[1]->id] = array(7, 3, 2);
+        // This user should not be taken into account for the recommendations since it's not in selected users' table.
+        $currentlogviews[$currentusers[2]->id] = array(7, 3, 6);
 
         foreach ($currentlogviews as $userid => $resourceslogviews) {
             foreach ($resourceslogviews as $resourceindex => $logviews) {
@@ -352,10 +358,14 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         $currentcourse = $this->create_courses($currentattributes, 1)[0];
 
         // We create and enrol the current users...
-        $currentusers = $this->create_and_enrol_students($currentcourse->id, 2);
+        $currentusers = $this->create_and_enrol_students($currentcourse->id, 3);
 
-        // We set the created users as selected for receiving recommendations...
-        foreach ($currentusers as $currentuser) {
+        // We set the created users as selected for receiving recommendations, but excluding the last one, to check that
+        // effectively only the selected users are taken into account.
+        foreach ($currentusers as $index => $currentuser) {
+            if ($index + 1 === count($currentusers)) {
+                break;
+            }
             $sql = "INSERT INTO {block_mycourse_user_sel} (userid, courseid, year) VALUES(:v1, :v2, :v3)";
             $values = ['v1' => (int)$currentuser->id, 'v2' => $currentcourse->id, 'v3' => $currentyear];
             $DB->execute($sql, $values);
@@ -371,6 +381,8 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         $currentlogviews = array();
         $currentlogviews[$currentusers[0]->id] = array(3, 4, 6);
         $currentlogviews[$currentusers[1]->id] = array(7, 3, 2);
+        // This user should not be taken into account for the recommendations since it's not in selected users' table.
+        $currentlogviews[$currentusers[2]->id] = array(7, 3, 6);
 
         foreach ($currentlogviews as $currentuserid => $currentresourcesviews) {
             foreach ($currentresourcesviews as $resourceindex => $resourceviews) {
