@@ -489,6 +489,9 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
 
         $actuals = $this->databasehelper->get_recommendations($currentcourseid, $record->current_userid, $week);
 
+        // If no recommendations is retrieved, something is wrong.
+        $this->assertFalse(empty($actuals));
+
         foreach ($actuals as $index => $record) {
             unset($record->id);
             $actuals[$index] = $record;
