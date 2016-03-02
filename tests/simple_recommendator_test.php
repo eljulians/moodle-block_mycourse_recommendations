@@ -204,6 +204,13 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
 
         $currentusers = $this->create_and_enrol_students($currentcourses[0]->id, 2);
 
+        // We set the created users as selected for receiving recommendations...
+        foreach ($currentusers as $currentuser) {
+            $sql = "INSERT INTO {block_mycourse_user_sel} (userid, courseid, year) VALUES(:v1, :v2, :v3)";
+            $values = ['v1' => (int)$currentuser->id, 'v2' => $currentcourses[0]->id, 'v3' => 2016];
+            $DB->execute($sql, $values);
+        }
+
         // We create the resources...
         $numberofresources = 3;
         $currentresources = array();
@@ -346,6 +353,13 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
 
         // We create and enrol the current users...
         $currentusers = $this->create_and_enrol_students($currentcourse->id, 2);
+
+        // We set the created users as selected for receiving recommendations...
+        foreach ($currentusers as $currentuser) {
+            $sql = "INSERT INTO {block_mycourse_user_sel} (userid, courseid, year) VALUES(:v1, :v2, :v3)";
+            $values = ['v1' => (int)$currentuser->id, 'v2' => $currentcourse->id, 'v3' => $currentyear];
+            $DB->execute($sql, $values);
+        }
 
         // We create the previous resources...
         $currentresourcesnumber = count($resourcesnames);
