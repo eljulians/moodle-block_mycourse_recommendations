@@ -627,10 +627,11 @@ class database_helper {
      * Queries the recommendations calculated for a course in a specific week.
      *
      * @param int $courseid The course to query the associations of.
+     * @param int $userid The user receiving the recommendations.
      * @param int $week The week to query the associations in.
      * @return array An object for each row, with the attributes of the queried columns.
      */
-    public function get_recommendations($courseid, $week) {
+    public function get_recommendations($courseid, $userid, $week) {
         global $DB;
 
         $sql = 'SELECT recommendations.id,
@@ -641,9 +642,10 @@ class database_helper {
                     ON recommendations.associationid = associations.id
                 WHERE  associations.current_courseid = ?
                     AND associations.week = ?
+                    AND associations.current_userid = ?
                 ORDER BY recommendations.priority ASC';
 
-        $records = $DB->get_records_sql($sql, array($courseid, $week));
+        $records = $DB->get_records_sql($sql, array($courseid, $week, $userid));
 
         return $records;
     }

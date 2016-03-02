@@ -63,7 +63,7 @@ class block_mycourse_recommendations extends block_base {
      * @return string
      */
     public function get_content() {
-        global $COURSE;
+        global $COURSE, $USER;
 
         if ($this->content !== null) {
             return $this->content;
@@ -90,7 +90,7 @@ class block_mycourse_recommendations extends block_base {
 
         if ($personalizable) {
             $currentweek = $this->get_current_week();
-            $recommendations = $this->db->get_recommendations($COURSE->id, $currentweek);
+            $recommendations = $this->db->get_recommendations($COURSE->id, $USER->id, $currentweek);
             $this->content->text = recommendations_renderer::render_recommendations($recommendations);
         } else {
             $this->content->text = get_string('notpersonalizable', 'block_mycourse_recommendations');
