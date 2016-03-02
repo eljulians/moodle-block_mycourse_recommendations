@@ -204,5 +204,25 @@ The following data will be generated:
 30;db/database_helper;is_course_personalizable;$courseid = 100;"There are two different tests for this method:
   1. One that checks that the function returns true if the given $courseid is registered as personalizable.
   2. One that checks that the function returns false if the given $courseid is registered as not personalizable, or no record is returned.";Equivalence;Yes;Pass;;Julen Pardo;29/02/2016
+31;<All the system>;<All the system>;"{block_mycourse_course_sel}
+courseid         | active | personalizable | year
+<generated> | 1           | 0                             | 2016";Tests that, being the course NOT PERSONALIZABLE, the plugin shows the corresponding message for not personalizable courses.;Acceptance;No;;;;
+32;<All the system>;<All the system>;"{block_mycourse_course_sel}
+courseid         | active | personalizable | year
+<generated> | 1           | 1                             | 2016
+
+{block_mycourse_user_sel}
+userid              |courseid                   | year
+<generated> | <the one above> | 2016
+
+{block_mycourse_assoc}
+id | current_userid | current_courseid | historic_userid | historic_courseid | week
+1  | <generated>      | <generated>          | <generated>      | <generated>          | 1
+
+{block_mycourse_recs}
+id | associationid | resourceid | priority | followed
+1  | 1                          | <gen.>          | 0             | 0
+2  | 2                          | <gen.>          |  1            | 0";Test that, being the course personalizable, the block shows the recommendated expected resources.;Acceptance;No;;;;
+;;;;;;;;;;
 ;;;;;;;;;;
 ;;;;;;;;;;
