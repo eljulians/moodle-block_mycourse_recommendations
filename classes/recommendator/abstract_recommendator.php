@@ -55,8 +55,10 @@ abstract class abstract_recommendator {
     abstract public function create_associations($courseid, $currentweek);
 
     /**
-     * Given the course identificator, selects, randomly, 50% of the students enroled in the course,
+     * Given the course identificator, selects, randomly, 50% of the students enrolled in the course,
      * who will be the ones receiving the personalized recommendations.
+     * "array_rand" function returns the randomly selected keys, not values, so, we have to construct
+     * manually the array with random users.
      *
      * @param int $courseid The course to select students from.
      */
@@ -64,7 +66,14 @@ abstract class abstract_recommendator {
         $coursestudents = $this->db->get_students_from_course($courseid);
         $count = count($coursestudents);
 
-        $selectedstudents = array_rand($coursestudents, $count / 2);
+        $selectedstudentsindexes = array_rand($coursestudents, $count / 2);
+
+        $selectedstudents = array();
+
+        foreach ($selectedstudentsindexes as $selectedindex) {
+            $selectedstudent = $coursestudents[$selectedindex];
+            array_push($selectedstudents, $selectedstudent);
+        }
         $this->db->insert_selections($selectedstudents, $courseid, $year);
     }
 

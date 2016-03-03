@@ -330,12 +330,23 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
         $resources[$previouscourse->id]['mod_page'] = count($resourcesnames);
         $this->create_resources($resources, $resourcesnames);
 
-        $expected = new stdClass();
-        $expected->text = get_string('norecommendations', 'block_mycourse_recommendations');
-        $expected->footer = '';
         $actual = $this->block->get_content();
 
-        var_dump($DB->get_records('block_mycourse_user_sel'));
+        // We don't know if the user has been selected! So, the expected value will vary depending on if the user
+        // we have kept is between the selected ones, or not.
+        $selectedusers = $DB->get_records('block_mycourse_user_sel');
+        $selectedusers = array_keys($selectedusers);
+
+        $hasuserbeenselected = in_array($user->id, $selectedusers);
+
+        $expected = new stdClass();
+        $expected->footer = '';
+
+        if ($hasuserbeenselected) {
+            $expected->text = get_string('norecommendations', 'block_mycourse_recommendations');
+        } else {
+            $expected->text = get_string('usernotselected', 'block_mycourse_recommendations');
+        }
 
         $this->assertEquals($expected, $actual);
     }
