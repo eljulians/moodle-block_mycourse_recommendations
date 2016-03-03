@@ -660,10 +660,16 @@ class database_helper {
     public function is_blocks_first_instance($courseid) {
         global $DB;
 
-        $exists = $DB->record_exists('block_mycourse_course_sel', array('courseid' => $courseid));
-        $exists = !$exists;
+        $sql = 'SELECT count(*) as c
+                FROM   {block_mycourse_course_sel} course_sel
+                WHERE  course_sel.courseid = ?';
 
-        return $exists;
+        $count = $DB->get_record_sql($sql, array($courseid));
+        $count = intval($count->c);
+
+        $firstinstance = ($count === 0) ? true : false;
+
+        return $firstinstance;
     }
 
     /**

@@ -202,7 +202,7 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
 
         // We create a user and we enrol into the course...
         $studentnumber = 1;
-        $user = $this->create_and_enrol_students($course->id, $studentnumber);
+        $user = $this->create_and_enrol_students($course->id, $studentnumber)[0];
         $USER = $user;
 
         // We set the course as personalizable and active in plugin's table.
