@@ -45,9 +45,16 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
         parent::setUp();
         $this->block = new block_mycourse_recommendations();
         $this->db = new database_helper();
+
+        $this->block->init();
+        // The $instance attribute is block_base's attribute, with the instance of the block implementation; the block
+        // we are testing. In this case, as we are testing the function "unitarily", we have to assign some irrelevant
+        // value, to make the function not return an empty string.
+        $this->block->instance = 'something';
     }
 
     protected function tearDown() {
+        $this->block = null;
         $this->db = null;
         parent::tearDown();
     }
@@ -79,17 +86,62 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
         $course = $this->create_courses(array(), 1)[0];
         $COURSE = $course;
 
-        $this->block->init();
-
-        // The $instance attribute is block_base's attribute, with the instance of the block implementation; the block
-        // we are testing. In this case, as we are testing the function "unitarily", we have to assign some irrelevant
-        // value, to make the function not return an empty string.
-        $this->block->instance = 'something';
-
-        $expected = get_string('notpersonalizable', 'block_mycourse_recommendations');
-        $actual = $this->block->get_content()->text;
+        $expected = new stdClass();
+        $expected->text = get_string('notpersonalizable', 'block_mycourse_recommendations');
+        $expected->footer = '';
+        $actual = $this->block->get_content();
 
         $this->assertEquals($expected, $actual);
     }
 
+    public function test_get_content_nopersonalizable() {
+        global $COURSE, $DB;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        // We create the course and we set the global variable $COURSE with it, in order to make the block to access it...
+        $course = $this->create_courses(array(), 1)[0];
+        $COURSE = $course;
+
+        // We set the course as not personalizable in plugin's table.
+        $personalizable = 0;
+        $sql = "INSERT INTO {block_mycourse_course_sel} (courseid, active, personalizable, year)
+                VALUES(:v1, :v2, :v3, :v4)";
+        $values = ['v1' => $course->id, 'v2' => 1, 'v3' => $personalizable, 'v4' => 2016];
+        $DB->execute($sql, $values);
+
+        $expected = new stdClass();
+        $expected->text = get_string('notpersonalizable', 'block_mycourse_recommendations');
+        $expected->footer = '';
+        $actual = $this->block->get_content();
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function test_get_content_personalizable_inactive() {
+        global $COURSE, $DB;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        // We create the course and we set the global variable $COURSE with it, in order to make the block to access it...
+        $course = $this->create_courses(array(), 1)[0];
+        $COURSE = $course;
+
+        // We set the course as personalizable but inactive in plugin's table.
+        $active = 0;
+        $personalizable = 1;
+        $sql = "INSERT INTO {block_mycourse_course_sel} (courseid, active, personalizable, year)
+                VALUES(:v1, :v2, :v3, :v4)";
+        $values = ['v1' => $course->id, 'v2' => $active, 'v3' => $personalizable, 'v4' => 2016];
+        $DB->execute($sql, $values);
+
+        $expected = new stdClass();
+        $expected->text = get_string('inactive', 'block_mycourse_recommendations');
+        $expected->footer = '';
+        $actual = $this->block->get_content();
+
+        $this->assertEquals($expected, $actual);
+    }
 }

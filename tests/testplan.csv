@@ -223,7 +223,7 @@ id | current_userid | current_courseid | historic_userid | historic_courseid | w
 id | associationid | resourceid | priority | followed
 1  | 1                          | <gen.>          | 0             | 0
 2  | 2                          | <gen.>          |  1            | 0";Test that, being the course personalizable, the block shows the recommendated expected resources.;Acceptance;No;;;;
-33;block_mycourse_recommendations;get_content;-;Test that, with a generated course that has not had the instance before (a record in block_mycourse_course_sel), and that DOES NOT PASS the filter, the function returns the string for not personalizable course, and that the row is correctly inserted in block_mycourse_course_sel.;Equivalence;No;;;;
+33;block_mycourse_recommendations;get_content;-;Test that, with a generated course that has not had the instance before (a record in block_mycourse_course_sel), and that DOES NOT PASS the filter, the function returns the string for not personalizable course, and that the row is correctly inserted in block_mycourse_course_sel.;Equivalence;Yes;Pass;;Julen Pardo;03/03/2016
 34;block_mycourse_recommendations;get_content;-;Test that, with a generated course that has been set as NOT PERSONALIZABLE, the function returns the string for not personalizable course.;Equivalence;No;;;;
 35;block_mycourse_recommendations;get_content;-;Test that, with a generated course that has been set as PERSONALIZABLE but is INACTIVE, the function returns the string for inactive courses.;Equivalence;No;;;;
 36;block_mycourse_recommendations;get_content;-;Test that, with a generated course that has not had the instance before (a record in block_mycourse_course_sel), and that DOES PASS the filter, the function returns the string for not new recommendations (since the recommendations are calculated by cron task), and that the row is correctly inserted in block_mycourse_course_sel.;Equivalence;No;;;;
@@ -235,4 +235,3 @@ id | associationid | resourceid | priority | followed
 | 3   | 1                        | <generated> | 2            | 0 |
 Returns the following string:
 <ol><li>(1st resourceid name)</li><li>(2nd resourceid name)</li><li>(3rd resourceid name)</li></ol>";Equivalence;No;;;;
-;;;;;;;;;;
