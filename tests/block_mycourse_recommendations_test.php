@@ -30,8 +30,10 @@ global $CFG;
 require_once($CFG->dirroot . '/blocks/moodleblock.class.php');
 require_once($CFG->dirroot . '/blocks/mycourse_recommendations/block_mycourse_recommendations.php');
 require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/db/database_helper.php');
+require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/renderer/recommendations_renderer.php');
 
 use block_mycourse_recommendations\database_helper;
+use block_mycourse_recommendations\recommendations_renderer;
 
 /**
  * Test cases for block_mycourse_recommendations for block output.
@@ -74,6 +76,49 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
         }
 
         return $courses;
+    }
+
+    /**
+     * Creates n number of students (roleid = 5) for the given course.
+     *
+     * @param int $courseid The course to enrol the student in.
+     * @param int $number The number of students to create.
+     * @return array Created and enrolled users.
+     */
+    protected function create_and_enrol_students($courseid, $number) {
+        $users = array();
+
+        for ($index = 0; $index < $number; $index++) {
+            $newuser = $this->getDataGenerator()->create_user();
+            $this->getDataGenerator()->enrol_user($newuser->id, $courseid, 5); // The student role id.
+            array_push($users, $newuser);
+        }
+
+        return $users;
+    }
+
+    /**
+     * Creates resources.
+     *
+     * @param array $resources Number of resources of a type for a course.
+     * @param array $resourcesnames The name of each resource.
+     * @return array Created resources.
+     */
+    protected function create_resources($resources, $resourcesnames) {
+        $createdresources = array();
+
+        foreach ($resources as $courseid => $course) {
+            foreach ($course as $resourcetype => $number) {
+                $generator = $this->getDataGenerator()->get_plugin_generator($resourcetype);
+
+                for ($index = 0; $index < $number; $index++) {
+                    $resource = $generator->create_instance(array('course' => $courseid, 'name' => $resourcesnames[$index]));
+                    array_push($createdresources, $resource);
+                }
+            }
+        }
+
+        return $createdresources;
     }
 
     public function test_get_content_firstinstance_nopersonalizable() {
@@ -140,6 +185,98 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
         $expected = new stdClass();
         $expected->text = get_string('inactive', 'block_mycourse_recommendations');
         $expected->footer = '';
+        $actual = $this->block->get_content();
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function test_get_content_personalizable_active_usernotselected() {
+        global $COURSE, $DB, $USER;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        // We create the course and we set the global variable $COURSE with it, in order to make the block to access it...
+        $course = $this->create_courses(array(), 1)[0];
+        $COURSE = $course;
+
+        // We create a user and we enrol into the course...
+        $studentnumber = 1;
+        $user = $this->create_and_enrol_students($course->id, $studentnumber);
+        $USER = $user;
+
+        // We set the course as personalizable and active in plugin's table.
+        $active = 1;
+        $personalizable = 1;
+        $sql = "INSERT INTO {block_mycourse_course_sel} (courseid, active, personalizable, year)
+                VALUES(:v1, :v2, :v3, :v4)";
+        $values = ['v1' => $course->id, 'v2' => $active, 'v3' => $personalizable, 'v4' => 2016];
+        $DB->execute($sql, $values);
+
+        $expected = new stdClass();
+        $expected->text = get_string('usernotselected', 'block_mycourse_recommendations');
+        $expected->footer = '';
+        $actual = $this->block->get_content();
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function test_get_content_personalizable_active_userselected() {
+        global $COURSE, $DB, $USER;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        // We create the course and we set the global variable $COURSE with it, in order to make the block to access it...
+        $course = $this->create_courses(array(), 1)[0];
+        $COURSE = $course;
+
+        // We create a user and we enrol into the course...
+        $studentnumber = 1;
+        $user = $this->create_and_enrol_students($course->id, $studentnumber)[0];
+        $USER = $user;
+
+        // We set the course as personalizable and active in plugin's table.
+        $active = 1;
+        $personalizable = 1;
+        $sql = "INSERT INTO {block_mycourse_course_sel} (courseid, active, personalizable, year)
+                VALUES(:v1, :v2, :v3, :v4)";
+        $values = ['v1' => $course->id, 'v2' => $active, 'v3' => $personalizable, 'v4' => 2016];
+        $DB->execute($sql, $values);
+
+        // We set the user as selected in plugin's table.
+        $sql = "INSERT INTO {block_mycourse_user_sel} (userid, courseid, year)
+                VALUES (:v1, :v2, :v3)";
+        $values = ['v1' => $user->id, 'v2' => $course->id, 'v3' => 2016];
+        $DB->execute($sql, $values);
+
+        // We create the resources that are going to be recommended.
+        $resourcesnames = array('Cryptographic Tools', 'User Authentication', 'Intrusion Detection');
+        $resources[$course->id]['mod_page'] = count($resourcesnames);
+        $resources = $this->create_resources($resources, $resourcesnames);
+
+        // We insert the created resources as recommended.
+        $records = array();
+        for ($index = 0; $index < count($resources); $index++) {
+            $records[$index] = new stdClass();
+            $records[$index]->associationid = 1;
+            $records[$index]->resourceid = $resources[$index]->id;
+            $records[$index]->priority = $index;
+        }
+        $DB->insert_records('block_mycourse_recs', $records);
+
+        // We create the expected block output.
+        $expected = new stdClass();
+        $expected->footer = '';
+        $expected->text = '<ol>';
+
+        for ($index = 0; $index < recommendations_renderer::MAX_RECOMMENDATIONS; $index++) {
+            $expected->text .= '<li>';
+            $expected->text .= $resources[$index]->name;
+            $expected->text .= '</li>';
+        }
+        $expected->text .= '</ol>';
+
         $actual = $this->block->get_content();
 
         $this->assertEquals($expected, $actual);
