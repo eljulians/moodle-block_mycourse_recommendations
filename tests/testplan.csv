@@ -197,7 +197,7 @@ The following data will be generated:
  1. One that passes an empty array (expecting to return the string that indicates that there are no recommendations).
  2. One that passes two-element array, expecting to return the two recommendations (below the limit, which is 3).
  3. One that passes three-element array, expecting to return the three recommendations (equal to the limit).
- 4. One that passes four-element array, expecting to return the first three (4 is above the limit). ";Boundary;Yes;Fail;"The resources id where incorrectly set; the real value must be the resource id, not the module id (which is calculated after).";Julen Pardo;03/03/2016
+ 4. One that passes four-element array, expecting to return the first three (4 is above the limit). ";Boundary;Yes;Pass;;Julen Pardo;03/03/2016
 29;db/database_helper;is_blocks_first_instance;$courseid = 100;"There are two different tests for this method:
   1. One that checks that the function returns true if the given $courseid exists in the course selection table.
   2. One that checks that the function returns false if the given $courseid does not exist in the course selection table.";Equivalence;Yes;Pass;;Julen Pardo;29/02/2016
@@ -226,7 +226,7 @@ id | associationid | resourceid | priority | followed
 33;block_mycourse_recommendations;get_content;-;Test that, with a generated course that has not had the instance before (a record in block_mycourse_course_sel), and that DOES NOT PASS the filter, the function returns the string for not personalizable course, and that the row is correctly inserted in block_mycourse_course_sel.;Equivalence;Yes;Pass;;Julen Pardo;03/03/2016
 34;block_mycourse_recommendations;get_content;-;Test that, with a generated course that has been set as NOT PERSONALIZABLE, the function returns the string for not personalizable course.;Equivalence;Yes;Pass;;Julen Pardo;03/03/2016
 35;block_mycourse_recommendations;get_content;-;Test that, with a generated course that has been set as PERSONALIZABLE but is INACTIVE, the function returns the string for inactive courses.;Equivalence;Yes;Pass;;Julen Pardo;03/03/2016
-36;block_mycourse_recommendations;get_content;-;Test that, with a generated course that has not had the instance before (a record in block_mycourse_course_sel), and that DOES PASS the filter, the function returns the string for not new recommendations (since the recommendations are calculated by cron task), and that the row is correctly inserted in block_mycourse_course_sel.;Equivalence;No;;;;
+36;block_mycourse_recommendations;get_content;-;Test that, with a generated course that has not had the instance before (a record in block_mycourse_course_sel), and that DOES PASS the filter, the function returns the string for not new recommendations (since the recommendations are calculated by cron task), and that the row is correctly inserted in block_mycourse_course_sel.;Equivalence;Yes;Pass;;Julen Pardo;03/03/2016
 37;block_mycourse_recommendations;get_content;-;Test that, with a generated course that has been set as PERSONALIZABLE and ACTIVE, for an user that HAS NOT BEEN SELECTED, returns the string for not selected student.;Equivalence;Yes;Pass;;Julen Pardo;03/03/2016
 38;block_mycourse_recommendations;get_content;-;"Test that, with a generated course that has been set as PERSONALIZABLE and ACTIVE, for an user that HAS BEEN SELECTED,  the following data for the recommendations:
 | id | associationid | resourceid    | priority | followed |
