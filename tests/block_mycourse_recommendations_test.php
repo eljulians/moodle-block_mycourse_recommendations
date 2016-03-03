@@ -69,23 +69,27 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
         return $courses;
     }
 
-    public function test_get_content_() {
+    public function test_get_content_firstinstance_nopersonalizable() {
         global $COURSE;
 
         $this->resetAfterTest();
         $this->setAdminUser();
 
-        $expected = get_string('notpersonalizable', 'block_mycourse_recommendations');
-
-        // We create the course...
+        // We create the course and we set the global variable $COURSE with it, in order to make the block to access it...
         $course = $this->create_courses(array(), 1)[0];
-
-        // We set the global variable that the function uses to get the courseid.
         $COURSE = $course;
 
         $this->block->init();
-        $actual = $this->block->get_content();
+
+        // The $instance attribute is block_base's attribute, with the instance of the block implementation; the block
+        // we are testing. In this case, as we are testing the function "unitarily", we have to assign some irrelevant
+        // value, to make the function not return an empty string.
+        $this->block->instance = 'something';
+
+        $expected = get_string('notpersonalizable', 'block_mycourse_recommendations');
+        $actual = $this->block->get_content()->text;
 
         $this->assertEquals($expected, $actual);
     }
+
 }
