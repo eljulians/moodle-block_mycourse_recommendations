@@ -744,7 +744,7 @@ class database_helper {
     public function get_module_type_id_by_name($typename) {
         global $DB;
 
-        $moduletype= $DB->get_record('modules', array('name' => $typename));
+        $moduletype = $DB->get_record('modules', array('name' => $typename));
 
         return $moduletype->id;
     }

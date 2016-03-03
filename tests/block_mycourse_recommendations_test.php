@@ -31,9 +31,11 @@ require_once($CFG->dirroot . '/blocks/moodleblock.class.php');
 require_once($CFG->dirroot . '/blocks/mycourse_recommendations/block_mycourse_recommendations.php');
 require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/db/database_helper.php');
 require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/renderer/recommendations_renderer.php');
+require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/course_filter/course_filter.php');
 
 use block_mycourse_recommendations\database_helper;
 use block_mycourse_recommendations\recommendations_renderer;
+use block_mycourse_recommendations\course_filter;
 
 /**
  * Test cases for block_mycourse_recommendations for block output.
@@ -293,4 +295,47 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
 
         $this->assertEquals($expected, $actual);
     }
+
+    public function test_get_content_personalizable_firstinstance() {
+        global $COURSE, $DB, $USER;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $coursesname = 'Software Engineering';
+        $currentcoursestart = strtotime('05-01-2016');
+        $previouscoursestart = strtotime('05-01-2015');
+
+        // We create the course and we set the global variable $COURSE with it, in order to make the block to access it...
+        $course = $this->create_courses(array('fullname' => $coursesname, 'startdate' => $currentcoursestart), 1)[0];
+        $COURSE = $course;
+
+        // We create a user and we enrol into the course...
+        $studentnumber = 2;
+        $user = $this->create_and_enrol_students($course->id, $studentnumber)[0];
+        $USER = $user;
+
+        // We create the previous minimum courses...
+        $previouscourse = $this->create_courses(array('fullname' => $coursesname, 'startdate' => $previouscoursestart),
+            course_filter::MINIMUM_PREVIOUS_COURSES)[0];
+
+        // We create the previous minimum students...
+        $this->create_and_enrol_students($previouscourse->id, course_filter::MINIMUM_PREVIOUS_STUDENTS);
+
+        // We create the previous minimum weeks...
+        $resourcesnames = array();
+        for ($index = 0; $index <= course_filter::MINIMUM_PREVIOUS_RESOURCES; $index++) {
+            array_push($resourcesnames, 'whatever resource');
+        }
+        $resources[$previouscourse->id]['mod_page'] = count($resourcesnames);
+        $this->create_resources($resources, $resourcesnames);
+
+        $expected = new stdClass();
+        $expected->text = get_string('norecommendations', 'block_mycourse_recommendations');
+        $expected->footer = '';
+        $actual = $this->block->get_content();
+
+        $this->assertEquals($expected, $actual);
+    }
+
 }
