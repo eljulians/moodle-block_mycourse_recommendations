@@ -689,4 +689,28 @@ class database_helper {
 
         return $personalizable;
     }
+
+    /**
+     * Queries if the given course is registered as active to receive the recommendations, or not.
+     *
+     * @param int $courseid The course to check if is active or not.
+     * @return boolean If the course is active or not.
+     */
+    public function is_course_active($courseid) {
+        global $DB;
+
+        $sql = 'SELECT active
+                FROM   {block_mycourse_course_sel} course
+                WHERE  course.courseid = ?';
+
+        $field = $DB->get_field_sql($sql, array($courseid));
+
+        if ($field !== null) {
+            $personalizable = (intval($field) === 1) ? true : false;
+        } else {
+            $personalizable = false;
+        }
+
+        return $personalizable;
+    }
 }

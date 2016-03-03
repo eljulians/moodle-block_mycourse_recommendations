@@ -89,9 +89,14 @@ class block_mycourse_recommendations extends block_base {
         $personalizable = $this->db->is_course_personalizable($COURSE->id);
 
         if ($personalizable) {
-            $currentweek = $this->get_current_week();
-            $recommendations = $this->db->get_recommendations($COURSE->id, $USER->id, $currentweek);
-            $this->content->text = recommendations_renderer::render_recommendations($recommendations);
+            $active = $this->db->is_course_active($COURSE->id);
+            if ($active) {
+                $currentweek = $this->get_current_week();
+                $recommendations = $this->db->get_recommendations($COURSE->id, $USER->id, $currentweek);
+                $this->content->text = recommendations_renderer::render_recommendations($recommendations);
+            } else {
+                $this->content->text = get_string('inactive', 'block_mycourse_recommendations');
+            }
         } else {
             $this->content->text = get_string('notpersonalizable', 'block_mycourse_recommendations');
         }
