@@ -231,6 +231,9 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
         $course = $this->create_courses(array(), 1)[0];
         $COURSE = $course;
 
+        // We calculate the week number, necessary to get the recommendations.
+        $currentweek = intval(date('W', time()));
+
         // We create a user and we enrol into the course...
         $studentnumber = 1;
         $user = $this->create_and_enrol_students($course->id, $studentnumber)[0];
@@ -255,11 +258,20 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
         $resources[$course->id]['mod_page'] = count($resourcesnames);
         $resources = $this->create_resources($resources, $resourcesnames);
 
+        // We create an association, which is irrelevant, except for the week, which is necessary to query the recommendations.
+        $record = new stdClass();
+        $record->current_userid = $user->id;
+        $record->current_courseid = $course->id;
+        $record->historic_userid = 0; // Irrelevant for this case.
+        $record->historic_courseid = 0; // Irrelevant for this case.
+        $record->week = $currentweek;
+        $associationid = $DB->insert_record('block_mycourse_assoc', $record);
+
         // We insert the created resources as recommended.
         $records = array();
         for ($index = 0; $index < count($resources); $index++) {
             $records[$index] = new stdClass();
-            $records[$index]->associationid = 1;
+            $records[$index]->associationid = $associationid;
             $records[$index]->resourceid = $resources[$index]->id;
             $records[$index]->priority = $index;
         }

@@ -63,7 +63,7 @@ class block_mycourse_recommendations extends block_base {
      * @return string
      */
     public function get_content() {
-        global $COURSE, $USER;
+        global $COURSE, $USER, $DB;
 
         if ($this->content !== null) {
             return $this->content;
@@ -91,9 +91,14 @@ class block_mycourse_recommendations extends block_base {
         if ($personalizable) {
             $active = $this->db->is_course_active($COURSE->id);
             if ($active) {
-                $currentweek = $this->get_current_week();
-                $recommendations = $this->db->get_recommendations($COURSE->id, $USER->id, $currentweek);
-                $this->content->text = recommendations_renderer::render_recommendations($recommendations);
+                $userselected = $this->db->is_user_selected_for_course($USER->id, $COURSE->id);
+                if (!$userselected) {
+                    $this->content->text = get_string('usernotselected', 'block_mycourse_recommendations');
+                } else {
+                    $currentweek = $this->get_current_week();
+                    $recommendations = $this->db->get_recommendations($COURSE->id, $USER->id, $currentweek);
+                    $this->content->text = recommendations_renderer::render_recommendations($recommendations);
+                }
             } else {
                 $this->content->text = get_string('inactive', 'block_mycourse_recommendations');
             }

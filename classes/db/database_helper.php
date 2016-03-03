@@ -713,4 +713,19 @@ class database_helper {
 
         return $personalizable;
     }
+
+    /**
+     * Queries if the given user is selected, for the given course, to receive the recommendations.
+     *
+     * @param int $userid The user to query if is selected or not.
+     * @param int $courseid The course to query the $userid is selected or not at.
+     * @return boolean If the user is selected or not.
+     */
+    public function is_user_selected_for_course($userid, $courseid) {
+        global $DB;
+
+        $exists = $DB->record_exists('block_mycourse_user_sel', array('userid' => $userid, 'courseid' => $courseid));
+
+        return $exists;
+    }
 }
