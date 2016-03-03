@@ -32,7 +32,7 @@ use block_mycourse_recommendations\database_helper;
 /**
  * Test cases for block_mycourse_recommendations for database handling.
  */
-class block_mycourse_recommendations_testcase extends advanced_testcase {
+class block_mycourse_database_helper_testcase extends advanced_testcase {
 
     protected $databasehelper;
     protected $course;

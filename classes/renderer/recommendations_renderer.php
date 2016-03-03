@@ -24,11 +24,15 @@
 namespace block_mycourse_recommendations;
 
 defined('MOODLE_INTERNAL') || die();
+global $CFG;
+
+require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/db/database_helper.php');
+
+use block_mycourse_recommendations\database_helper;
 
 class recommendations_renderer {
 
     const MAX_RECOMMENDATIONS = 3;
-    const NO_RECOMMENDATIONS = 'The are not recommendations for you this week.';
 
     /**
      * Generates the HTML for the given recommendations. The maximum number of recommendations is defined by
@@ -51,7 +55,10 @@ class recommendations_renderer {
 
         for ($index = 0; $index < self::MAX_RECOMMENDATIONS && $index < count($recommendations); $index++) {
             $recommendation = $recommendations[$index];
-            $cminfo = $modinfo->get_cm($recommendation->resourceid);
+
+            $moduleid = self::get_resource_moduleid($modinfo->instances, $recommendation->resourceid, $COURSE->id);
+
+            $cminfo = $modinfo->get_cm($moduleid);
 
             $output .= '<li>';
             $output .= $cminfo->get_formatted_name();
@@ -61,5 +68,31 @@ class recommendations_renderer {
         $output .= '</ol>';
 
         return $output;
+    }
+
+    /**
+     * Finds the module id from a resource instance, which is needed for the "get_cm($moduleid)" function, to get module's name.
+     * For that, uses the courses instances information, retrieved using "get_fast_modinfo($courseid)" function.
+     *
+     * @param array $instances Key is resource type name, and value is an array of each instance of the course of that type.
+     * @param int $resourceid The resource we are finding the moduleid of.
+     * @param int $courseid The course the module belongs to.
+     * @return int Module id.
+     */
+    public static function get_resource_moduleid($instances, $resourceid, $courseid) {
+        $db = new database_helper();
+
+        foreach ($instances as $instancetype => $typeinstances) {
+            $typeinstancesids = array_keys($typeinstances);
+
+            if (in_array($resourceid, $typeinstancesids)) {
+                $typeid = $db->get_module_type_id_by_name($instancetype);
+                $moduleid = $db->get_module_id($courseid, $resourceid, $typeid);
+
+                break;
+            }
+        }
+
+        return $moduleid;
     }
 }

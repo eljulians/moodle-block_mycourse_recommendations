@@ -660,10 +660,16 @@ class database_helper {
     public function is_blocks_first_instance($courseid) {
         global $DB;
 
-        $exists = $DB->record_exists('block_mycourse_course_sel', array('courseid' => $courseid));
-        $exists = !$exists;
+        $sql = 'SELECT count(*) as c
+                FROM   {block_mycourse_course_sel} course_sel
+                WHERE  course_sel.courseid = ?';
 
-        return $exists;
+        $count = $DB->get_record_sql($sql, array($courseid));
+        $count = intval($count->c);
+
+        $firstinstance = ($count === 0) ? true : false;
+
+        return $firstinstance;
     }
 
     /**
@@ -688,5 +694,74 @@ class database_helper {
         }
 
         return $personalizable;
+    }
+
+    /**
+     * Queries if the given course is registered as active to receive the recommendations, or not.
+     *
+     * @param int $courseid The course to check if is active or not.
+     * @return boolean If the course is active or not.
+     */
+    public function is_course_active($courseid) {
+        global $DB;
+
+        $sql = 'SELECT active
+                FROM   {block_mycourse_course_sel} course
+                WHERE  course.courseid = ?';
+
+        $field = $DB->get_field_sql($sql, array($courseid));
+
+        if ($field !== null) {
+            $personalizable = (intval($field) === 1) ? true : false;
+        } else {
+            $personalizable = false;
+        }
+
+        return $personalizable;
+    }
+
+    /**
+     * Queries if the given user is selected, for the given course, to receive the recommendations.
+     *
+     * @param int $userid The user to query if is selected or not.
+     * @param int $courseid The course to query the $userid is selected or not at.
+     * @return boolean If the user is selected or not.
+     */
+    public function is_user_selected_for_course($userid, $courseid) {
+        global $DB;
+
+        $exists = $DB->record_exists('block_mycourse_user_sel', array('userid' => $userid, 'courseid' => $courseid));
+
+        return $exists;
+    }
+
+    /**
+     * Finds the id of a resource type by its name ('page', 'forum', etc.).
+     *
+     * @param string $typename Resource type name.
+     * @return int Resource type id.
+     */
+    public function get_module_type_id_by_name($typename) {
+        global $DB;
+
+        $moduletype = $DB->get_record('modules', array('name' => $typename));
+
+        return $moduletype->id;
+    }
+
+    /**
+     * Finds the module id for the given course, module type and resource instance.
+     *
+     * @param int $courseid The course the module belongs to.
+     * @param int $instance Resource instance.
+     * @param int $type Module type.
+     * @return int Module id.
+     */
+    public function get_module_id($courseid, $instance, $type) {
+        global $DB;
+
+        $module = $DB->get_record('course_modules', array('course' => $courseid, 'module' => $type, 'instance' => $instance));
+
+        return $module->id;
     }
 }

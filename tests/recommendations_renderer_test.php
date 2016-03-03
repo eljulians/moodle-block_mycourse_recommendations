@@ -86,7 +86,7 @@ class block_mycourse_recommendations_recommendations_renderer_testcase extends a
 
         foreach ($resources as $index => $resource) {
             $recommendations[$index] = new stdClass();
-            $recommendations[$index]->resourceid = $resource->cmid;
+            $recommendations[$index]->resourceid = $resource->id;
             $recommendations[$index]->priority = $index;
         }
 
@@ -123,7 +123,7 @@ class block_mycourse_recommendations_recommendations_renderer_testcase extends a
 
         foreach ($resources as $index => $resource) {
             $recommendations[$index] = new stdClass();
-            $recommendations[$index]->resourceid = $resource->cmid;
+            $recommendations[$index]->resourceid = $resource->id;
             $recommendations[$index]->priority = $index;
         }
 
@@ -160,7 +160,7 @@ class block_mycourse_recommendations_recommendations_renderer_testcase extends a
 
         foreach ($resources as $index => $resource) {
             $recommendations[$index] = new stdClass();
-            $recommendations[$index]->resourceid = $resource->cmid;
+            $recommendations[$index]->resourceid = $resource->id;
             $recommendations[$index]->priority = $index;
         }
 
