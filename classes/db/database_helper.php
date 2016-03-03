@@ -734,4 +734,34 @@ class database_helper {
 
         return $exists;
     }
+
+    /**
+     * Finds the id of a resource type by its name ('page', 'forum', etc.).
+     *
+     * @param string $typename Resource type name.
+     * @return int Resource type id.
+     */
+    public function get_module_type_id_by_name($typename) {
+        global $DB;
+
+        $moduletype= $DB->get_record('modules', array('name' => $typename));
+
+        return $moduletype->id;
+    }
+
+    /**
+     * Finds the module id for the given course, module type and resource instance.
+     *
+     * @param int $courseid The course the module belongs to.
+     * @param int $instance Resource instance.
+     * @param int $type Module type.
+     * @return int Module id.
+     */
+    public function get_module_id($courseid, $instance, $type) {
+        global $DB;
+
+        $module = $DB->get_record('course_modules', array('course' => $courseid, 'module' => $type, 'instance' => $instance));
+
+        return $module->id;
+    }
 }
