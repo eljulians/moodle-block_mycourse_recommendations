@@ -197,7 +197,7 @@ The following data will be generated:
  1. One that passes an empty array (expecting to return the string that indicates that there are no recommendations).
  2. One that passes two-element array, expecting to return the two recommendations (below the limit, which is 3).
  3. One that passes three-element array, expecting to return the three recommendations (equal to the limit).
- 4. One that passes four-element array, expecting to return the first three (4 is above the limit). ";Boundary;Yes;Pass;;Julen Pardo;26/02/2016
+ 4. One that passes four-element array, expecting to return the first three (4 is above the limit). ";Boundary;Yes;Fail;"The resources id where incorrectly set; the real value must be the resource id, not the module id (which is calculated after).";Julen Pardo;03/03/2016
 29;db/database_helper;is_blocks_first_instance;$courseid = 100;"There are two different tests for this method:
   1. One that checks that the function returns true if the given $courseid exists in the course selection table.
   2. One that checks that the function returns false if the given $courseid does not exist in the course selection table.";Equivalence;Yes;Pass;;Julen Pardo;29/02/2016
@@ -234,4 +234,4 @@ id | associationid | resourceid | priority | followed
 | 2   | 1                        | <generated> | 1            | 0 |
 | 3   | 1                        | <generated> | 2            | 0 |
 Returns the following string:
-<ol><li>(1st resourceid name)</li><li>(2nd resourceid name)</li><li>(3rd resourceid name)</li></ol>";Equivalence;Yes;Fail;The actual value is the string for not new recommendations. Seems week issue.;Julen Pardo;03/03/2016
+<ol><li>(1st resourceid name)</li><li>(2nd resourceid name)</li><li>(3rd resourceid name)</li></ol>";Equivalence;Yes;Pass;;Julen Pardo;03/03/2016

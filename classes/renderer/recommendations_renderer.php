@@ -53,8 +53,6 @@ class recommendations_renderer {
         $recommendations = array_values($recommendations);
         $output = '<ol>';
 
-        self::get_resource_moduleid($modinfo->instances, 359000, $COURSE->id);
-
         for ($index = 0; $index < self::MAX_RECOMMENDATIONS && $index < count($recommendations); $index++) {
             $recommendation = $recommendations[$index];
 
