@@ -310,14 +310,14 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
         $course = $this->create_courses(array('fullname' => $coursesname, 'startdate' => $currentcoursestart), 1)[0];
         $COURSE = $course;
 
-        // We create a user and we enrol into the course...
-        $studentnumber = 2;
+        // We create the current users and we enrol into the course...
+        $studentnumber = 4;
         $user = $this->create_and_enrol_students($course->id, $studentnumber)[0];
         $USER = $user;
 
         // We create the previous minimum courses...
         $previouscourse = $this->create_courses(array('fullname' => $coursesname, 'startdate' => $previouscoursestart),
-            course_filter::MINIMUM_PREVIOUS_COURSES)[0];
+                                                course_filter::MINIMUM_PREVIOUS_COURSES)[0];
 
         // We create the previous minimum students...
         $this->create_and_enrol_students($previouscourse->id, course_filter::MINIMUM_PREVIOUS_STUDENTS);
@@ -334,6 +334,8 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
         $expected->text = get_string('norecommendations', 'block_mycourse_recommendations');
         $expected->footer = '';
         $actual = $this->block->get_content();
+
+        var_dump($DB->get_records('block_mycourse_user_sel'));
 
         $this->assertEquals($expected, $actual);
     }
