@@ -206,7 +206,7 @@ The following data will be generated:
   2. One that checks that the function returns false if the given $courseid is registered as not personalizable, or no record is returned.";Equivalence;Yes;Pass;;Julen Pardo;29/02/2016
 31;<All the system>;<All the system>;"{block_mycourse_course_sel}
 courseid         | active | personalizable | year
-<generated> | 1           | 0                             | 2016";Tests that, being the course NOT PERSONALIZABLE, the plugin shows the corresponding message for not personalizable courses.;Acceptance;No;;;;
+<generated> | 1           | 0                             | 2016";Tests that, being the course NOT PERSONALIZABLE, the plugin shows the corresponding message for not personalizable courses.;Acceptance;Yes;Pass;;Julen Pardo;03/03/2016
 32;<All the system>;<All the system>;"{block_mycourse_course_sel}
 courseid         | active | personalizable | year
 <generated> | 1           | 1                             | 2016
@@ -223,6 +223,16 @@ id | current_userid | current_courseid | historic_userid | historic_courseid | w
 id | associationid | resourceid | priority | followed
 1  | 1                          | <gen.>          | 0             | 0
 2  | 2                          | <gen.>          |  1            | 0";Test that, being the course personalizable, the block shows the recommendated expected resources.;Acceptance;No;;;;
-;;;;;;;;;;
-;;;;;;;;;;
+33;block_mycourse_recommendations;get_content;-;Test that, with a generated course that has not had the instance before (a record in block_mycourse_course_sel), and that DOES NOT PASS the filter, the function returns the string for not personalizable course, and that the row is correctly inserted in block_mycourse_course_sel.;Equivalence;No;;;;
+34;block_mycourse_recommendations;get_content;-;Test that, with a generated course that has been set as NOT PERSONALIZABLE, the function returns the string for not personalizable course.;Equivalence;No;;;;
+35;block_mycourse_recommendations;get_content;-;Test that, with a generated course that has been set as PERSONALIZABLE but is INACTIVE, the function returns the string for inactive courses.;Equivalence;No;;;;
+36;block_mycourse_recommendations;get_content;-;Test that, with a generated course that has not had the instance before (a record in block_mycourse_course_sel), and that DOES PASS the filter, the function returns the string for not new recommendations (since the recommendations are calculated by cron task), and that the row is correctly inserted in block_mycourse_course_sel.;Equivalence;No;;;;
+37;block_mycourse_recommendations;get_content;-;Test that, with a generated course that has been set as PERSONALIZABLE and ACTIVE, for an user that HAS NOT BEEN SELECTED, returns the string for not selected student.;Equivalence;No;;;;
+38;block_mycourse_recommendations;get_content;-;"Test that, with a generated course that has been set as PERSONALIZABLE and ACTIVE, for an user that HAS BEEN SELECTED,  the following data for the recommendations:
+| id | associationid | resourceid    | priority | followed |
+| 1   | 1                        | <generated> | 0            | 0 |
+| 2   | 1                        | <generated> | 1            | 0 |
+| 3   | 1                        | <generated> | 2            | 0 |
+Returns the following string:
+<ol><li>(1st resourceid name)</li><li>(2nd resourceid name)</li><li>(3rd resourceid name)</li></ol>";Equivalence;No;;;;
 ;;;;;;;;;;
