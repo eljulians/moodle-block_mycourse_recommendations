@@ -74,7 +74,7 @@ class create_recommendations_task extends \core\task\scheduled_task {
 
         foreach ($coursestorecommend as $course) {
             $week = $this->get_current_week();
-            $this->create_recommendations($courseid, $week);
+            $this->recommendator->create_recommendations($course->courseid, $week);
         }
     }
 
