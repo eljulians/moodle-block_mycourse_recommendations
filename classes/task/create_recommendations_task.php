@@ -30,10 +30,10 @@ require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/matrix/de
 require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/associator/cosine_similarity_associator.php');
 require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/recommendator/simple_recommendator.php');
 
-use blocks_mycourse_recommendations\database_helper;
-use blocks_mycourse_recommendations\decimal_matrix;
-use blocks_mycourse_recommendations\cosine_similarity_associator;
-use blocks_mycourse_recommendations\simple_recommendator;
+use block_mycourse_recommendations\database_helper;
+use block_mycourse_recommendations\decimal_matrix;
+use block_mycourse_recommendations\cosine_similarity_associator;
+use block_mycourse_recommendations\simple_recommendator;
 
 class create_recommendations_task extends \core\task\scheduled_task {
 
@@ -74,7 +74,7 @@ class create_recommendations_task extends \core\task\scheduled_task {
 
         foreach ($coursestorecommend as $course) {
             $week = $this->get_current_week();
-            $this->create_recommendations($courseid, $week);
+            $this->recommendator->create_recommendations($course->courseid, $week);
         }
     }
 

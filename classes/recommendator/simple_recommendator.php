@@ -162,13 +162,6 @@ class simple_recommendator extends abstract_recommendator {
         $startweek = $coursedates['week'];
         $year = $coursedates['year'];
 
-        $yearchange = $startweek > $currentweek;
-        $endweek = $currentweek;
-        if ($yearchange) {
-            $currentweek += 52;
-        }
-        $endweek += parent::TIME_WINDOW;
-
         $previousdata = $this->db->query_data($previouscourse, $year, $startweek, $endweek);
 
         $associatedresources = $this->associate_resources($previousdata, $currentselecteddata);
