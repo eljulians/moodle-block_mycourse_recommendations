@@ -62,5 +62,20 @@
         <KEY NAME="resourceid_fk" TYPE="foreign" FIELDS="resourceid" REFTABLE="resource" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
+
+    <TABLE NAME="block_mycourse_similarities" COMMENT="The table that holds the similarities matrix for each current user with each historic user.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="current_userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The id of the current user, which is selected to receive the recommendations."/>
+        <FIELD NAME="historic_userid" TYPE="int" LENGHT="10" NOTNULL="true" SEQUENCE="false" COMMENT="The id of the historic user, which is candidate to serve as reference for the current users."/>
+        <FIELD NAME="coefficient" TYPE="float" NOTNULL="true" SEQUENCE="false" COMMENT="The similarity coefficient between the current and historic users."/>
+        <FIELD NAME="week" TYPE="int" LENGHT="3" NOTNULL="true" SEQUENCE="false" COMMENT="The week the coefficient has been calculated at."/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="current_userid_fk" TYPE="foreign" FIELDS="current_userid" REFTABLE="block_mycourse_user_sel" REFFIELDS="userid"/>
+        <KEY NAME="users_week_uq" TYPE="unique" FIELDS="current_userid, historic_userid, week" COMMENT="The combination of similarities between a current user and historic user cannot be repeated in the same week."/>
+      </KEYS>
+    </TABLE>
   </TABLES>
 </XMLDB>
