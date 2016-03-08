@@ -753,4 +753,38 @@ class block_mycourse_database_helper_testcase extends advanced_testcase {
 
         $this->assertFalse($actual);
     }
+
+    public function test_insert_similarity() {
+        global $DB;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $currentuserid = 100;
+        $historicuserid = 1;
+        $coefficient = 0.7515;
+        $week = 10;
+
+        $this->databasehelper->insert_similarity($currentuserid, $historicuserid, $coefficient, $week);
+
+        $expected = new stdClass();
+        $expected->current_userid = $currentuserid;
+        $expected->historic_userid = $historicuserid;
+        $expected->coefficient = $coefficient;
+        $expected->week = $week;
+
+        $actual = $DB->get_records('block_mycourse_similarities');
+
+        $distincttoone = count($actual) !== 1;
+
+        // If the record number is distinct to 1, something is wrong.
+        $this->assertFalse($distincttoone);
+
+        // We unset the id, since we cannot determine it.
+        foreach ($actual as $actualaux) {
+            unset($actualaux->id);
+            $this->assertEquals($expected, $actualaux);
+        }
+    }
+
 }
