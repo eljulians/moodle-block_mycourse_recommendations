@@ -235,3 +235,7 @@ id | associationid | resourceid | priority | followed
 | 3   | 1                        | <generated> | 2            | 0 |
 Returns the following string:
 <ol><li>(1st resourceid name)</li><li>(2nd resourceid name)</li><li>(3rd resourceid name)</li></ol>";Equivalence;Yes;Pass;;Julen Pardo;03/03/2016
+39;db/database_helper;insert_similarity;"$currentuserid = 100
+$historicuserid = 1
+$coefficient = 0.7515
+$week = 10";Test that, after calling the method with the given parameters, effectively exists a record in the table with those values.;Equivalence;No;;;;
