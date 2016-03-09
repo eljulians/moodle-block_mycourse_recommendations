@@ -14,6 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Block showing recommendations.
+ *
+ * @package    block_mycourse_recommendations
+ * @copyright  2015 onwards Iñaki Arenaza & Mondragon Unibertsitatea
+ * @copyright  2016 onwards Julen Pardo & Mondragon Unibertsitatea
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/recommendator/simple_recommendator.php');
@@ -35,7 +44,7 @@ use block_mycourse_recommendations\course_filter;
  *
  * @package    block_mycourse_recommendations
  * @copyright  2015 onwards Iñaki Arenaza & Mondragon Unibertsitatea
- *             2016 onwards Julen Pardo & Mondragon Unibertsitatea
+ * @copyright  2016 onwards Julen Pardo & Mondragon Unibertsitatea
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

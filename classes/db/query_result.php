@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Encapsulation of query results made with database_helper for querying logview data.
  *
  * @package    block_mycourse_recommendations
  * @copyright  2016 onwards Julen Pardo & Mondragon Unibertsitatea
@@ -28,6 +29,10 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * The class that encapsulates the query made to database (database_helper->query_data()). This class will be
  * used in those classes which will need to access the queried data.
+ *
+ * @package    block_mycourse_recommendations
+ * @copyright  2016 onwards Julen Pardo & Mondragon Unibertsitatea
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class query_result {
 

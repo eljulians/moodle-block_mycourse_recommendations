@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Implementation of block_mycourse_recommendations\abstract_associator interface.
  *
  * @package    block_mycourse_recommendations
  * @copyright  2016 onwards Julen Pardo & Mondragon Unibertsitatea
@@ -27,6 +28,14 @@ require_once('abstract_associator.php');
 require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/matrix/abstract_matrix.php');
 
 use block_mycourse_recommendations\abstract_associator;
+
+/**
+ * Class cosine_similarity_associator for implementing the cosine similarity as association determination mechanism.
+ *
+ * @package block_mycourse_recommendations
+ * @copyright  2016 onwards Julen Pardo & Mondragon Unibertsitatea
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 
 class cosine_similarity_associator implements abstract_associator {
 

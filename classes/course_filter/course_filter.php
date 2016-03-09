@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Course filtering for determination of they "personalizabily".
  *
  * @package    block_mycourse_recommendations
  * @copyright  2016 onwards Julen Pardo & Mondragon Unibertsitatea
@@ -28,6 +29,12 @@ require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/db/databa
 use block_mycourse_recommendations\database_helper;
 
 defined('MOODLE_INTERNAL') || die();
+
+/**
+ * Class course_filter for determining if a course is personalizable or not.
+ *
+ * @package block_mycourse_recommendations
+ */
 
 class course_filter {
 

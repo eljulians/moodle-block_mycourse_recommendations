@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Abstract matrix for handling logview information.
  *
  * @package   block_mycourse_recommendations
  * @copyright 2016 onwards Julen Pardo & Mondragon Unibertsitatea
@@ -22,6 +23,14 @@
  */
 
 namespace block_mycourse_recommendations;
+
+/**
+ * Interface abstract_matrix for transforming logview information into matrix with whatever format.
+ *
+ * @package block_mycourse_recommendations
+ * @copyright 2016 onwards Julen Pardo & Mondragon Unibertsitatea
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 
 interface abstract_matrix {
 

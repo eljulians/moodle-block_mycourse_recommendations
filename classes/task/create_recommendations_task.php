@@ -14,6 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Task for cron execution.
+ *
+ * @package    block_mycourse_recommendations
+ * @copyright  2016 onwards Julen Pardo & Mondragon Unibertsitatea
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace block_mycourse_recommendations\task;
 
 defined('MOODLE_INTERNAL') || die();

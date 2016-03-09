@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Database encapsulation.
  *
  * @package    block_mycourse_recommendations
  * @copyright  2016 onwards Julen Pardo & Mondragon Unibertsitatea
@@ -29,6 +30,15 @@ use \stdClass;
 use block_mycourse_recommendations\query_result;
 
 defined('MOODLE_INTERNAL') || die();
+
+/**
+ * Class database_helper for encapsulating all the database operations, so, the other classes don't have to
+ * know database's tables' names, columns, etc.
+ *
+ * @package block_mycourse_recommendations
+ * @copyright  2016 onwards Julen Pardo & Mondragon Unibertsitatea
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 
 class database_helper {
 

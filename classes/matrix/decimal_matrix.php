@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Decimal matrix for handling logview information in decimal number format.
  *
  * @package   block_mycourse_recommendations
  * @copyright 2016 onwards Julen Pardo & Mondragon Unibertsitatea
@@ -30,6 +31,14 @@ require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/db/query_
 
 use block_mycourse_recommendations\abstract_matrix;
 use block_mycourse_recommendations\query_result;
+
+/**
+ * Class decimal_matrix for implementation of abstract_matrix for logview handling in decimal number format.
+ *
+ * @package   block_mycourse_recommendations
+ * @copyright 2016 onwards Julen Pardo & Mondragon Unibertsitatea
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 
 class decimal_matrix implements abstract_matrix {
 
