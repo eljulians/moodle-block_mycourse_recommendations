@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+    <meta charset="utf-8"/>
+    <title>API Documentation</title>
+    <meta name="author" content=""/>
+    <meta name="description" content=""/>
+
+    <link href="../css/bootstrap-combined.no-icons.min.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/prism.css" rel="stylesheet" media="all"/>
+    <link href="../css/template.css" rel="stylesheet" media="all"/>
+    
+    <!--[if lt IE 9]>
+    <script src="../js/html5.js"></script>
+    <![endif]-->
+    <script src="../js/jquery-1.11.0.min.js"></script>
+    <script src="../js/ui/1.10.4/jquery-ui.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+    <script src="../js/jquery.smooth-scroll.js"></script>
+    <script src="../js/prism.min.js"></script>
+    <!-- TODO: Add http://jscrollpane.kelvinluck.com/ to style the scrollbars for browsers not using webkit-->
+    <script type="text/javascript">
+    function loadExternalCodeSnippets() {
+        Array.prototype.slice.call(document.querySelectorAll('pre[data-src]')).forEach(function (pre) {
+            var src = pre.getAttribute('data-src');
+            var extension = (src.match(/\.(\w+)$/) || [, ''])[1];
+            var language = 'php';
+
+            var code = document.createElement('code');
+            code.className = 'language-' + language;
+
+            pre.textContent = '';
+
+            code.textContent = 'Loading…';
+
+            pre.appendChild(code);
+
+            var xhr = new XMLHttpRequest();
+
+            xhr.open('GET', src, true);
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4) {
+
+                    if (xhr.status < 400 && xhr.responseText) {
+                        code.textContent = xhr.responseText;
+
+                        Prism.highlightElement(code);
+                    }
+                    else if (xhr.status >= 400) {
+                        code.textContent = '✖ Error ' + xhr.status + ' while fetching file: ' + xhr.statusText;
+                    }
+                    else {
+                        code.textContent = '✖ Error: File does not exist or is empty';
+                    }
+                }
+            };
+
+            xhr.send(null);
+        });
+    }
+
+    $(document).ready(function(){
+        loadExternalCodeSnippets();
+    });
+    $('#source-view').on('shown', function () {
+        loadExternalCodeSnippets();
+    })
+</script>
+
+    <link rel="shortcut icon" href="../images/favicon.ico"/>
+    <link rel="apple-touch-icon" href="../images/apple-touch-icon.png"/>
+    <link rel="apple-touch-icon" sizes="72x72" href="../images/apple-touch-icon-72x72.png"/>
+    <link rel="apple-touch-icon" sizes="114x114" href="../images/apple-touch-icon-114x114.png"/>
+</head>
+<body>
+
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <i class="icon-ellipsis-vertical"></i>
+            </a>
+            <a class="brand" href="../index.html">API Documentation</a>
+
+            <div class="nav-collapse">
+                <ul class="nav pull-right">
+                                        <li class="dropdown">
+                        <a href="../index.html" class="dropdown-toggle" data-toggle="dropdown">
+                            API Documentation <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                                                        <li><a href="../namespaces/block_mycourse_recommendations.html">\block_mycourse_recommendations</a></li>
+                                                    </ul>
+                    </li>
+                                        <li class="dropdown" id="charts-menu">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            Charts <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="../graphs/class.html">
+                                    <i class="icon-list-alt"></i>&#160;Class hierarchy diagram
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="dropdown" id="reports-menu">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            Reports <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="../reports/errors.html">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">0</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="../reports/markers.html">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <i class="icon-list-alt"></i>&#160;Markers <span class="label label-info pull-right">0</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="../reports/deprecated.html">
+                                                                                                            <i class="icon-list-alt"></i>&#160;Deprecated <span class="label label-info pull-right">0</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!--<div class="go_to_top">-->
+    <!--<a href="#___" style="color: inherit">Back to top&#160;&#160;<i class="icon-upload icon-white"></i></a>-->
+    <!--</div>-->
+</div>
+
+<div id="___" class="container-fluid">
+        <section class="row-fluid">
+        <div class="span2 sidebar">
+                                <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-639632053"></a>
+                                <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
+            </div>
+            <div id="namespace-639632053" class="accordion-body collapse in">
+                <div class="accordion-inner">
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-462409457"></a>
+                                <a href="../namespaces/block_mycourse_recommendations.html" style="margin-left: 30px; padding-left: 0">block_mycourse_recommendations</a>
+            </div>
+            <div id="namespace-462409457" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1550790558"></a>
+                                <a href="../namespaces/block_mycourse_recommendations.task.html" style="margin-left: 30px; padding-left: 0">task</a>
+            </div>
+            <div id="namespace-1550790558" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/block_mycourse_recommendations.task.create_recommendations_task.html">create_recommendations_task</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                    
+                    <ul>
+                                                    <li class="interface"><a href="../classes/block_mycourse_recommendations.abstract_associator.html">abstract_associator</a></li>
+                                                    <li class="interface"><a href="../classes/block_mycourse_recommendations.abstract_matrix.html">abstract_matrix</a></li>
+                                                                                                    <li class="class"><a href="../classes/block_mycourse_recommendations.abstract_recommendator.html">abstract_recommendator</a></li>
+                                                    <li class="class"><a href="../classes/block_mycourse_recommendations.cosine_similarity_associator.html">cosine_similarity_associator</a></li>
+                                                    <li class="class"><a href="../classes/block_mycourse_recommendations.course_filter.html">course_filter</a></li>
+                                                    <li class="class"><a href="../classes/block_mycourse_recommendations.database_helper.html">database_helper</a></li>
+                                                    <li class="class"><a href="../classes/block_mycourse_recommendations.decimal_matrix.html">decimal_matrix</a></li>
+                                                    <li class="class"><a href="../classes/block_mycourse_recommendations.query_result.html">query_result</a></li>
+                                                    <li class="class"><a href="../classes/block_mycourse_recommendations.recommendations_renderer.html">recommendations_renderer</a></li>
+                                                    <li class="class"><a href="../classes/block_mycourse_recommendations.simple_recommendator.html">simple_recommendator</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/block_mycourse_recommendations.html">block_mycourse_recommendations</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        </div>
+    </section>
+    <section class="row-fluid">
+        <div class="span10 offset2">
+            <div class="row-fluid">
+                <div class="span8 content class">
+                    <nav>
+                                                <a href="../namespaces/block_mycourse_recommendations.html">\block_mycourse_recommendations</a> <i class="icon-level-up"></i>
+                                            </nav>
+                    <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal"><i class="icon-code"></i></a>
+
+                    <h1><small>\block_mycourse_recommendations</small>course_filter</h1>
+                    <p><em>Class course_filter for determining if a course is personalizable or not.</em></p>
+                    
+                    
+                                        
+                    <section id="summary">
+                        <h2>Summary</h2>
+                        <section class="row-fluid heading">
+                            <section class="span4">
+                                <a href="#methods">Methods</a>
+                            </section>
+                            <section class="span4">
+                                <a href="#properties">Properties</a>
+                            </section>
+                            <section class="span4">
+                                <a href="#constants">Constants</a>
+                            </section>
+                        </section>
+                        <section class="row-fluid public">
+                            <section class="span4">
+                                                                    <a href="../classes/block_mycourse_recommendations.course_filter.html#method_is_course_personalizable" class="">is_course_personalizable()</a><br />
+                                                                    <a href="../classes/block_mycourse_recommendations.course_filter.html#method_meets_minimum_weeks" class="">meets_minimum_weeks()</a><br />
+                                                                    <a href="../classes/block_mycourse_recommendations.course_filter.html#method_meets_minimum_previous_courses" class="">meets_minimum_previous_courses()</a><br />
+                                                                    <a href="../classes/block_mycourse_recommendations.course_filter.html#method_meets_minimum_resources" class="">meets_minimum_resources()</a><br />
+                                                                    <a href="../classes/block_mycourse_recommendations.course_filter.html#method_meets_minimum_previous_students" class="">meets_minimum_previous_students()</a><br />
+                                                                    <a href="../classes/block_mycourse_recommendations.course_filter.html#method_meets_resource_variation" class="">meets_resource_variation()</a><br />
+                                                            </section>
+                            <section class="span4">
+                                                                    <em>No public properties found</em>
+                                                            </section>
+                            <section class="span4">
+                                                                    <a href="../classes/block_mycourse_recommendations.course_filter.html#constant_MINIMUM_WEEKS" class="">MINIMUM_WEEKS</a><br />
+                                                                    <a href="../classes/block_mycourse_recommendations.course_filter.html#constant_MINIMUM_PREVIOUS_COURSES" class="">MINIMUM_PREVIOUS_COURSES</a><br />
+                                                                    <a href="../classes/block_mycourse_recommendations.course_filter.html#constant_MINIMUM_PREVIOUS_STUDENTS" class="">MINIMUM_PREVIOUS_STUDENTS</a><br />
+                                                                    <a href="../classes/block_mycourse_recommendations.course_filter.html#constant_MINIMUM_PREVIOUS_RESOURCES" class="">MINIMUM_PREVIOUS_RESOURCES</a><br />
+                                                            </section>
+                        </section>
+                        <section class="row-fluid protected">
+                            <section class="span4">
+                                                                    <em>No protected methods found</em>
+                                                            </section>
+                            <section class="span4">
+                                                                    <em>No protected properties found</em>
+                                                            </section>
+                            <section class="span4">
+                                <em>N/A</em>
+                            </section>
+                        </section>
+                        <section class="row-fluid private">
+                            <section class="span4">
+                                                                    <em>No private methods found</em>
+                                                            </section>
+                            <section class="span4">
+                                                                    <em>No private properties found</em>
+                                                            </section>
+                            <section class="span4">
+                                <em>N/A</em>
+                            </section>
+                        </section>
+                    </section>
+                </div>
+                <aside class="span4 detailsbar">
+                                        
+                    
+                    <dl>
+                        <dt>File</dt>
+                            <dd><a href="../files/classes.course_filter.course_filter.html"><div class="path-wrapper">classes/course_filter/course_filter.php</div></a></dd>
+                                                <dt>Package</dt>
+                            <dd><div class="namespace-wrapper">block_mycourse_recommendations</div></dd>
+                                                <dt>Class hierarchy</dt>
+                            <dd class="hierarchy">
+                                                                                                                                                                    <div class="namespace-wrapper">\block_mycourse_recommendations\course_filter</div>
+                            </dd>
+
+                        
+                        
+                        
+                        
+                                                                        </dl>
+                    <h2>Tags</h2>
+                    <table class="table table-condensed">
+                                            <tr><td colspan="2"><em>None found</em></td></tr>
+                                        </table>
+                </aside>
+            </div>
+
+                                    <a id="constants" name="constants"></a>
+            <div class="row-fluid">
+                <div class="span8 content class">
+                    <h2>Constants</h2>
+                </div>
+                <aside class="span4 detailsbar"></aside>
+            </div>
+
+                                <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="constant_MINIMUM_WEEKS" name="constant_MINIMUM_WEEKS" class="anchor"></a>
+            <article id="constant_MINIMUM_WEEKS" class="constant">
+                <h3 class="">MINIMUM_WEEKS</h3>
+                <pre class="signature">MINIMUM_WEEKS</pre>
+                <p><em></em></p>
+                
+            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="constant_MINIMUM_PREVIOUS_COURSES" name="constant_MINIMUM_PREVIOUS_COURSES" class="anchor"></a>
+            <article id="constant_MINIMUM_PREVIOUS_COURSES" class="constant">
+                <h3 class="">MINIMUM_PREVIOUS_COURSES</h3>
+                <pre class="signature">MINIMUM_PREVIOUS_COURSES</pre>
+                <p><em></em></p>
+                
+            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="constant_MINIMUM_PREVIOUS_STUDENTS" name="constant_MINIMUM_PREVIOUS_STUDENTS" class="anchor"></a>
+            <article id="constant_MINIMUM_PREVIOUS_STUDENTS" class="constant">
+                <h3 class="">MINIMUM_PREVIOUS_STUDENTS</h3>
+                <pre class="signature">MINIMUM_PREVIOUS_STUDENTS</pre>
+                <p><em></em></p>
+                
+            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="constant_MINIMUM_PREVIOUS_RESOURCES" name="constant_MINIMUM_PREVIOUS_RESOURCES" class="anchor"></a>
+            <article id="constant_MINIMUM_PREVIOUS_RESOURCES" class="constant">
+                <h3 class="">MINIMUM_PREVIOUS_RESOURCES</h3>
+                <pre class="signature">MINIMUM_PREVIOUS_RESOURCES</pre>
+                <p><em></em></p>
+                
+            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                            
+                        
+                                    <a id="methods" name="methods"></a>
+            <div class="row-fluid">
+                <div class="span8 content class"><h2>Methods</h2></div>
+                <aside class="span4 detailsbar"></aside>
+            </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_is_course_personalizable" name="method_is_course_personalizable" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">is_course_personalizable()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">is_course_personalizable(integer  <span class="argument">$courseid</span>, integer  <span class="argument">$year</span>) : boolean</pre>
+                <p><em>Determines if a course is personalizable or not. The logic to determine this is divided in other
+functions; this function only calls them. If one of these function says that doesn&#039;t meet one of
+the parameters, there&#039;s no need to continue calling other functions.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$courseid </td>
+                                <td><p>The course to determine if it is personalizable or not.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$year </td>
+                                <td><p>The year the course teaching began.</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    boolean
+                                            &mdash; <p>If the given course is personalizable or not.</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                            <span class="label label-info">static</span>
+                                                            <dl>
+                                                                                            <dt>See also</dt>
+                                                                <dd><a href=""><span class="namespace-wrapper">$db).</span></a></dd>
+                                            <dd><a href=""><span class="namespace-wrapper">$db).</span></a></dd>
+                                            <dd><a href=""><span class="namespace-wrapper">$db).</span></a></dd>
+                                            <dd><a href=""><span class="namespace-wrapper">$db).</span></a></dd>
+                                            <dd><a href=""><span class="namespace-wrapper">$db).</span></a></dd>
+                                                                </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_meets_minimum_weeks" name="method_meets_minimum_weeks" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">meets_minimum_weeks()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">meets_minimum_weeks(integer  <span class="argument">$courseid</span>, \block_mycourse_recommendations\database_helper  <span class="argument">$db</span>) : boolean</pre>
+                <p><em>Determines if the course duration, in weeks, is long enough to consider it personalizable.</em></p>
+                <p>This function will be implemented in the near future.</p>
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$courseid </td>
+                                <td><p>The course to determine if meets the minimum weeks.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td><a href="../classes/block_mycourse_recommendations.database_helper.html">\block_mycourse_recommendations\database_helper</a></td>
+                                <td>$db </td>
+                                <td><p>The object with deals with database.</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    boolean
+                                            &mdash; <p>If the duration of the given course is the needed.</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                            <span class="label label-info">static</span>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_meets_minimum_previous_courses" name="method_meets_minimum_previous_courses" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">meets_minimum_previous_courses()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">meets_minimum_previous_courses(integer  <span class="argument">$courseid</span>, integer  <span class="argument">$currentyear</span>, \block_mycourse_recommendations\database_helper  <span class="argument">$db</span>) : boolean</pre>
+                <p><em>Determines if the course has had the minimum previous teachings in the past years.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$courseid </td>
+                                <td><p>The course to determine if has had the minimum teachings before.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$currentyear </td>
+                                <td><p>The year the current course began in.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td><a href="../classes/block_mycourse_recommendations.database_helper.html">\block_mycourse_recommendations\database_helper</a></td>
+                                <td>$db </td>
+                                <td><p>The object with deals with database.</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    boolean
+                                            &mdash; <p>If the given course has had the minimum teachings before or not.</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                            <span class="label label-info">static</span>
+                                                            <dl>
+                                                                                            <dt>See also</dt>
+                                                                <dd><a href=""><span class="namespace-wrapper">$currentyear) in database_helper.php.</span></a></dd>
+                                                                </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_meets_minimum_resources" name="method_meets_minimum_resources" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">meets_minimum_resources()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">meets_minimum_resources(integer  <span class="argument">$courseid</span>, integer  <span class="argument">$currentyear</span>, \block_mycourse_recommendations\database_helper  <span class="argument">$db</span>) : boolean</pre>
+                <p><em>Determines if the course has the minimum number of resources.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$courseid </td>
+                                <td><p>The course to determine if meets the minimum modules.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$currentyear </td>
+                                <td><p>The year of the given current course.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td><a href="../classes/block_mycourse_recommendations.database_helper.html">\block_mycourse_recommendations\database_helper</a></td>
+                                <td>$db </td>
+                                <td><p>The object with deals with database.</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    boolean
+                                            &mdash; <p>If the given course has the minimum resources or not.</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                            <span class="label label-info">static</span>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_meets_minimum_previous_students" name="method_meets_minimum_previous_students" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">meets_minimum_previous_students()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">meets_minimum_previous_students(integer  <span class="argument">$courseid</span>, integer  <span class="argument">$currentyear</span>, \block_mycourse_recommendations\database_helper  <span class="argument">$db</span>) : boolean</pre>
+                <p><em>Determines if the course has had the minimum number of students in previous teachings.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$courseid </td>
+                                <td><p>The course to determine if meets the minimum students.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$currentyear </td>
+                                <td><p>The year of the given current course.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td><a href="../classes/block_mycourse_recommendations.database_helper.html">\block_mycourse_recommendations\database_helper</a></td>
+                                <td>$db </td>
+                                <td><p>The object with deals with database.</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    boolean
+                                            &mdash; <p>If the given course has the minimum students or not.</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                            <span class="label label-info">static</span>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_meets_resource_variation" name="method_meets_resource_variation" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">meets_resource_variation()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">meets_resource_variation(integer  <span class="argument">$courseid</span>, \block_mycourse_recommendations\database_helper  <span class="argument">$db</span>) : boolean</pre>
+                <p><em>Determines if the course meets the resource variation.</em></p>
+                <p>For the moment, we'll suppose every course meets this.</p>
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$courseid </td>
+                                <td><p>The course to determine if meets the resource variation.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td><a href="../classes/block_mycourse_recommendations.database_helper.html">\block_mycourse_recommendations\database_helper</a></td>
+                                <td>$db </td>
+                                <td><p>The object with deals with database.</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    boolean
+                                            &mdash; <p>If the given course meets the resource variation or not.</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                            <span class="label label-info">static</span>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                                                    </div>
+    </section>
+
+    <div id="source-view" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="source-view-label" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="source-view-label">course_filter.php</h3>
+        </div>
+        <div class="modal-body">
+            <pre data-src="../files/classes/course_filter/course_filter.php.txt" class="language-php line-numbers"></pre>
+        </div>
+    </div>
+
+    <footer class="row-fluid">
+        <section class="span10 offset2">
+            <section class="row-fluid">
+                <section class="span10 offset1">
+                    <section class="row-fluid footer-sections">
+                        <section class="span4">
+                                                        <h1><i class="icon-code"></i></h1>
+                            <div>
+                                <ul>
+                                                                            <li><a href="../namespaces/block_mycourse_recommendations.html">\block_mycourse_recommendations</a></li>
+                                                                    </ul>
+                            </div>
+                        </section>
+                        <section class="span4">
+                                                        <h1><i class="icon-bar-chart"></i></h1>
+                            <div>
+                                <ul>
+                                    <li><a href="../graphs/class.html">Class Hierarchy Diagram</a></li>
+                                </ul>
+                            </div>
+                        </section>
+                        <section class="span4">
+                                                        <h1><i class="icon-pushpin"></i></h1>
+                            <div>
+                                <ul>
+                                    <li><a href="../reports/errors.html">Errors</a></li>
+                                    <li><a href="../reports/markers.html">Markers</a></li>
+                                </ul>
+                            </div>
+                        </section>
+                    </section>
+                </section>
+            </section>
+            <section class="row-fluid">
+                <section class="span10 offset1">
+                    <hr />
+                    Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
+                    on March 9th, 2016 at 16:02.
+                </section>
+            </section>
+        </section>
+    </footer>
+</div>
+
+</body>
+</html>
