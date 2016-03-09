@@ -48,28 +48,28 @@ class create_recommendations_task extends \core\task\scheduled_task {
 
     /**
      * Database helper, to perform actions with the database.
-     * @var block_mycourse_recommendations\database_helper
+     * @var \block_mycourse_recommendations\database_helper
      */
     private $db;
 
     /**
      * The interface for dealing with the similarities matrix, whose implementation will be the concrete class
      * implementing the methods.
-     * @var block_mycourse_recommendations\abstract_matrix
+     * @var \block_mycourse_recommendations\abstract_matrix
      */
     private $matrix;
 
     /**
      * The interface for generating associations, whose implementation will be the concrete class implementing
      * the methods.
-     * @var block_mycourse_recommendations\abstract_associator
+     * @var \block_mycourse_recommendations\abstract_associator
      */
     private $associator;
 
     /**
      * The abstract class for generation recommendations, whose implementation will be a concrete instance implementing
      * the methods of generating recommendations.
-     * @var block_mycourse_recommendations\abstract_recommendator
+     * @var \block_mycourse_recommendations\abstract_recommendator
      */
     private $recommendator;
 

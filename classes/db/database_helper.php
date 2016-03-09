@@ -274,7 +274,7 @@ class database_helper {
      * historic users.
      * @param int $currentcourseid The id of the course the current users belong to. As the
      * associations are calculed for a course, it's a single int value.
-     * @param array $historicuserid The ids of the historics users, which are associated to current
+     * @param array $historicuserids The ids of the historics users, which are associated to current
      * users.
      * @param int $historiccourseid The id of the course the historics users belong to. As the
      * associations are calculed for a course, it's a single int value.

@@ -53,14 +53,14 @@ abstract class abstract_recommendator {
 
     /**
      * Database helper, to perform actions with the database.
-     * @var block_mycourse_recommendations\database_helper
+     * @var \block_mycourse_recommendations\database_helper
      */
     protected $db;
 
     /**
      * The interface for generating associations, whose implementation will be the concrete class implementing
      * the methods.
-     * @var block_mycourse_recommendations\abstract_associator
+     * @var \block_mycourse_recommendations\abstract_associator
      */
     protected $associator;
 

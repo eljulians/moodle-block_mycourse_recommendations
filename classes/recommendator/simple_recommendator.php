@@ -47,7 +47,8 @@ class simple_recommendator extends abstract_recommendator {
     /**
      * simple_recommendator constructor.
      *
-     * @param block_mycourse_recommendations\abstract_associator $associatorinstance The instance implementing the methods
+     * @param \block_mycourse_recommendations\abstract_associator $associatorinstance The instance implementing the methods
+     * @param \block_mycourse_recommendations\abstract_associator $associatorinstance The instance implementing the methods
      * for calculating the associations.
      */
     public function __construct($associatorinstance) {
