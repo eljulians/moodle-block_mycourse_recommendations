@@ -69,7 +69,7 @@ class block_mycourse_recommendations_recommendations_renderer_testcase extends a
     }
 
     public function test_render_recommendations_below() {
-        global $COURSE;
+        global $COURSE, $USER;
 
         $this->resetAfterTest();
         $this->setAdminUser();
@@ -95,8 +95,12 @@ class block_mycourse_recommendations_recommendations_renderer_testcase extends a
         $expected = '<ol>';
 
         foreach ($resources as $resource) {
+            $url = new \moodle_url('/blocks/mycourse_recommendations/classes/renderer/recommendation_view_saver.php',
+                array('user' => $USER->id, 'resource' => $resource->cmid));
             $expected .= '<li>';
+            $expected .= "<a href='$url' target='_blank'>";
             $expected .= $resource->name;
+            $expected .= '</a>';
             $expected .= '</li>';
         }
 
@@ -106,7 +110,7 @@ class block_mycourse_recommendations_recommendations_renderer_testcase extends a
     }
 
     public function test_render_recommendations_equal() {
-        global $COURSE;
+        global $COURSE, $USER;
 
         $this->resetAfterTest();
         $this->setAdminUser();
@@ -132,8 +136,12 @@ class block_mycourse_recommendations_recommendations_renderer_testcase extends a
         $expected = '<ol>';
 
         foreach ($resources as $resource) {
+            $url = new \moodle_url('/blocks/mycourse_recommendations/classes/renderer/recommendation_view_saver.php',
+                array('user' => $USER->id, 'resource' => $resource->cmid));
             $expected .= '<li>';
+            $expected .= "<a href='$url' target='_blank'>";
             $expected .= $resource->name;
+            $expected .= '</a>';
             $expected .= '</li>';
         }
 
@@ -143,7 +151,7 @@ class block_mycourse_recommendations_recommendations_renderer_testcase extends a
     }
 
     public function test_render_recommendations_above() {
-        global $COURSE;
+        global $COURSE, $USER;
 
         $this->resetAfterTest();
         $this->setAdminUser();
@@ -175,8 +183,12 @@ class block_mycourse_recommendations_recommendations_renderer_testcase extends a
                 break;
             }
 
+            $url = new \moodle_url('/blocks/mycourse_recommendations/classes/renderer/recommendation_view_saver.php',
+                array('user' => $USER->id, 'resource' => $resource->cmid));
             $expected .= '<li>';
+            $expected .= "<a href='$url' target='_blank'>";
             $expected .= $resource->name;
+            $expected .= '</a>';
             $expected .= '</li>';
         }
 

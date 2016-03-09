@@ -285,8 +285,12 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
         $expected->text = '<ol>';
 
         for ($index = 0; $index < recommendations_renderer::MAX_RECOMMENDATIONS; $index++) {
+            $url = new \moodle_url('/blocks/mycourse_recommendations/classes/renderer/recommendation_view_saver.php',
+                array('user' => $USER->id, 'resource' => $resources[$index]->cmid));
             $expected->text .= '<li>';
+            $expected->text .= "<a href='$url' target='_blank'>";
             $expected->text .= $resources[$index]->name;
+            $expected->text .= '</a>';
             $expected->text .= '</li>';
         }
         $expected->text .= '</ol>';
