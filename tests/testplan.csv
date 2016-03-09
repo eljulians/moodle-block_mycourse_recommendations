@@ -238,4 +238,4 @@ Returns the following string:
 39;db/database_helper;insert_similarity;"$currentuserid = 100
 $historicuserid = 1
 $coefficient = 0.7515
-$week = 10";Test that, after calling the method with the given parameters, effectively exists a record in the table with those values.;Equivalence;No;;;;
+$week = 10";Test that, after calling the method with the given parameters, effectively exists a record in the table with those values.;Equivalence;Yes;Pass;;Julen Pardo;08/03/2016
