@@ -18,6 +18,11 @@
     <property name="behat.dataroot" value="/var/behat_${parameter.version}"/>
     <property name="behat.yml" value="${behat.dataroot}/behat/behat.yml"/>
 
+    <!--
+    The output is generated in a directory that is not the code repository, because the aim of the target where is executed is to find docblock errors, not to generate the documentation itself.
+    -->
+    <property name="phpdoc.outputdir" value="/tmp/phpdoc/"/>
+
     <target name="git_status">
         <exec command="git symbolic-ref --short HEAD" outputProperty="git.branch"/>
         <echo msg="On branch ${git.branch}."/>
@@ -114,6 +119,21 @@
         </if>
 
         <echo msg="${behat.output}"/>
+    </target>
+
+    <target name="phpdoc" depends="block_mycourse_install">
+        <exec command="phpdoc run -d ${block_mycourse.install.path}/classes/ -i ${block_mycourse.install.path}/tests/ -t ${phpdoc.outputdir}" returnProperty="phpdoc.status" outputProperty="phpdoc.output"/>
+
+        <if>
+            <not>
+                <equals arg1="${phpdoc.status}" arg2="${success.code}"/>
+            </not>
+            <then>
+                <fail message="${phpdoc.output}"/>
+            </then>
+        </if>
+
+        <echo msg="${phpdoc.output}"/>
     </target>
 
 </project>
