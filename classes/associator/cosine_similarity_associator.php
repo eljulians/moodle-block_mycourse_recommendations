@@ -26,8 +26,10 @@ namespace block_mycourse_recommendations;
 
 require_once('abstract_associator.php');
 require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/matrix/abstract_matrix.php');
+require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/db/database_helper.php');
 
 use block_mycourse_recommendations\abstract_associator;
+use block_mycourse_recommendations\database_helper;
 
 /**
  * Class cosine_similarity_associator for implementing the cosine similarity as association determination mechanism.
@@ -47,6 +49,12 @@ class cosine_similarity_associator implements abstract_associator {
     private $matrix;
 
     /**
+     * The week the associations are being calculated at, needed to insert each association into the database.
+     * @var int
+     */
+    private $currentweek;
+
+    /**
      * cosine_similarity_associator constructor.
      *
      * @param \block_mycourse_recommendations\abstract_matrix $matrixinstance The matrix instance
@@ -54,6 +62,15 @@ class cosine_similarity_associator implements abstract_associator {
      */
     public function __construct($matrixinstance) {
         $this->matrix = $matrixinstance;
+    }
+
+    /**
+     * Sets the current week.
+     *
+     * @param int $currentweek The week the associations are being calculated at.
+     */
+    public function set_currentweek($currentweek) {
+        $this->currentweek = $currentweek;
     }
 
     /**
@@ -66,6 +83,8 @@ class cosine_similarity_associator implements abstract_associator {
      * @return array The association matrix.
      */
     public function create_associations_matrix($currentdata, $historicdata) {
+        $db = new database_helper();
+
         $currenttransformeddata = $this->matrix->transform_queried_data($currentdata);
         $historictransformeddata = $this->matrix->transform_queried_data($historicdata);
 
@@ -82,6 +101,8 @@ class cosine_similarity_associator implements abstract_associator {
                 $similarity = $this->cosine_similarity($currentviewsvector, $historicviewsvector);
                 $similarity = round($similarity, 4);
                 $similarities[$historicuser] = $similarity;
+
+                $db->insert_similarity($currentuser, $historicuser, $similarity, $this->currentweek);
             }
 
             $matrix[$currentuser] = $similarities;

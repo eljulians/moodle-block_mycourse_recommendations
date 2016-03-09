@@ -146,6 +146,9 @@ class block_mycourse_recommendations_cosine_similarity_associator_testcase exten
                                          '6' => 0.8055)
                           );
 
+        // We have to set a week, even if it doesn't affect to this test, otherwise, not null constraint of
+        // {block_mycourse_similarities} will break.
+        $this->associator->set_currentweek(1);
         $actual = $this->associator->create_associations_matrix($currentdata, $historicdata);
 
         // It seems that we have assert every value to make the assertion behave properly.

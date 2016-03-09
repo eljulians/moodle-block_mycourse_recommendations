@@ -789,4 +789,26 @@ class database_helper {
 
         return $module->id;
     }
+
+    /**
+     * Inserts the similarity coefficient between a current user (selected user for receiving recommendations) and
+     * a historic user, for the given week.
+     *
+     * @param int $currentuserid The current user, the one who will receive recommendations later.
+     * @param int $historicuserid The historic user, the candidate to be reference for creating recommendations for
+     * the current user.
+     * @param float $coefficient The similarity coefficient between the two users.
+     * @param int $week The week the coefficient has been calculated at.
+     */
+    public function insert_similarity($currentuserid, $historicuserid, $coefficient, $week) {
+        global $DB;
+
+        $record = new stdClass();
+        $record->current_userid = $currentuserid;
+        $record->historic_userid = $historicuserid;
+        $record->coefficient = $coefficient;
+        $record->week = $week;
+
+        $DB->insert_record('block_mycourse_similarities', $record);
+    }
 }
