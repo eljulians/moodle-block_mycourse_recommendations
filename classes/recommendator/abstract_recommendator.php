@@ -37,21 +37,50 @@ abstract class abstract_recommendator {
      * Determines how many weeks to look after the current one, when finding associations and resources to
      * recommend. For example, if the current week is the 4th, and the value of the constant is 1, the data
      * will be queried from the beginning to the 5th week.
-     *
      * @var int
      */
     const TIME_WINDOW = 2;
 
+    /**
+     * Database helper, to perform actions with the database.
+     * @var block_mycourse_recommendations\database_helper
+     */
     protected $db;
+
+    /**
+     * The interface for generating associations, whose implementation will be the concrete class implementing
+     * the methods.
+     * @var block_mycourse_recommendations\abstract_associator
+     */
     protected $associator;
 
+    /**
+     * abstract_recommendator constructor.
+     *
+     * @param \block_mycourse_recommendations\abstract_associator $associatorinstance The instance implementing
+     * the methods of associator interface.
+     */
     public function __construct($associatorinstance) {
         $this->db = new database_helper();
         $this->associator = $associatorinstance;
     }
 
+    /**
+     * Creates the recommendations for the current course and week, looking at the associations of the current users
+     * with the historic ones.
+     *
+     * @param int $courseid
+     * @param int $currentweek
+     */
     abstract public function create_recommendations($courseid, $currentweek);
 
+    /**
+     * Creates the associations between the current users and historic users, i.e., it decides which historic user is
+     * more similar for the current user, to create the recommendations later.
+     *
+     * @param int $courseid The current course id.
+     * @param int $currentweek The current week of the current course.
+     */
     abstract public function create_associations($courseid, $currentweek);
 
     /**
@@ -61,6 +90,7 @@ abstract class abstract_recommendator {
      * manually the array with random users.
      *
      * @param int $courseid The course to select students from.
+     * @param int $year The year the given course belongs to.
      */
     public function select_students($courseid, $year) {
         $coursestudents = $this->db->get_students_from_course($courseid);

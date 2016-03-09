@@ -30,8 +30,19 @@ use block_mycourse_recommendations\abstract_associator;
 
 class cosine_similarity_associator implements abstract_associator {
 
+    /**
+     * The interface for dealing with the similarities matrix, whose implementation will be the concrete class
+     * implementing the methods.
+     * @var block_mycourse_recommendations\abstract_matrix
+     */
     private $matrix;
 
+    /**
+     * cosine_similarity_associator constructor.
+     *
+     * @param \block_mycourse_recommendations\abstract_matrix $matrixinstance The matrix instance
+     * implementing the abstract methods for creating matrix.
+     */
     public function __construct($matrixinstance) {
         $this->matrix = $matrixinstance;
     }

@@ -25,5 +25,13 @@ namespace block_mycourse_recommendations;
 
 interface abstract_associator {
 
+    /**
+     * Given the data of the historic users and the current ones, creates a matrix of association coefficients, with the
+     * current users as rows, and the historic user as columns.
+     *
+     * @param array $currentdata Current users' views.
+     * @param array $historicdata Historic users' views.
+     * @return array The association matrix.
+     */
     public function create_associations_matrix($currentdata, $historicdata);
 }

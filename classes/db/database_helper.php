@@ -32,8 +32,15 @@ defined('MOODLE_INTERNAL') || die();
 
 class database_helper {
 
+    /**
+     * The query to get the logviews by weeks, user and course.
+     * @var string
+     */
     public $sql;
 
+    /**
+     * database_helper constructor.
+     */
     public function __construct() {
         $this->sql = "
        select
@@ -189,6 +196,12 @@ class database_helper {
      * @param int $currentweek The week until the data will be queried. For a week n,
      * the queried data will be from the first week, to the week (n-1). When querying
      * historic data, this week will (presumably) be the end week of the course.
+     * @param int $userid The user id to calculate the views of. Default is null, so, by default the
+     * logviews are queried for all the users of the course.
+     * @param boolean $ignoreweeks If the weeks have to be ignored. By default is false, so, by default
+     * the weeks are taken into consideration
+     * @param boolean $onlyunviewed If only the unviewed resources have to be queried. By default is false,
+     * so, by default all the resources are queried, viewed or not.
      *
      * @return array An object for each record in recordset.
      */
@@ -542,9 +555,11 @@ class database_helper {
     }
 
     /**
+     * Calculates the duration in weeks for the given course.
+     *
      * @param int $currentcourseid The id of the current course.
      * @param int $currentyear The year the current course is being teached in.
-     * @return int
+     * @return int The course duration in weeks.
      */
     public function get_course_duration_in_weeks($currentcourseid, $currentyear) {
 

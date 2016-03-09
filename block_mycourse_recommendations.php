@@ -14,15 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Class block_mycourse_recommendations.
- *
- * @package    block_mycourse_recommendations
- * @copyright  2015 onwards Iñaki Arenaza & Mondragon Unibertsitatea
- *             2016 onwards Julen Pardo & Mondragon Unibertsitatea
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/recommendator/simple_recommendator.php');
@@ -39,12 +30,42 @@ use block_mycourse_recommendations\recommendations_renderer;
 use block_mycourse_recommendations\database_helper;
 use block_mycourse_recommendations\course_filter;
 
+/**
+ * Class block_mycourse_recommendations.
+ *
+ * @package    block_mycourse_recommendations
+ * @copyright  2015 onwards Iñaki Arenaza & Mondragon Unibertsitatea
+ *             2016 onwards Julen Pardo & Mondragon Unibertsitatea
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 class block_mycourse_recommendations extends block_base {
 
+    /**
+     * The interface for dealing with the similarities matrix, whose implementation will be the concrete class
+     * implementing the methods.
+     * @var block_mycourse_recommendations\abstract_matrix
+     */
     private $matrix;
+
+    /**
+     * The interface for generating associations, whose implementation will be the concrete class implementing
+     * the methods.
+     * @var block_mycourse_recommendations\abstract_associator
+     */
     private $associator;
+
+    /**
+     * The abstract class for generation recommendations, whose implementation will be a concrete instance implementing
+     * the methods of generating recommendations.
+     * @var block_mycourse_recommendations\abstract_recommendator
+     */
     private $recommendator;
-    private $renderer;
+
+    /**
+     * Database helper, to perform actions with the database.
+     * @var block_mycourse_recommendations\database_helper
+     */
     private $db;
 
     /**
@@ -60,7 +81,13 @@ class block_mycourse_recommendations extends block_base {
     }
 
     /**
-     * @return string
+     * Performs all the operations in order to display the block output:
+     *  - Checks if it is the first time that the block is loaded in the course, to check if the course is personalizable
+     *    or not.
+     *  - Checks if the current user is selected to receive the recommendations.
+     *  - Retrieves the recommendations from the database.
+     *
+     * @return string The content of the block.
      */
     public function get_content() {
         global $COURSE, $USER, $DB;
@@ -110,8 +137,11 @@ class block_mycourse_recommendations extends block_base {
     }
 
     /**
-     * @param int $courseid
-     * @param int $courseyear
+     * Initializes the course, when is the first instance of the block, looking if it is personalizable or not, and
+     * saving this in database.
+     *
+     * @param int $courseid The course where the first instance of this block has been loaded in.
+     * @param int $courseyear The start year of the course.
      */
     private function initialize_course($courseid, $courseyear) {
         $personalizable = course_filter::is_course_personalizable($courseid, $courseyear);

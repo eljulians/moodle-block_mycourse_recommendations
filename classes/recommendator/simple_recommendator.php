@@ -34,6 +34,12 @@ use block_mycourse_recommendations\database_helper;
 
 class simple_recommendator extends abstract_recommendator {
 
+    /**
+     * simple_recommendator constructor.
+     *
+     * @param block_mycourse_recommendations\abstract_associator $associatorinstance The instance implementing the methods
+     * for calculating the associations.
+     */
     public function __construct($associatorinstance) {
         parent::__construct($associatorinstance);
         null; // The codechecker will throw a warning if we don't do something more apart from calling parent's constructor...

@@ -37,7 +37,8 @@ class decimal_matrix implements abstract_matrix {
      * Transforms the data of a course fetched from database, creating a matrix, where the rows will be the users ids;
      * the columns, the resources ids; and the values, the views.
      *
-     * @param array $queryresults "query_result" objects.
+     * @param \block_mycourse_recommendations\query_result $queryresults The query result, with the logviews of the users for the
+     * given course.
      * @return array A matrix of the log views, with the users as rows, and the modules (resources) as columns.
      */
     public function transform_queried_data($queryresults) {
