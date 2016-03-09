@@ -171,6 +171,7 @@ class simple_recommendator extends abstract_recommendator {
 
         // We get the association matrix, where the rows will be the current users id; the columns, the previous users;
         // and the values, the simmilarity coefficient.
+        $this->associator->set_currentweek($currentweek);
         $associationmatrix = $this->associator->create_associations_matrix($currentdata, $previousdata);
 
         $number = count($associationmatrix);
