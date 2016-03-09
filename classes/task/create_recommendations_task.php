@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Task for cron execution.
  *
  * @package    block_mycourse_recommendations
  * @copyright  2016 onwards Julen Pardo & Mondragon Unibertsitatea
@@ -35,11 +36,41 @@ use block_mycourse_recommendations\decimal_matrix;
 use block_mycourse_recommendations\cosine_similarity_associator;
 use block_mycourse_recommendations\simple_recommendator;
 
+/**
+ * Class that is being used when the cron job of the plugin is called, for calculating recommendations.
+ *
+ * @package    block_mycourse_recommendations
+ * @copyright  2016 onwards Julen Pardo & Mondragon Unibertsitatea
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 class create_recommendations_task extends \core\task\scheduled_task {
 
+    /**
+     * Database helper, to perform actions with the database.
+     * @var \block_mycourse_recommendations\database_helper
+     */
     private $db;
+
+    /**
+     * The interface for dealing with the similarities matrix, whose implementation will be the concrete class
+     * implementing the methods.
+     * @var \block_mycourse_recommendations\abstract_matrix
+     */
     private $matrix;
+
+    /**
+     * The interface for generating associations, whose implementation will be the concrete class implementing
+     * the methods.
+     * @var \block_mycourse_recommendations\abstract_associator
+     */
     private $associator;
+
+    /**
+     * The abstract class for generation recommendations, whose implementation will be a concrete instance implementing
+     * the methods of generating recommendations.
+     * @var \block_mycourse_recommendations\abstract_recommendator
+     */
     private $recommendator;
 
     /**

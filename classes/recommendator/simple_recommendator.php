@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Implementation of block_mycourse_recommendations\abstract_recommendator in the simplest way.
  *
  * @package    block_mycourse_recommendations
  * @copyright  2016 onwards Julen Pardo & Mondragon Unibertsitatea
@@ -32,8 +33,24 @@ require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/matrix/ab
 use block_mycourse_recommendations\abstract_recommendator;
 use block_mycourse_recommendations\database_helper;
 
+/**
+ * Class simple_recommendator for implementing the specific methods of association and recommendations creation in
+ * the simplest way.
+ *
+ * @package block_mycourse_recommendations
+ * @copyright  2016 onwards Julen Pardo & Mondragon Unibertsitatea
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 class simple_recommendator extends abstract_recommendator {
 
+    /**
+     * simple_recommendator constructor.
+     *
+     * @param \block_mycourse_recommendations\abstract_associator $associatorinstance The instance implementing the methods
+     * @param \block_mycourse_recommendations\abstract_associator $associatorinstance The instance implementing the methods
+     * for calculating the associations.
+     */
     public function __construct($associatorinstance) {
         parent::__construct($associatorinstance);
         null; // The codechecker will throw a warning if we don't do something more apart from calling parent's constructor...

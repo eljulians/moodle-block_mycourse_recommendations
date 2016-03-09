@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Abstract associator interface definition.
  *
  * @package    block_mycourse_recommendations
  * @copyright  2016 onwards Julen Pardo & Mondragon Unibertsitatea
@@ -23,7 +24,23 @@
 
 namespace block_mycourse_recommendations;
 
+/**
+ * Interface abstract_associator for the definition of method for creating association matrix between users.
+ *
+ * @package    block_mycourse_recommendations
+ * @copyright  2016 onwards Julen Pardo & Mondragon Unibertsitatea
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 interface abstract_associator {
 
+    /**
+     * Given the data of the historic users and the current ones, creates a matrix of association coefficients, with the
+     * current users as rows, and the historic user as columns.
+     *
+     * @param array $currentdata Current users' views.
+     * @param array $historicdata Historic users' views.
+     * @return array The association matrix.
+     */
     public function create_associations_matrix($currentdata, $historicdata);
 }

@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Rendering recommendations into HTML format, concretely, in an ordered list.
  *
  * @package    block_mycourse_recommendations
  * @copyright  2016 onwards Julen Pardo & Mondragon Unibertsitatea
@@ -24,11 +25,20 @@
 namespace block_mycourse_recommendations;
 
 defined('MOODLE_INTERNAL') || die();
+
 global $CFG;
 
 require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/db/database_helper.php');
 
 use block_mycourse_recommendations\database_helper;
+
+/**
+ * Class recommendations_renderer for rendering recommendations for user in HTML format, concretely, in an ordered list.
+ *
+ * @package block_mycourse_recommendations
+ * @copyright  2016 onwards Julen Pardo & Mondragon Unibertsitatea
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 
 class recommendations_renderer {
 

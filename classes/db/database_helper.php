@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Database encapsulation.
  *
  * @package    block_mycourse_recommendations
  * @copyright  2016 onwards Julen Pardo & Mondragon Unibertsitatea
@@ -30,10 +31,26 @@ use block_mycourse_recommendations\query_result;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Class database_helper for encapsulating all the database operations, so, the other classes don't have to
+ * know database's tables' names, columns, etc.
+ *
+ * @package block_mycourse_recommendations
+ * @copyright  2016 onwards Julen Pardo & Mondragon Unibertsitatea
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 class database_helper {
 
+    /**
+     * The query to get the logviews by weeks, user and course.
+     * @var string
+     */
     public $sql;
 
+    /**
+     * database_helper constructor.
+     */
     public function __construct() {
         $this->sql = "
        select
@@ -189,6 +206,12 @@ class database_helper {
      * @param int $currentweek The week until the data will be queried. For a week n,
      * the queried data will be from the first week, to the week (n-1). When querying
      * historic data, this week will (presumably) be the end week of the course.
+     * @param int $userid The user id to calculate the views of. Default is null, so, by default the
+     * logviews are queried for all the users of the course.
+     * @param boolean $ignoreweeks If the weeks have to be ignored. By default is false, so, by default
+     * the weeks are taken into consideration
+     * @param boolean $onlyunviewed If only the unviewed resources have to be queried. By default is false,
+     * so, by default all the resources are queried, viewed or not.
      *
      * @return array An object for each record in recordset.
      */
@@ -251,7 +274,7 @@ class database_helper {
      * historic users.
      * @param int $currentcourseid The id of the course the current users belong to. As the
      * associations are calculed for a course, it's a single int value.
-     * @param array $historicuserid The ids of the historics users, which are associated to current
+     * @param array $historicuserids The ids of the historics users, which are associated to current
      * users.
      * @param int $historiccourseid The id of the course the historics users belong to. As the
      * associations are calculed for a course, it's a single int value.
@@ -542,9 +565,11 @@ class database_helper {
     }
 
     /**
+     * Calculates the duration in weeks for the given course.
+     *
      * @param int $currentcourseid The id of the current course.
      * @param int $currentyear The year the current course is being teached in.
-     * @return int
+     * @return int The course duration in weeks.
      */
     public function get_course_duration_in_weeks($currentcourseid, $currentyear) {
 

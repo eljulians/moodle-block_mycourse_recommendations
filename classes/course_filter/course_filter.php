@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Course filtering for determination of they "personalizabily".
  *
  * @package    block_mycourse_recommendations
  * @copyright  2016 onwards Julen Pardo & Mondragon Unibertsitatea
@@ -28,6 +29,12 @@ require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/db/databa
 use block_mycourse_recommendations\database_helper;
 
 defined('MOODLE_INTERNAL') || die();
+
+/**
+ * Class course_filter for determining if a course is personalizable or not.
+ *
+ * @package block_mycourse_recommendations
+ */
 
 class course_filter {
 
@@ -114,7 +121,8 @@ class course_filter {
      * Determines if the course has the minimum number of resources.
      *
      * @param int $courseid The course to determine if meets the minimum modules.
-     * @param database_helper $db The object with deals with database.
+     * @param int $currentyear The year of the given current course.
+     * @param \block_mycourse_recommendations\database_helper $db The object with deals with database.
      * @return boolean If the given course has the minimum resources or not.
      */
     public static function meets_minimum_resources($courseid, $currentyear, $db) {
@@ -133,7 +141,8 @@ class course_filter {
      * Determines if the course has had the minimum number of students in previous teachings.
      *
      * @param int $courseid The course to determine if meets the minimum students.
-     * @param database_helper $db The object with deals with database.
+     * @param int $currentyear The year of the given current course.
+     * @param \block_mycourse_recommendations\database_helper $db The object with deals with database.
      * @return boolean If the given course has the minimum students or not.
      */
     public static function meets_minimum_previous_students($courseid, $currentyear, $db) {
