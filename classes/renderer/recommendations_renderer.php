@@ -53,7 +53,7 @@ class recommendations_renderer {
      * if $recommendations is empty.
      */
     public static function render_recommendations($recommendations) {
-        global $COURSE;
+        global $COURSE, $USER;
 
         if (empty($recommendations)) {
             return get_string('norecommendations', 'block_mycourse_recommendations');
@@ -70,8 +70,13 @@ class recommendations_renderer {
 
             $cminfo = $modinfo->get_cm($moduleid);
 
+            $url = new \moodle_url('/blocks/mycourse_recommendations/classes/renderer/recommendation_view_saver.php',
+                                  array('user' => $USER->id, 'resource' => $moduleid));
+
             $output .= '<li>';
+            $output .= "<a href='$url' target='_blank'>";
             $output .= $cminfo->get_formatted_name();
+            $output .= '</a>';
             $output .= '</li>';
         }
 
