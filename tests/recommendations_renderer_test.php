@@ -86,6 +86,7 @@ class block_mycourse_recommendations_recommendations_renderer_testcase extends a
 
         foreach ($resources as $index => $resource) {
             $recommendations[$index] = new stdClass();
+            $recommendations[$index]->id = 0;
             $recommendations[$index]->resourceid = $resource->id;
             $recommendations[$index]->priority = $index;
         }
@@ -95,8 +96,8 @@ class block_mycourse_recommendations_recommendations_renderer_testcase extends a
         $expected = '<ol>';
 
         foreach ($resources as $resource) {
-            $url = new \moodle_url('/blocks/mycourse_recommendations/classes/renderer/recommendation_view_saver.php',
-                array('user' => $USER->id, 'resource' => $resource->cmid));
+            $url = new \moodle_url('/blocks/mycourse_recommendations/redirect_to_resource.php',
+                array('recommendationid' => 0, 'modname' => 'page', 'moduleid' => $resource->cmid));
             $expected .= '<li>';
             $expected .= "<a href='$url' target='_blank'>";
             $expected .= $resource->name;
@@ -127,6 +128,7 @@ class block_mycourse_recommendations_recommendations_renderer_testcase extends a
 
         foreach ($resources as $index => $resource) {
             $recommendations[$index] = new stdClass();
+            $recommendations[$index]->id = 0;
             $recommendations[$index]->resourceid = $resource->id;
             $recommendations[$index]->priority = $index;
         }
@@ -136,8 +138,8 @@ class block_mycourse_recommendations_recommendations_renderer_testcase extends a
         $expected = '<ol>';
 
         foreach ($resources as $resource) {
-            $url = new \moodle_url('/blocks/mycourse_recommendations/classes/renderer/recommendation_view_saver.php',
-                array('user' => $USER->id, 'resource' => $resource->cmid));
+            $url = new \moodle_url('/blocks/mycourse_recommendations/redirect_to_resource.php',
+                                   array('recommendationid' => 0, 'modname' => 'page', 'moduleid' => $resource->cmid));
             $expected .= '<li>';
             $expected .= "<a href='$url' target='_blank'>";
             $expected .= $resource->name;
@@ -168,6 +170,7 @@ class block_mycourse_recommendations_recommendations_renderer_testcase extends a
 
         foreach ($resources as $index => $resource) {
             $recommendations[$index] = new stdClass();
+            $recommendations[$index]->id = 0;
             $recommendations[$index]->resourceid = $resource->id;
             $recommendations[$index]->priority = $index;
         }
@@ -183,8 +186,8 @@ class block_mycourse_recommendations_recommendations_renderer_testcase extends a
                 break;
             }
 
-            $url = new \moodle_url('/blocks/mycourse_recommendations/classes/renderer/recommendation_view_saver.php',
-                array('user' => $USER->id, 'resource' => $resource->cmid));
+            $url = new \moodle_url('/blocks/mycourse_recommendations/redirect_to_resource.php',
+                                   array('recommendationid' => 0, 'modname' => 'page', 'moduleid' => $resource->cmid));
             $expected .= '<li>';
             $expected .= "<a href='$url' target='_blank'>";
             $expected .= $resource->name;
