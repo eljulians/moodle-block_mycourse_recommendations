@@ -547,16 +547,8 @@ class database_helper {
         global $DB;
 
         $sql = 'SELECT count(*) as count
-                FROM   {user} users
-                INNER JOIN {role_assignments} ra
-                    ON users.id = ra.userid
-                INNER JOIN {context} context
-                    ON ra.contextid = context.id
-                INNER JOIN {course} course
-                    ON context.instanceid = course.id
-                WHERE  context.contextlevel = 50
-                    AND ra.roleid = 5
-                    AND course.id = ?';
+                FROM   {block_mycourse_hist_enrol} historic_users
+                WHERE  historic_users.courseid = ?';
 
         $previouscourses = $this->find_course_previous_teachings_ids($currentcourseid, $currentyear);
 
@@ -583,17 +575,9 @@ class database_helper {
     public function get_previous_courses_resources_number($currentcourseid, $currentyear) {
         global $DB;
 
-        $sql = "SELECT count(*) AS count
-                FROM   {course_modules} c_modules
-                INNER JOIN {modules} modules
-                    ON c_modules.module = modules.id
-                WHERE  c_modules.course = ?
-                    AND (modules.name = 'label'
-                    OR modules.name = 'resource'
-                    OR modules.name = 'folder'
-                    OR modules.name = 'page'
-                    OR modules.name = 'book'
-                    OR modules.name = 'url')";
+        $sql = 'SELECT count(distinct(historic.resourcename)) AS count
+                FROM   {block_mycourse_hist_data} historic
+                WHERE  historic.courseid = ?';
 
         $previouscourses = $this->find_course_previous_teachings_ids($currentcourseid, $currentyear);
 
