@@ -70,8 +70,14 @@ class recommendations_renderer {
 
             $cminfo = $modinfo->get_cm($moduleid);
 
+            $url = new \moodle_url('/blocks/mycourse_recommendations/redirect_to_resource.php',
+                                   array('recommendationid' => $recommendation->id, 'modname' => $cminfo->modname,
+                                       'moduleid' => $moduleid));
+
             $output .= '<li>';
+            $output .= "<a href='$url' target='_blank'>";
             $output .= $cminfo->get_formatted_name();
+            $output .= '</a>';
             $output .= '</li>';
         }
 

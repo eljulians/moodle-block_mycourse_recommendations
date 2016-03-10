@@ -277,17 +277,29 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
             $records[$index]->resourceid = $resources[$index]->id;
             $records[$index]->priority = $index;
         }
+
         $DB->insert_records('block_mycourse_recs', $records);
+        // We have to know the recommendations ids, because they are used to create the Moodle url, so we need it for the
+        // assertion.
+        $lastinsertedid = $DB->get_record_sql('SELECT MAX(id) as lastinserted from {block_mycourse_recs}')->lastinserted;
+        $firstinsertedid = $lastinsertedid - count($records) + 1;
 
         // We create the expected block output.
         $expected = new stdClass();
         $expected->footer = '';
         $expected->text = '<ol>';
 
+        $currentrecommendationid = $firstinsertedid;
         for ($index = 0; $index < recommendations_renderer::MAX_RECOMMENDATIONS; $index++) {
+            $url = new \moodle_url('/blocks/mycourse_recommendations/redirect_to_resource.php',
+                array('recommendationid' => $currentrecommendationid, 'modname' => 'page', 'moduleid' => $resources[$index]->cmid));
             $expected->text .= '<li>';
+            $expected->text .= "<a href='$url' target='_blank'>";
             $expected->text .= $resources[$index]->name;
+            $expected->text .= '</a>';
             $expected->text .= '</li>';
+
+            $currentrecommendationid++;
         }
         $expected->text .= '</ol>';
 

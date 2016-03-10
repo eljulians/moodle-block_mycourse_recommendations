@@ -811,4 +811,19 @@ class database_helper {
 
         $DB->insert_record('block_mycourse_similarities', $record);
     }
+
+    /**
+     * Increments in one the number of recommendations views, when the user clicks on the recommendation.
+     *
+     * @param int $recommendationid The recommendation that has been followed.
+     */
+    public function increment_recommendation_view($recommendationid) {
+        global $DB;
+
+        $sql = 'UPDATE {block_mycourse_recs}
+                SET    followed = followed + 1
+                WHERE  id = ?';
+
+        $DB->execute($sql, array($recommendationid));
+    }
 }
