@@ -77,5 +77,63 @@
         <KEY NAME="users_week_uq" TYPE="unique" FIELDS="current_userid, historic_userid, week" COMMENT="The combination of similarities between a current user and historic user cannot be repeated in the same week."/>
       </KEYS>
     </TABLE>
+
+    <TABLE NAME="block_mycourse_hist_course" COMMENT="The table that holds the historic courses information.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="fullname" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="The full name of the course."/>
+        <FIELD NAME="shortname" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="The short name of the course."/>
+        <FIELD NAME="startdate" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The timestamp the course started at."/>
+        <FIELD NAME="idnumber" TYPE="char" LENGTH="100" NOTNULL="false" SEQUENCE="false" COMMENT="The id number of the course."/>
+        <FIELD NAME="category" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="The category of the course."/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="fullname_startdate_uq" TYPE="unique" FIELDS="fullname, startdate" COMMENT="The combination of the full name of the course and its start date will be used to identify same courses in different teachings."/>
+      </KEYS>
+    </TABLE>
+
+    <TABLE NAME="block_mycourse_course_assoc" COMMENT="The table that holds the association between a current course with the historic equivalent courses.">
+      <FIELDS>
+        <FIELD NAME="current_courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The current course id, that will receive recommendations (if active to receive them)."/>
+        <FIELD NAME="historic_courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The historic course id the current course is associated with."/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="current_courseid, historic_courseid"/>
+        <KEY NAME="current_courseid_fk" TYPE="foreign" FIELDS="current_courseid" REFTABLE="block_mycourse_course_sel" REFFIELDS="courseid"/>
+        <KEY NAME="historic_courseid_fk" TYPE="foreign" FIELDS="historic_courseid" REFTABLE="block_mycourse_hist_course" REFFIELDS="id"/>
+      </KEYS>
+    </TABLE>
+
+    <TABLE NAME="block_mycourse_hist_enrol" COMMENT="The table that holds the enrolments of historic users in historic courses.">
+      <FIELDS>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The historic course where the user was enrolled in."/>
+        <FIELD NAME="grade" TYPE="float" NOTNULL="false" SEQUENCE="false" COMMENT="The final grade the user obtained in the course."/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="userid, courseid"/>
+        <KEY NAME="courseid_fk" TYPE="foreign" FIELDS="courseid" REFTABLE="block_mycourse_hist_course" REFFIELDS="id"/>
+      </KEYS>
+    </TABLE>
+
+    <TABLE NAME="block_mycourse_hist_data" COMMENT="The table that holds the data of the course: the views of each resource by each user generated in a week enrolled in a course.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The course the data was generated at."/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The user that generates the data."/>
+        <FIELD NAME="resourcename" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="The name of the resource."/>
+        <FIELD NAME="resourcetype" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false" COMMENT="The resource type (page, forum, book, etc.)."/>
+        <FIELD NAME="views" TYPE="int" LENGTH="5" NOTNULL="true" SEQUENCE="false" COMMENT="The times the resource has been viewed."/>
+        <FIELD NAME="week" TYPE="int" LENGTH="3" NOTNULL="true" SEQUENCE="false" COMMENT="The week the resource has been viewed at."/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="courseid_fk" TYPE="foreign" FIELDS="courseid" REFTABLE="block_mycourse_hist_course" REFFIELDS="id"/>
+        <KEY NAME="userid_fk" TYPE="foreign" FIELDS="userid" REFTABLE="block_mycourse_hist_enrol" REFFIELDS="userid"/>
+        <KEY NAME="courseid_userid_resource_week_uq" TYPE="unique" FIELDS="courseid, userid, week" COMMENT="The data is generated for a resource, by one user, enrolled in a course, in a given week."/>
+      </KEYS>
+    </TABLE>
+
   </TABLES>
 </XMLDB>
