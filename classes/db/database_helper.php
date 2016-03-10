@@ -821,7 +821,7 @@ class database_helper {
         global $DB;
 
         $sql = 'UPDATE {block_mycourse_recs}
-                SET    followed = followed + 1
+                SET    views = views + 1
                 WHERE  id = ?';
 
         $DB->execute($sql, array($recommendationid));
