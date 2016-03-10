@@ -261,6 +261,52 @@ class database_helper {
         return $queryresults;
     }
 
+    public function query_historic_course_data($courseid, $year, $coursestartweek, $currentweek, $userid = null) {
+        global $DB;
+
+        $sql = "SELECT logs.id,
+                       logs.userid,
+                       logs.resourcename,
+                       logs.resourcetype,
+                       logs.views
+                FROM   {block_mycourse_hist_data} logs
+                INNER JOIN {block_mycourse_hist_course} course
+                    ON logs.courseid = course.id
+                WHERE ((EXTRACT('year' FROM date_trunc('year', to_timestamp(course.startdate))) - %year) * 52)
+	                + EXTRACT('week' FROM date_trunc('week', to_timestamp(course.startdate)))
+                  BETWEEN %coursestartweek AND %currentweek
+                    AND logs.userid = %userid";
+
+        if (is_null($userid)) {
+            $sql = str_replace('AND logs.userid = %userid', '', $sql);
+        }
+
+        $sql = str_replace('%courseid', $courseid, $sql);
+        $sql = str_replace('%year', $year, $sql);
+        $sql = str_replace('%coursestartweek', $coursestartweek, $sql);
+        $sql = str_replace('%currentweek', $currentweek, $sql);
+        $sql = str_replace('%userid', $userid, $sql);
+
+        $records = $DB->get_records_sql($sql);
+
+        $queryresults = array();
+
+        foreach ($records as $record) {
+            $userid = $record->userid;
+            $resourcename = $record->resourcename;
+            $logviews = $record->views;
+
+            // This deserves an specific explanation. In the historic data model, the resources do not exist as an entity,
+            // so, they cannot be identified. By, for later operations, each resource has to be identified in an unique way.
+            // So, we do this trick.
+            $moduleid = $record->id;
+
+            array_push($queryresults, new query_result($userid, $courseid, $moduleid, $resourcename, $logviews));
+        }
+
+        return $queryresults;
+    }
+
     /**
      * Inserts the calculated associations between students for a specific course, into
      * the associations table. Instead of receiving an associative array with all the fields,
@@ -606,16 +652,23 @@ class database_helper {
      * @param int $courseid The course to query the start week and year of.
      * @return array The week number ([1, 52]); the year.
      */
-    public function get_course_start_week_and_year($courseid) {
+    public function get_course_start_week_and_year($courseid, $historiccourse = false) {
         global $DB;
 
-        $sql = 'SELECT course.startdate AS starttimestamp
-                FROM   {course} course
-                WHERE  course.id = ?';
+        $coursetable = '{course}';
 
-        $starttimestamp = $DB->get_record_sql($sql, array($courseid))->starttimestamp;
-        $week = date('W', $starttimestamp);
-        $year = date('Y', $starttimestamp);
+        if ($historiccourse) {
+            $coursetable = '{block_mycourse_hist_course}';
+        }
+
+        $sql = "SELECT *
+                FROM   $coursetable course
+                WHERE  course.id = ?";
+
+        $record = $DB->get_record_sql($sql, array($courseid));
+
+        $week = date('W', $record->startdate);
+        $year = date('Y', $record->startdate);
 
         $weekandyear = array();
         $weekandyear['week'] = intval($week);
