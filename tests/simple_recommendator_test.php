@@ -433,22 +433,22 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         $expecteds[0] = new stdClass();
         $expecteds[0]->resourceid = $currentnextresources[0]->id;
         $expecteds[0]->priority = 0;
-        $expecteds[0]->followed = 0;
+        $expecteds[0]->views = 0;
 
         $expecteds[1] = new stdClass();
         $expecteds[1]->resourceid = $currentnextresources[0]->id;
         $expecteds[1]->priority = 1;
-        $expecteds[1]->followed = 0;
+        $expecteds[1]->views = 0;
 
         $expecteds[2] = new stdClass();
         $expecteds[2]->resourceid = $currentnextresources[1]->id;
         $expecteds[2]->priority = 0;
-        $expecteds[2]->followed = 0;
+        $expecteds[2]->views = 0;
 
         $expecteds[3] = new stdClass();
         $expecteds[3]->resourceid = $currentnextresources[1]->id;
         $expecteds[3]->priority = 1;
-        $expecteds[3]->followed = 0;
+        $expecteds[3]->views = 0;
 
         // We sort both arrays with the same criteria, to allow compare arrays' objects in a loop.
         usort($expecteds, array($this, 'sort_recommendations'));
