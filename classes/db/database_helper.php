@@ -232,7 +232,7 @@ class database_helper {
             $sql = str_replace('%currentweek', $currentweek, $sql);
         } else {
             $sql = str_replace('and ((extract(YEAR from logs.course_week) - %year) * 52) + extract(WEEK from logs.course_week)',
-                               '', $sql);
+                '', $sql);
             $sql = str_replace('between %coursestartweek and %currentweek', '', $sql);
         }
 
@@ -456,10 +456,10 @@ class database_helper {
     }
 
     /**
-     * This function finds, for a current course, previous teachings. Encapsulates the logic used to relate different
-     * teachings in time, so, other functions that have the need to relate different teachings, MUST use this function.
-     * Currently, to make the relation, the function looks for courses with same 'fullname' field value, and the course
-     * start year must be lower than the current year.
+     * This function finds, for the given current coures id, the same course but in previous teachings. For that,
+     * the function looks up into the {block_mycourse_hist_course} table, finding courses with the same full name.
+     * So, if it is wanted to generate recommendations for the given current course, an historic course must exist
+     * in the mentioned table, so, the data importation has to be done before.
      *
      * @param int $currentcourseid The id of the current course.
      * @param int $currentyear The year the current course is being teached in.
@@ -468,16 +468,15 @@ class database_helper {
     public function find_course_previous_teachings_ids($currentcourseid, $currentyear) {
         global $DB;
 
-        $sql = 'SELECT prev_courses.id        AS courseid,
-                       prev_courses.startdate AS starttimestamp
-                FROM   {course} cur_course
-                INNER JOIN {course} prev_courses
-                    ON cur_course.fullname = prev_courses.fullname
-                WHERE  cur_course.id = ?
-                    AND prev_courses.id <> ?';
+        $sql = 'SELECT historic_courses.id        AS courseid,
+                       historic_courses.startdate AS starttimestamp
+                FROM   {course} current_courses
+                INNER JOIN {block_mycourse_hist_course} historic_courses
+                    ON current_courses.fullname = historic_courses.fullname
+                WHERE  current_courses.id = ?';
 
         $previouscoursesids = array();
-        $recordset = $DB->get_recordset_sql($sql, array($currentcourseid, $currentcourseid));
+        $recordset = $DB->get_recordset_sql($sql, array($currentcourseid));
 
         foreach ($recordset as $record) {
             $year = getdate($record->starttimestamp)['year'];
@@ -825,5 +824,23 @@ class database_helper {
                 WHERE  id = ?';
 
         $DB->execute($sql, array($recommendationid));
+    }
+
+    /**
+     * Inserts the association of a current course with every historic related course.
+     *
+     * @param int $currentcourse The current course, which will receive the recommendations.
+     * @param array $historiccourses The previous course teachings.
+     */
+    public function insert_courses_associations($currentcourse, $historiccourses) {
+        global $DB;
+
+        $sql = 'INSERT INTO {block_mycourse_course_assoc} (current_courseid, historic_courseid)
+                VALUES (:v1, :v2)';
+
+        foreach ($historiccourses as $historiccourse) {
+            $values = ['v1' => $currentcourse, 'v2' => $historiccourse];
+            $DB->execute($sql, $values);
+        }
     }
 }

@@ -125,13 +125,13 @@
         <FIELD NAME="resourcename" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="The name of the resource."/>
         <FIELD NAME="resourcetype" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false" COMMENT="The resource type (page, forum, book, etc.)."/>
         <FIELD NAME="views" TYPE="int" LENGTH="5" NOTNULL="true" SEQUENCE="false" COMMENT="The times the resource has been viewed."/>
-        <FIELD NAME="week" TYPE="int" LENGTH="3" NOTNULL="true" SEQUENCE="false" COMMENT="The week the resource has been viewed at."/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The timestamp the resource has been viewed at."/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
         <KEY NAME="courseid_fk" TYPE="foreign" FIELDS="courseid" REFTABLE="block_mycourse_hist_course" REFFIELDS="id"/>
         <KEY NAME="userid_fk" TYPE="foreign" FIELDS="userid" REFTABLE="block_mycourse_hist_enrol" REFFIELDS="userid"/>
-        <KEY NAME="courseid_userid_resource_week_uq" TYPE="unique" FIELDS="courseid, userid, week" COMMENT="The data is generated for a resource, by one user, enrolled in a course, in a given week."/>
+        <KEY NAME="courseid_userid_resource_timecreated_uq" TYPE="unique" FIELDS="courseid, userid, resourcename, timecreated" COMMENT="The data is generated for a resource, by one user, enrolled in a course, in a given week."/>
       </KEYS>
     </TABLE>
 
