@@ -176,7 +176,7 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
             $DB->execute($sql, $values);
         }
     }
-/***
+
     public function test_get_content_firstinstance_nopersonalizable() {
         global $COURSE;
 
@@ -361,7 +361,7 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
 
         $this->assertEquals($expected, $actual);
     }
-***/
+
     public function test_get_content_personalizable_firstinstance() {
         global $COURSE, $DB, $USER;
 
