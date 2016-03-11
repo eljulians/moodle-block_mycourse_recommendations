@@ -141,8 +141,9 @@ class block_mycourse_recommendations_course_filter_testcase extends advanced_tes
             $record = new stdClass();
 
             $record->courseid = $courseid;
-            $record->resourcename = (string)$index; // The value is irrelevant, but it must be unique.
+            $record->resourcename = 'whatever resource';
             $record->resourcetype = 'page'; // Whatever.
+            $record->resourceid = $index; // The value is irrelevant, but it must be unique.
             $record->userid = $index; // Whatever.
             $record->views = $index; // Whatever.
             $record->timecreated = time(); // Whatever.
