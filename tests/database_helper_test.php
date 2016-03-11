@@ -358,7 +358,7 @@ class block_mycourse_database_helper_testcase extends advanced_testcase {
         }
 
         // We get the method using reflection, and we invoke it.
-        $findpreviousteachings = self::get_method('find_course_previous_teachings_ids');
+        $findpreviousteachings = self::get_method('find_course_previous_teaching_ids_core_tables');
         $actual = $findpreviousteachings->invokeArgs($this->databasehelper, array($currentcourse[0]->id, $currentyear));
 
         // The arrays must be ordered in order to consider them equals.
