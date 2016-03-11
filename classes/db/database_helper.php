@@ -1070,6 +1070,7 @@ class database_helper {
             $record->resourcename = $logview->get_modulename();
             $record->views = $logview->get_logviews();
             $record->resourcetype = $logview->get_moduletype();
+            $record->resourceid = $logview->get_moduleid();
             $record->timecreated = $logview->get_timestamp();
 
             $DB->insert_record('block_mycourse_hist_data', $record);
