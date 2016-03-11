@@ -385,11 +385,9 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
         $previouscourses = $this->create_courses(array('fullname' => $coursesname, 'startdate' => $previouscoursestart),
                                                 course_filter::MINIMUM_PREVIOUS_COURSES);
         $previouscourse = $previouscourses[0];
-        $previouscoursesids = $this->insert_previous_courses_in_historic_data($previouscourses);
 
         // We create the previous minimum students...
         $users = $this->create_and_enrol_students($previouscourse->id, course_filter::MINIMUM_PREVIOUS_STUDENTS);
-        $this->insert_previous_users_in_historic_data($users, $previouscoursesids[0]);
 
         // We create the previous minimum weeks...
         $resourcesnames = array();
@@ -398,7 +396,6 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
         }
         $resources[$previouscourse->id]['mod_page'] = count($resourcesnames);
         $resources = $this->create_resources($resources, $resourcesnames);
-        $this->insert_previous_resources_in_historic_data($resources, $previouscoursesids[0]);
 
         $actual = $this->block->get_content();
 

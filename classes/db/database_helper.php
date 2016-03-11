@@ -1029,12 +1029,12 @@ class database_helper {
                           FROM   {course} course
                           WHERE  course.id = ?';
 
+        $courseinfo = $DB->get_record_sql($courseinfosql, array($coursetodump));
+        $coursehistoricid = $DB->insert_record('block_mycourse_hist_course', $courseinfo);
+
         foreach ($usersids as $userid) {
             $grade = $this->get_users_course_final_grade($userid, $coursetodump);
             $DB->execute($enrolmentsql, ['v1' => $userid, 'v2' => $coursetodump, 'v3' => $grade]);
-
-            $courseinfo = $DB->get_record_sql($courseinfosql, array($coursetodump));
-            $coursehistoricid = $DB->insert_record('block_mycourse_hist_course', $courseinfo);
 
             $this->dump_previous_courses_logview_info($coursetodump, $coursehistoricid);
         }
