@@ -1073,7 +1073,20 @@ class database_helper {
             $record->resourceid = $logview->get_moduleid();
             $record->timecreated = $logview->get_timestamp();
 
-            $DB->insert_record('block_mycourse_hist_data', $record);
+            try {
+                $DB->insert_record('block_mycourse_hist_data', $record);
+            } catch (\Exception $e) {
+                $existingrecord = $DB->get_record('block_mycourse_hist_data', array('courseid' => $record->courseid,
+                    'userid' => $record->userid, 'resourceid' => $record->resourceid, 'resourcetype' => $record->resourcetype,
+                    'timecreated' => $record->timecreated));
+
+                $moreviews = $record->views > $existingrecord->views;
+
+                if ($moreviews) {
+                    $record->id = $existingrecord->id;
+                    $DB->update_record('block_mycourse_hist_data', $record);
+                }
+            }
         }
     }
 
