@@ -511,7 +511,7 @@ class database_helper {
      * @param int $currentyear The year the current course is being teached in.
      * @return array Previous teachings' ids.
      */
-    public function find_course_previous_teachings_ids($currentcourseid, $currentyear) {
+    public function find_course_previous_teachings_ids_historic_tables($currentcourseid, $currentyear) {
         global $DB;
 
         $sql = 'SELECT historic_courses.id        AS courseid,
@@ -536,6 +536,31 @@ class database_helper {
         return $previouscoursesids;
     }
 
+    public function find_course_previous_teaching_ids_core_tables($currentcourseid, $currentyear) {
+        global $DB;
+
+        $sql = 'SELECT prev_courses.id        AS courseid,
+                       prev_courses.startdate AS starttimestamp
+                FROM   {course} cur_course
+                INNER JOIN {course} prev_courses
+                    ON cur_course.fullname = prev_courses.fullname
+                WHERE  cur_course.id = ?
+                    AND prev_courses.id <> ?';
+        $previouscoursesids = array();
+        $recordset = $DB->get_recordset_sql($sql, array($currentcourseid, $currentcourseid));
+
+        foreach ($recordset as $record) {
+            $year = getdate($record->starttimestamp)['year'];
+            if ($year < $currentyear) {
+                array_push($previouscoursesids, $record->courseid);
+            }
+        }
+
+        $recordset->close();
+
+        return $previouscoursesids;
+    }
+
     /**
      * Queries the number of students that the current course has had in previous teachings.
      *
@@ -543,14 +568,42 @@ class database_helper {
      * @param int $currentyear The year the current course is being teached in.
      * @return int The number of students that the course has had in past teachings.
      */
-    public function get_previous_courses_students_number($currentcourseid, $currentyear) {
+    public function get_previous_courses_students_number_core_tables($currentcourseid, $currentyear) {
+        global $DB;
+
+        $sql = 'SELECT count(*) as count
+                FROM   {user} users
+                INNER JOIN {role_assignments} ra
+                    ON users.id = ra.userid
+                INNER JOIN {context} context
+                    ON ra.contextid = context.id
+                INNER JOIN {course} course
+                    ON context.instanceid = course.id
+                WHERE  context.contextlevel = 50
+                    AND ra.roleid = 5
+                    AND course.id = ?';
+
+        $previouscourses = $this->find_course_previous_teaching_ids_core_tables($currentcourseid, $currentyear);
+        $count = 0;
+
+        if (!empty($previouscourses)) {
+            foreach ($previouscourses as $course) {
+                $record = $DB->get_record_sql($sql, array($course));
+                $count += $record->count;
+            }
+        }
+
+        return $count;
+    }
+
+    public function get_previous_courses_students_number_historic_tables($currentcourseid, $currentyear) {
         global $DB;
 
         $sql = 'SELECT count(*) as count
                 FROM   {block_mycourse_hist_enrol} historic_users
                 WHERE  historic_users.courseid = ?';
 
-        $previouscourses = $this->find_course_previous_teachings_ids($currentcourseid, $currentyear);
+        $previouscourses = $this->find_course_previous_teachings_ids_historic_tables($currentcourseid, $currentyear);
 
         $count = 0;
 
@@ -572,14 +625,42 @@ class database_helper {
      * @param int $currentyear The year the current course is being teached in.
      * @return int The number of resources
      */
-    public function get_previous_courses_resources_number($currentcourseid, $currentyear) {
+    public function get_previous_courses_resources_number_core_tables($currentcourseid, $currentyear) {
+        global $DB;
+
+        $sql = "SELECT count(*) AS count
+                FROM   {course_modules} c_modules
+                INNER JOIN {modules} modules
+                    ON c_modules.module = modules.id
+                WHERE  c_modules.course = ?
+                    AND (modules.name = 'label'
+                    OR modules.name = 'resource'
+                    OR modules.name = 'folder'
+                    OR modules.name = 'page'
+                    OR modules.name = 'book'
+                    OR modules.name = 'url')";
+
+        $previouscourses = $this->find_course_previous_teaching_ids_core_tables($currentcourseid, $currentyear);
+        $count = 0;
+
+        if (!empty($previouscourses)) {
+            foreach ($previouscourses as $course) {
+                $record = $DB->get_record_sql($sql, array($course));
+                $count += $record->count;
+            }
+        }
+
+        return $count;
+    }
+
+    public function get_previous_courses_resources_number_historic_tables($currentcourseid, $currentyear) {
         global $DB;
 
         $sql = 'SELECT count(distinct(historic.resourcename)) AS count
                 FROM   {block_mycourse_hist_data} historic
                 WHERE  historic.courseid = ?';
 
-        $previouscourses = $this->find_course_previous_teachings_ids($currentcourseid, $currentyear);
+        $previouscourses = $this->find_course_previous_teachings_ids_historic_tables($currentcourseid, $currentyear);
 
         $count = 0;
 

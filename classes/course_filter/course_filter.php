@@ -106,12 +106,20 @@ class course_filter {
      * @return boolean If the given course has had the minimum teachings before or not.
      */
     public static function meets_minimum_previous_courses($courseid, $currentyear, $db) {
-        $previouscourses = $db->find_course_previous_teachings_ids($courseid, $currentyear);
+        $previouscourses = $db->find_course_previous_teaching_ids_core_tables($courseid, $currentyear);
 
         $minimum = false;
 
         if (count($previouscourses) >= self::MINIMUM_PREVIOUS_COURSES) {
             $minimum = true;
+        }
+
+        if (!$minimum) {
+            $previouscourses = $db->find_course_previous_teachings_ids_historic_tables($courseid, $currentyear);
+
+            if (count($previouscourses) >= self::MINIMUM_PREVIOUS_COURSES) {
+                $minimum = true;
+            }
         }
 
         return $minimum;
@@ -126,12 +134,20 @@ class course_filter {
      * @return boolean If the given course has the minimum resources or not.
      */
     public static function meets_minimum_resources($courseid, $currentyear, $db) {
-        $previousresourcenumber = $db->get_previous_courses_resources_number($courseid, $currentyear);
+        $previousresourcenumber = $db->get_previous_courses_resources_number_core_tables($courseid, $currentyear);
 
         $minimum = false;
 
         if ($previousresourcenumber >= self::MINIMUM_PREVIOUS_RESOURCES) {
             $minimum = true;
+        }
+
+        if (!$minimum) {
+            $previousresourcenumber = $db->get_previous_courses_resources_number_historic_tables($courseid, $currentyear);
+
+            if ($previousresourcenumber >= self::MINIMUM_PREVIOUS_RESOURCES) {
+                $minimum = true;
+            }
         }
 
         return $minimum;
@@ -146,12 +162,20 @@ class course_filter {
      * @return boolean If the given course has the minimum students or not.
      */
     public static function meets_minimum_previous_students($courseid, $currentyear, $db) {
-        $previousstudents = $db->get_previous_courses_students_number($courseid, $currentyear);
+        $previousstudents = $db->get_previous_courses_students_number_core_tables($courseid, $currentyear);
 
         $minimum = false;
 
         if ($previousstudents >= self::MINIMUM_PREVIOUS_STUDENTS) {
             $minimum = true;
+        }
+
+        if (!$minimum) {
+            $previousstudents = $db->get_previous_courses_resources_number_historic_tables($courseid, $currentyear);
+
+            if ($previousstudents >= self::MINIMUM_PREVIOUS_STUDENTS) {
+                $minimum = true;
+            }
         }
 
         return $minimum;
