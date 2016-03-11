@@ -98,6 +98,8 @@ class course_filter {
 
     /**
      * Determines if the course has had the minimum previous teachings in the past years.
+     * First, looks into Moodle core tables for existing previous courses. If it doesn't find any, it tries luck in
+     * plugin's historic table. If it doesn't found neither here, means that the course has not previous teachings.
      *
      * @see find_course_previous_teachings_ids($currentcourseid, $currentyear) in database_helper.php.
      * @param int $courseid The course to determine if has had the minimum teachings before.
@@ -127,6 +129,8 @@ class course_filter {
 
     /**
      * Determines if the course has the minimum number of resources.
+     * First, looks into Moodle core tables for existing previous resources. If it doesn't find any, it tries luck in
+     * plugin's historic table. If it doesn't found neither here, means that the course has not previous resources.
      *
      * @param int $courseid The course to determine if meets the minimum modules.
      * @param int $currentyear The year of the given current course.
@@ -155,6 +159,8 @@ class course_filter {
 
     /**
      * Determines if the course has had the minimum number of students in previous teachings.
+     * First, looks into Moodle core tables for existing previous students. If it doesn't find any, it tries luck in
+     * plugin's historic table. If it doesn't found neither here, means that the course has not previous students.
      *
      * @param int $courseid The course to determine if meets the minimum students.
      * @param int $currentyear The year of the given current course.

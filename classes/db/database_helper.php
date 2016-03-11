@@ -502,40 +502,15 @@ class database_helper {
     }
 
     /**
-     * This function finds, for the given current coures id, the same course but in previous teachings. For that,
-     * the function looks up into the {block_mycourse_hist_course} table, finding courses with the same full name.
+     * This function finds, for the given current coures id, the same course but in previous teachings, in Moodle's core tables.
+     * For that, the function looks up into the {block_mycourse_hist_course} table, finding courses with the same full name.
      * So, if it is wanted to generate recommendations for the given current course, an historic course must exist
      * in the mentioned table, so, the data importation has to be done before.
      *
      * @param int $currentcourseid The id of the current course.
      * @param int $currentyear The year the current course is being teached in.
-     * @return array Previous teachings' ids.
+     * @return array Previous teachings' ids, in Moodle core tables.
      */
-    public function find_course_previous_teachings_ids_historic_tables($currentcourseid, $currentyear) {
-        global $DB;
-
-        $sql = 'SELECT historic_courses.id        AS courseid,
-                       historic_courses.startdate AS starttimestamp
-                FROM   {course} current_courses
-                INNER JOIN {block_mycourse_hist_course} historic_courses
-                    ON current_courses.fullname = historic_courses.fullname
-                WHERE  current_courses.id = ?';
-
-        $previouscoursesids = array();
-        $recordset = $DB->get_recordset_sql($sql, array($currentcourseid));
-
-        foreach ($recordset as $record) {
-            $year = getdate($record->starttimestamp)['year'];
-            if ($year < $currentyear) {
-                array_push($previouscoursesids, $record->courseid);
-            }
-        }
-
-        $recordset->close();
-
-        return $previouscoursesids;
-    }
-
     public function find_course_previous_teaching_ids_core_tables($currentcourseid, $currentyear) {
         global $DB;
 
@@ -562,11 +537,46 @@ class database_helper {
     }
 
     /**
-     * Queries the number of students that the current course has had in previous teachings.
+     * This function finds, for the given current coures id, the same course but in previous teachings, in plugin's historic tables.
+     * For that, the function looks up into the {block_mycourse_hist_course} table, finding courses with the same full name.
+     * So, if it is wanted to generate recommendations for the given current course, an historic course must exist
+     * in the mentioned table, so, the data importation has to be done before.
      *
      * @param int $currentcourseid The id of the current course.
      * @param int $currentyear The year the current course is being teached in.
-     * @return int The number of students that the course has had in past teachings.
+     * @return array Previous teachings' ids, found in plugin's historic tables.
+     */
+    public function find_course_previous_teachings_ids_historic_tables($currentcourseid, $currentyear) {
+        global $DB;
+
+        $sql = 'SELECT historic_courses.id        AS courseid,
+                       historic_courses.startdate AS starttimestamp
+                FROM   {course} current_courses
+                INNER JOIN {block_mycourse_hist_course} historic_courses
+                    ON current_courses.fullname = historic_courses.fullname
+                WHERE  current_courses.id = ?';
+
+        $previouscoursesids = array();
+        $recordset = $DB->get_recordset_sql($sql, array($currentcourseid));
+
+        foreach ($recordset as $record) {
+            $year = getdate($record->starttimestamp)['year'];
+            if ($year < $currentyear) {
+                array_push($previouscoursesids, $record->courseid);
+            }
+        }
+
+        $recordset->close();
+
+        return $previouscoursesids;
+    }
+
+    /**
+     * Queries the number of students that the current course has had in previous teachings, in Moodle's core tables.
+     *
+     * @param int $currentcourseid The id of the current course.
+     * @param int $currentyear The year the current course is being teached in.
+     * @return int The number of students that the course has had in past teachings, found in core tables.
      */
     public function get_previous_courses_students_number_core_tables($currentcourseid, $currentyear) {
         global $DB;
@@ -596,6 +606,13 @@ class database_helper {
         return $count;
     }
 
+    /**
+     * Queries the number of students that the current course has had in previous teachings, in plugin's historic tables.
+     *
+     * @param int $currentcourseid The id of the current course.
+     * @param int $currentyear The year the current course is being teached in.
+     * @return int The number of students that the course has had in past teachings, found in plugin's historic tables.
+     */
     public function get_previous_courses_students_number_historic_tables($currentcourseid, $currentyear) {
         global $DB;
 
@@ -623,7 +640,7 @@ class database_helper {
      *
      * @param int $currentcourseid The id of the current course.
      * @param int $currentyear The year the current course is being teached in.
-     * @return int The number of resources
+     * @return int The number of resources found in core tables.
      */
     public function get_previous_courses_resources_number_core_tables($currentcourseid, $currentyear) {
         global $DB;
@@ -653,6 +670,13 @@ class database_helper {
         return $count;
     }
 
+    /**
+     * Queries the number of resources that the current course had in previous teachings, in plugin's historic tables.
+     *
+     * @param int $currentcourseid The id of the current course.
+     * @param int $currentyear The year the current course is being teached in.
+     * @return int The number of resources found in plugin's historic tables.
+     */
     public function get_previous_courses_resources_number_historic_tables($currentcourseid, $currentyear) {
         global $DB;
 
