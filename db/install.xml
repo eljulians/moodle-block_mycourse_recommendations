@@ -132,7 +132,7 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
         <KEY NAME="courseid_fk" TYPE="foreign" FIELDS="courseid" REFTABLE="block_mycourse_hist_course" REFFIELDS="id"/>
         <KEY NAME="userid_fk" TYPE="foreign" FIELDS="userid" REFTABLE="block_mycourse_hist_enrol" REFFIELDS="userid"/>
-        <KEY NAME="courseid_userid_resource_timecreated_uq" TYPE="unique" FIELDS="courseid, userid, resourceid, timecreated" COMMENT="The data is generated for a resource, by one user, enrolled in a course, in a given week."/>
+        <KEY NAME="courseid_userid_resource_type_timecreated_uq" TYPE="unique" FIELDS="courseid, userid, resourceid, resourcetype, timecreated" COMMENT="The data is generated for a resource type, by one user, enrolled in a course, in a given week."/>
       </KEYS>
     </TABLE>
 
