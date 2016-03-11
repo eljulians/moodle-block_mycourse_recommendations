@@ -1022,7 +1022,6 @@ class database_helper {
 
         $usersids = $this->get_students_from_course($coursetodump);
 
-
         $enrolmentsql = 'INSERT INTO {block_mycourse_hist_enrol} (userid, courseid, grade)
                          VALUES (:v1, :v2, :v3)';
         $courseinfosql = 'SELECT fullname, shortname, startdate, idnumber, category
