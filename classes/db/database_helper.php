@@ -251,8 +251,9 @@ class database_helper {
             $modulename = $record->module_name;
             $logviews = $record->log_views;
             $grades = $record->grades;
+            $resourcetype = $record->resource_type;
 
-            $queryresults[$index] = new query_result($userid, $courseid, $moduleid, $modulename, $logviews, $grades);
+            $queryresults[$index] = new query_result($userid, $courseid, $moduleid, $modulename, $logviews, $grades, $resourcetype);
             $index++;
         }
 
@@ -502,16 +503,51 @@ class database_helper {
     }
 
     /**
-     * This function finds, for the given current coures id, the same course but in previous teachings. For that,
-     * the function looks up into the {block_mycourse_hist_course} table, finding courses with the same full name.
+     * This function finds, for the given current coures id, the same course but in previous teachings, in Moodle's core tables.
+     * For that, the function looks up into the {block_mycourse_hist_course} table, finding courses with the same full name.
      * So, if it is wanted to generate recommendations for the given current course, an historic course must exist
      * in the mentioned table, so, the data importation has to be done before.
      *
      * @param int $currentcourseid The id of the current course.
      * @param int $currentyear The year the current course is being teached in.
-     * @return array Previous teachings' ids.
+     * @return array Previous teachings' ids, in Moodle core tables.
      */
-    public function find_course_previous_teachings_ids($currentcourseid, $currentyear) {
+    public function find_course_previous_teaching_ids_core_tables($currentcourseid, $currentyear) {
+        global $DB;
+
+        $sql = 'SELECT prev_courses.id        AS courseid,
+                       prev_courses.startdate AS starttimestamp
+                FROM   {course} cur_course
+                INNER JOIN {course} prev_courses
+                    ON cur_course.fullname = prev_courses.fullname
+                WHERE  cur_course.id = ?
+                    AND prev_courses.id <> ?';
+        $previouscoursesids = array();
+        $recordset = $DB->get_recordset_sql($sql, array($currentcourseid, $currentcourseid));
+
+        foreach ($recordset as $record) {
+            $year = getdate($record->starttimestamp)['year'];
+            if ($year < $currentyear) {
+                array_push($previouscoursesids, $record->courseid);
+            }
+        }
+
+        $recordset->close();
+
+        return $previouscoursesids;
+    }
+
+    /**
+     * This function finds, for the given current coures id, the same course but in previous teachings, in plugin's historic tables.
+     * For that, the function looks up into the {block_mycourse_hist_course} table, finding courses with the same full name.
+     * So, if it is wanted to generate recommendations for the given current course, an historic course must exist
+     * in the mentioned table, so, the data importation has to be done before.
+     *
+     * @param int $currentcourseid The id of the current course.
+     * @param int $currentyear The year the current course is being teached in.
+     * @return array Previous teachings' ids, found in plugin's historic tables.
+     */
+    public function find_course_previous_teachings_ids_historic_tables($currentcourseid, $currentyear) {
         global $DB;
 
         $sql = 'SELECT historic_courses.id        AS courseid,
@@ -537,20 +573,55 @@ class database_helper {
     }
 
     /**
-     * Queries the number of students that the current course has had in previous teachings.
+     * Queries the number of students that the current course has had in previous teachings, in Moodle's core tables.
      *
      * @param int $currentcourseid The id of the current course.
      * @param int $currentyear The year the current course is being teached in.
-     * @return int The number of students that the course has had in past teachings.
+     * @return int The number of students that the course has had in past teachings, found in core tables.
      */
-    public function get_previous_courses_students_number($currentcourseid, $currentyear) {
+    public function get_previous_courses_students_number_core_tables($currentcourseid, $currentyear) {
+        global $DB;
+
+        $sql = 'SELECT count(*) as count
+                FROM   {user} users
+                INNER JOIN {role_assignments} ra
+                    ON users.id = ra.userid
+                INNER JOIN {context} context
+                    ON ra.contextid = context.id
+                INNER JOIN {course} course
+                    ON context.instanceid = course.id
+                WHERE  context.contextlevel = 50
+                    AND ra.roleid = 5
+                    AND course.id = ?';
+
+        $previouscourses = $this->find_course_previous_teaching_ids_core_tables($currentcourseid, $currentyear);
+        $count = 0;
+
+        if (!empty($previouscourses)) {
+            foreach ($previouscourses as $course) {
+                $record = $DB->get_record_sql($sql, array($course));
+                $count += $record->count;
+            }
+        }
+
+        return $count;
+    }
+
+    /**
+     * Queries the number of students that the current course has had in previous teachings, in plugin's historic tables.
+     *
+     * @param int $currentcourseid The id of the current course.
+     * @param int $currentyear The year the current course is being teached in.
+     * @return int The number of students that the course has had in past teachings, found in plugin's historic tables.
+     */
+    public function get_previous_courses_students_number_historic_tables($currentcourseid, $currentyear) {
         global $DB;
 
         $sql = 'SELECT count(*) as count
                 FROM   {block_mycourse_hist_enrol} historic_users
                 WHERE  historic_users.courseid = ?';
 
-        $previouscourses = $this->find_course_previous_teachings_ids($currentcourseid, $currentyear);
+        $previouscourses = $this->find_course_previous_teachings_ids_historic_tables($currentcourseid, $currentyear);
 
         $count = 0;
 
@@ -570,16 +641,51 @@ class database_helper {
      *
      * @param int $currentcourseid The id of the current course.
      * @param int $currentyear The year the current course is being teached in.
-     * @return int The number of resources
+     * @return int The number of resources found in core tables.
      */
-    public function get_previous_courses_resources_number($currentcourseid, $currentyear) {
+    public function get_previous_courses_resources_number_core_tables($currentcourseid, $currentyear) {
+        global $DB;
+
+        $sql = "SELECT count(*) AS count
+                FROM   {course_modules} c_modules
+                INNER JOIN {modules} modules
+                    ON c_modules.module = modules.id
+                WHERE  c_modules.course = ?
+                    AND (modules.name = 'label'
+                    OR modules.name = 'resource'
+                    OR modules.name = 'folder'
+                    OR modules.name = 'page'
+                    OR modules.name = 'book'
+                    OR modules.name = 'url')";
+
+        $previouscourses = $this->find_course_previous_teaching_ids_core_tables($currentcourseid, $currentyear);
+        $count = 0;
+
+        if (!empty($previouscourses)) {
+            foreach ($previouscourses as $course) {
+                $record = $DB->get_record_sql($sql, array($course));
+                $count += $record->count;
+            }
+        }
+
+        return $count;
+    }
+
+    /**
+     * Queries the number of resources that the current course had in previous teachings, in plugin's historic tables.
+     *
+     * @param int $currentcourseid The id of the current course.
+     * @param int $currentyear The year the current course is being teached in.
+     * @return int The number of resources found in plugin's historic tables.
+     */
+    public function get_previous_courses_resources_number_historic_tables($currentcourseid, $currentyear) {
         global $DB;
 
         $sql = 'SELECT count(distinct(historic.resourcename)) AS count
                 FROM   {block_mycourse_hist_data} historic
                 WHERE  historic.courseid = ?';
 
-        $previouscourses = $this->find_course_previous_teachings_ids($currentcourseid, $currentyear);
+        $previouscourses = $this->find_course_previous_teachings_ids_historic_tables($currentcourseid, $currentyear);
 
         $count = 0;
 
@@ -880,4 +986,88 @@ class database_helper {
             $DB->execute($sql, $values);
         }
     }
+
+    /**
+     * Queries the final grade assigned to an user for a course. It it doesn't have any, 0 is returned. This would not be
+     * the usual case, since this function is going to be used for courses that are known to be finished.
+     *
+     * @param int $userid The user to query the grade of.
+     * @param int $courseid The course to query the grade where.
+     * @return float The final grade (0 if no grade is found).
+     */
+    public function get_users_course_final_grade($userid, $courseid) {
+        global $DB;
+
+        $sql = 'SELECT grades.finalgrade / 10 AS finalgrade
+                FROM   {grade_grades} grades
+                INNER JOIN {grade_items} g_items
+                    ON grades.itemid = g_items.id
+                WHERE g_items.itemtype = \'course\'
+                    AND grades.userid = ?
+                    AND g_items.courseid = ?';
+
+        $record = $DB->get_record_sql($sql, array($userid, $courseid));
+
+        $finalgrade = ($record) ? $record->finalgrade : 0;
+
+        return $finalgrade;
+
+    }
+
+    /**
+     * Dumps the previous given course (identifier of core {course} table) into the plugin's historic table structure,
+     * i.e., the the historic course, its enrolled users, and the logview of each of these for each course.
+     *
+     * @param int $coursetodump The course of core tables that will be dumped into plugin's historic tables.
+     */
+    public function dump_previous_core_info_to_historic_tables($coursetodump) {
+        global $DB;
+
+        $usersids = $this->get_students_from_course($coursetodump);
+
+        $enrolmentsql = 'INSERT INTO {block_mycourse_hist_enrol} (userid, courseid, grade)
+                         VALUES (:v1, :v2, :v3)';
+        $courseinfosql = 'SELECT fullname, shortname, startdate, idnumber, category
+                          FROM   {course} course
+                          WHERE  course.id = ?';
+
+        $courseinfo = $DB->get_record_sql($courseinfosql, array($coursetodump));
+        $coursehistoricid = $DB->insert_record('block_mycourse_hist_course', $courseinfo);
+
+        foreach ($usersids as $userid) {
+            $grade = $this->get_users_course_final_grade($userid, $coursetodump);
+            $DB->execute($enrolmentsql, ['v1' => $userid, 'v2' => $coursetodump, 'v3' => $grade]);
+
+            $this->dump_previous_courses_logview_info($coursetodump, $coursehistoricid);
+        }
+    }
+
+    /**
+     * Inserts the logview of each user for the given previous course into the plugin's table of historic data.
+     *
+     * @param int $coursetodump Course identifier in core.
+     * @param int $coursehistoricid Course identifier in historic tables.
+     */
+    public function dump_previous_courses_logview_info($coursetodump, $coursehistoricid) {
+        global $DB;
+
+        $startweek = $this->get_course_start_week_and_year($coursetodump)['week'];
+        $courseyear = $this->get_course_start_week_and_year($coursetodump)['year'];
+        $toweek = $startweek + 52;
+
+        $logviews = $this->query_data($coursetodump, $courseyear, $startweek, $toweek);
+
+        foreach ($logviews as $logview) {
+            $record = new stdClass();
+
+            $record->courseid = $coursehistoricid;
+            $record->userid = $logview->get_userid();
+            $record->resourcenmae = $logview->get_modulename();
+            $record->views = $logview->get_logviews();
+
+            $DB->insert_record('block_mycourse_hist_data', $record);
+        }
+    }
+
+
 }
