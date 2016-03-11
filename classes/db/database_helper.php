@@ -1015,6 +1015,9 @@ class database_helper {
     }
 
     /**
+     * Dumps the previous given course (identifier of core {course} table) into the plugin's historic table structure,
+     * i.e., the the historic course, its enrolled users, and the logview of each of these for each course.
+     *
      * @param int $coursetodump The course of core tables that will be dumped into plugin's historic tables.
      */
     public function dump_previous_core_info_to_historic_tables($coursetodump) {
@@ -1040,6 +1043,8 @@ class database_helper {
     }
 
     /**
+     * Inserts the logview of each user for the given previous course into the plugin's table of historic data.
+     *
      * @param int $coursetodump Course identifier in core.
      * @param int $coursehistoricid Course identifier in historic tables.
      */
