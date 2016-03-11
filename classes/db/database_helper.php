@@ -62,6 +62,7 @@ class database_helper {
        logs.module_name,
        logs.userid,
        logs.log_views,
+       logs.course_week as view_date,
        logs.grades
   from (select modules.course,
                c.format,
@@ -253,7 +254,11 @@ class database_helper {
             $grades = $record->grades;
             $resourcetype = $record->resource_type;
 
-            $queryresults[$index] = new query_result($userid, $courseid, $moduleid, $modulename, $logviews, $grades, $resourcetype);
+            // The date is comming in yyyy-mm-dd hh:mm:ss+01, so, we add that hour manually, because strtotime doesn't do it.
+            $timestamp = strtotime($record->view_date) + 3600;
+
+            $queryresults[$index] = new query_result($userid, $courseid, $moduleid, $modulename, $logviews,
+                                                     $grades, $resourcetype, $timestamp);
             $index++;
         }
 
@@ -1064,6 +1069,8 @@ class database_helper {
             $record->userid = $logview->get_userid();
             $record->resourcenmae = $logview->get_modulename();
             $record->views = $logview->get_logviews();
+            $record->resourcetype = $logview->get_moduletype();
+            $record->timecreated = $logview->get_timestamp();
 
             $DB->insert_record('block_mycourse_hist_data', $record);
         }

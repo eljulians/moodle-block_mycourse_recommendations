@@ -45,45 +45,45 @@ class query_result {
 
     /**
      * Course id.
-     *
      * @var int
      */
     private $courseid;
 
     /**
      * Module id.
-     *
      * @var int
      */
     private $moduleid;
 
     /**
      * Module name.
-     *
      * @var string
      */
     private $modulename;
 
     /**
      * Module's log views.
-     *
      * @var int
      */
     private $logviews;
 
     /**
      * Module's grade.
-     *
      * @var float
      */
     private $grades;
 
     /**
      * Module type.
-     *
      * @var string
      */
     private $moduletype;
+
+    /**
+     * Log view timestamp.
+     * @var int
+     */
+    private $timestamp;
 
     /**
      * Instantiates the class, receiving a value for each queried field.
@@ -96,7 +96,8 @@ class query_result {
      * @param float $grades Default set to -1, because it can be empty in database.
      * @param string $moduletype The module type.
      */
-    public function __construct($userid, $courseid, $moduleid, $modulename, $logviews, $grades = -1, $moduletype = '') {
+    public function __construct($userid, $courseid, $moduleid, $modulename, $logviews, $grades = -1,
+                                $moduletype = '', $timestamp) {
         $this->userid = $userid;
         $this->courseid = $courseid;
         $this->moduleid = $moduleid;
@@ -104,6 +105,7 @@ class query_result {
         $this->logviews = $logviews;
         $this->grades = $grades;
         $this->moduletype = $moduletype;
+        $this->timestamp = $timestamp;
     }
 
     /**
@@ -167,5 +169,14 @@ class query_result {
      */
     public function get_moduletype() {
         return $this->moduletype;
+    }
+
+    /**
+     * Returns view timestamp.
+     *
+     * @return int
+     */
+    public function get_timestamp() {
+        return $this->timestamp;
     }
 }
