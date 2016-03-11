@@ -366,8 +366,6 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
 
         foreach ($previouslogviews as $previoususerid => $previousresourcesviews) {
             foreach ($previousresourcesviews as $resourceindex => $resourceviews) {
-                //$this->create_logview($previoususerid, $previouscourse->id, $previousresources[$resourceindex]->id, $eventname,
-                  //                    $component, $previousstartdate, $resourceviews);
                 $this->create_previous_course_logview($previoususerid, $previouscoursesids[0],
                     $previousresources[$resourceindex]->name, 'page', $resourceviews, $this->previousstartdate);
             }

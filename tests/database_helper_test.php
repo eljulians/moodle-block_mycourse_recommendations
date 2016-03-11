@@ -96,7 +96,6 @@ class block_mycourse_database_helper_testcase extends advanced_testcase {
             $record->views = $uq; // Whatever.
             $record->timecreated = $uq; // Whatever.
 
-
             $DB->insert_record('block_mycourse_hist_data', $record);
             $i++;
         }
