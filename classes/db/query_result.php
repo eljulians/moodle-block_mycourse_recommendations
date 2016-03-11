@@ -97,7 +97,7 @@ class query_result {
      * @param string $moduletype The module type.
      */
     public function __construct($userid, $courseid, $moduleid, $modulename, $logviews, $grades = -1,
-                                $moduletype = '', $timestamp) {
+                                $moduletype = '', $timestamp = 0) {
         $this->userid = $userid;
         $this->courseid = $courseid;
         $this->moduleid = $moduleid;
