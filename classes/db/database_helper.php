@@ -999,8 +999,8 @@ class database_helper {
         global $DB;
 
         $sql = 'SELECT grades.finalgrade / 10 AS finalgrade
-                FROM   m_grade_grades grades
-                INNER JOINm_grade_items g_items
+                FROM   {grade_grades} grades
+                INNER JOIN {grade_items} g_items
                     ON grades.itemid = g_items.id
                 WHERE g_items.itemtype = \'course\'
                     AND grades.userid = ?
@@ -1011,6 +1011,7 @@ class database_helper {
         $finalgrade = ($record) ? $record->finalgrade : 0;
 
         return $finalgrade;
+
     }
 
     /**
@@ -1024,14 +1025,16 @@ class database_helper {
 
         $enrolmentsql = 'INSERT INTO {block_mycourse_hist_enrol} (userid, courseid, grade)
                          VALUES (:v1, :v2, :v3)';
+        $courseinfosql = 'SELECT fullname, shortname, startdate, idnumber, category
+                          FROM   {course} course
+                          WHERE  course.id = ?';
 
         foreach ($usersids as $userid) {
             $grade = $this->get_users_course_final_grade($userid, $coursetodump);
             $DB->execute($enrolmentsql, ['v1' => $userid, 'v2' => $coursetodump, 'v3' => $grade]);
 
-            $courseinfo = $DB->get_record('course', array('id' => $coursetodump), null, 'fullname,shortname,stardate,'
-                                                                                        . 'idnumber,category');
-            $coursehistoricid = $DB->insert_record('{block_myocurse_hist_course}', $courseinfo);
+            $courseinfo = $DB->get_record_sql($courseinfosql, array($coursetodump));
+            $coursehistoricid = $DB->insert_record('block_mycourse_hist_course', $courseinfo);
 
             $this->dump_previous_courses_logview_info($coursetodump, $coursehistoricid);
         }
