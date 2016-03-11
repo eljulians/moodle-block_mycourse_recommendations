@@ -1015,12 +1015,12 @@ class database_helper {
 
     /**
      * @param int $coursetodump The course of core tables that will be dumped into plugin's historic tables.
-     * @param int $courseyear The year of the course to dump.
      */
-    public function dump_previous_core_info_to_historic_tables($coursetodump, $courseyear) {
+    public function dump_previous_core_info_to_historic_tables($coursetodump) {
         global $DB;
 
         $usersids = $this->get_students_from_course($coursetodump);
+
 
         $enrolmentsql = 'INSERT INTO {block_mycourse_hist_enrol} (userid, courseid, grade)
                          VALUES (:v1, :v2, :v3)';
@@ -1033,19 +1033,19 @@ class database_helper {
                                                                                         . 'idnumber,category');
             $coursehistoricid = $DB->insert_record('{block_myocurse_hist_course}', $courseinfo);
 
-            $this->dump_previous_courses_logview_info($coursetodump, $courseyear, $coursehistoricid);
+            $this->dump_previous_courses_logview_info($coursetodump, $coursehistoricid);
         }
     }
 
     /**
      * @param int $coursetodump Course identifier in core.
-     * @param int $courseyear Course start year.
      * @param int $coursehistoricid Course identifier in historic tables.
      */
-    public function dump_previous_courses_logview_info($coursetodump, $courseyear, $coursehistoricid) {
+    public function dump_previous_courses_logview_info($coursetodump, $coursehistoricid) {
         global $DB;
 
         $startweek = $this->get_course_start_week_and_year($coursetodump)['week'];
+        $courseyear = $this->get_course_start_week_and_year($coursetodump)['year'];
         $toweek = $startweek + 52;
 
         $logviews = $this->query_data($coursetodump, $courseyear, $startweek, $toweek);
