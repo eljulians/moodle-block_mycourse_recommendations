@@ -87,20 +87,67 @@ class block_mycourse_recommendations_course_filter_testcase extends advanced_tes
         return $courses;
     }
 
+    protected function insert_previous_courses_in_historic_data($previouscourses) {
+        global $DB;
+
+        foreach ($previouscourses as $index => $previouscourse) {
+            $record = new stdClass();
+            $record->fullname = $previouscourse->fullname;
+            $record->shortname = $previouscourse->shortname;
+            $record->startdate = $previouscourse->startdate + $index; // Must be unique for each case.
+            $record->idnumber = $previouscourse->idnumber;
+            $record->category = $previouscourse->category;
+
+            $DB->insert_record('block_mycourse_hist_course', $record);
+        }
+
+        $createdids = array();
+
+        $records = $DB->get_records('block_mycourse_hist_course');
+
+        foreach ($records as $record) {
+            array_push($createdids, $record->id);
+        }
+
+        return $createdids;
+    }
+
     /**
      * Creates resources.
      *
      * @param array $resources number of resources of a type for a course.
      */
     protected function create_resources($resources) {
+        $createdresources = array();
+
         foreach ($resources as $courseid => $course) {
             foreach ($course as $resourcetype => $number) {
                 $generator = $this->getDataGenerator()->get_plugin_generator($resourcetype);
 
                 for ($index = 0; $index < $number; $index++) {
-                    $generator->create_instance(array('course' => $courseid));
+                    $resource = $generator->create_instance(array('course' => $courseid));
+                    array_push($createdresources, $resource);
                 }
             }
+        }
+
+        return $createdresources;
+    }
+
+    protected function insert_previous_resources_in_historic_data($resources, $courseid) {
+        global $DB;
+
+        foreach ($resources as $index => $resource) {
+            $record = new stdClass();
+
+            $record->courseid = $courseid;
+            $record->resourcename = (string)$index; // The value is irrelevant, but it must be unique.
+            $record->resourcetype = 'page'; // Whatever.
+            $record->userid = $index; // Whatever.
+            $record->views = $index; // Whatever.
+            $record->timecreated = time(); // Whatever.
+
+            $DB->insert_record('block_mycourse_hist_data', $record);
         }
     }
 
@@ -111,9 +158,27 @@ class block_mycourse_recommendations_course_filter_testcase extends advanced_tes
      * @param int $number The number of students to create.
      */
     protected function create_and_enrol_students($courseid, $number) {
+        $users = array();
+
         for ($index = 0; $index < $number; $index++) {
             $newuser = $this->getDataGenerator()->create_user();
             $this->getDataGenerator()->enrol_user($newuser->id, $courseid, 5); // The student role id.
+
+            array_push($users, $newuser);
+        }
+
+        return $users;
+    }
+
+    protected function insert_previous_users_in_historic_data($users, $courseid) {
+        global $DB;
+
+        foreach ($users as $user) {
+            $sql = 'INSERT INTO {block_mycourse_hist_enrol} (userid, courseid)
+                    VALUES (:v1, :v2)';
+            $values = ['v1' => $user->id, 'v2' => $courseid];
+
+            $DB->execute($sql, $values);
         }
     }
 
@@ -124,6 +189,8 @@ class block_mycourse_recommendations_course_filter_testcase extends advanced_tes
      * i.e., the input is OUTSIDE the lower limit of the input domain.
      */
     public function test_meets_minimum_previous_courses_below() {
+        global $DB;
+
         $this->resetAfterTest();
         $this->setAdminUser();
 
@@ -134,7 +201,8 @@ class block_mycourse_recommendations_course_filter_testcase extends advanced_tes
         $numberofcoursestocreate = course_filter::MINIMUM_PREVIOUS_COURSES - 1;
 
         // We create those courses, with the attributes defined in setUp.
-        $this->create_courses($this->previouscourseattributes, $numberofcoursestocreate);
+        $previouscourses = $this->create_courses($this->previouscourseattributes, $numberofcoursestocreate);
+        $this->insert_previous_courses_in_historic_data($previouscourses);
 
         // We get the actual value and we do the assertion.
         $currentcourseid = $this->currentcourse[0]->id;
@@ -158,7 +226,8 @@ class block_mycourse_recommendations_course_filter_testcase extends advanced_tes
         $numberofcoursestocreate = course_filter::MINIMUM_PREVIOUS_COURSES;
 
         // We create those courses, with the attributes defined in setUp.
-        $this->create_courses($this->previouscourseattributes, $numberofcoursestocreate);
+        $previouscourses = $this->create_courses($this->previouscourseattributes, $numberofcoursestocreate);
+        $this->insert_previous_courses_in_historic_data($previouscourses);
 
         // We get the actual value and we do the assertion.
         $currentcourseid = $this->currentcourse[0]->id;
@@ -183,7 +252,8 @@ class block_mycourse_recommendations_course_filter_testcase extends advanced_tes
         $numberofcoursestocreate = course_filter::MINIMUM_PREVIOUS_COURSES + 1;
 
         // We create those courses, with the attributes defined in setUp.
-        $this->create_courses($this->previouscourseattributes, $numberofcoursestocreate);
+        $previouscourses = $this->create_courses($this->previouscourseattributes, $numberofcoursestocreate);
+        $this->insert_previous_courses_in_historic_data($previouscourses);
 
         // We get the actual value and we do the assertion.
         $currentcourseid = $this->currentcourse[0]->id;
@@ -243,12 +313,14 @@ class block_mycourse_recommendations_course_filter_testcase extends advanced_tes
         // We have to creates some courses before creating resources, with the attributes defined in setUp.
         $numberofcoursestocreate = course_filter::MINIMUM_PREVIOUS_COURSES;
         $previouscourses = $this->create_courses($this->previouscourseattributes, $numberofcoursestocreate);
+        $previouscoursesids = $this->insert_previous_courses_in_historic_data($previouscourses);
 
         // We divide the resources to create in, let's say, 2 types of resources, to have a bit of variation, and we create them.
         $previousresources = array();
         $previousresources[$previouscourses[0]->id]['mod_page'] = $numberofresources / 2;
         $previousresources[$previouscourses[0]->id]['mod_url'] = $numberofresources / 2;
-        $this->create_resources($previousresources);
+        $resources = $this->create_resources($previousresources);
+        $this->insert_previous_resources_in_historic_data($resources, $previouscoursesids[0]);
 
         // We get the actual value and we do the assertion.
         $currentcourseid = $this->currentcourse[0]->id;
@@ -275,13 +347,15 @@ class block_mycourse_recommendations_course_filter_testcase extends advanced_tes
         // We have to creates some courses before creating resources, with the attributes defined in setUp.
         $numberofcoursestocreate = course_filter::MINIMUM_PREVIOUS_COURSES;
         $previouscourses = $this->create_courses($this->previouscourseattributes, $numberofcoursestocreate);
+        $previouscoursesids = $this->insert_previous_courses_in_historic_data($previouscourses);
 
         // We divide the resources to create in, let's say, 3 types of resources, to have a bit of variation.
         $previousresources = array();
         $previousresources[$previouscourses[0]->id]['mod_page'] = $numberofresources / 3;
         $previousresources[$previouscourses[0]->id]['mod_url'] = $numberofresources / 3;
         $previousresources[$previouscourses[0]->id]['mod_book'] = $numberofresources / 3;
-        $this->create_resources($previousresources);
+        $resources = $this->create_resources($previousresources);
+        $this->insert_previous_resources_in_historic_data($resources, $previouscoursesids[0]);
 
         // We get the actual value and we do the assertion.
         $currentcourseid = $this->currentcourse[0]->id;
@@ -337,9 +411,11 @@ class block_mycourse_recommendations_course_filter_testcase extends advanced_tes
         // We have to creates some courses before creating students, with the attributes defined in setUp.
         $numberofcoursestocreate = course_filter::MINIMUM_PREVIOUS_COURSES;
         $previouscourses = $this->create_courses($this->previouscourseattributes, $numberofcoursestocreate);
+        $previouscoursesids = $this->insert_previous_courses_in_historic_data($previouscourses);
 
         // We create and enrol the students in one course...
-        $this->create_and_enrol_students($previouscourses[0]->id, $numberofstudents);
+        $users = $this->create_and_enrol_students($previouscourses[0]->id, $numberofstudents);
+        $this->insert_previous_users_in_historic_data($users, $previouscoursesids[0]);
 
         // We get the actual value and we do the assertion.
         $currentcourseid = $this->currentcourse[0]->id;
@@ -366,9 +442,11 @@ class block_mycourse_recommendations_course_filter_testcase extends advanced_tes
         // We have to creates some courses before creating students, with the attributes defined in setUp.
         $numberofcoursestocreate = course_filter::MINIMUM_PREVIOUS_COURSES;
         $previouscourses = $this->create_courses($this->previouscourseattributes, $numberofcoursestocreate);
+        $previouscoursesids = $this->insert_previous_courses_in_historic_data($previouscourses);
 
         // We create and enrol the students in one course...
-        $this->create_and_enrol_students($previouscourses[0]->id, $numberofstudents);
+        $users = $this->create_and_enrol_students($previouscourses[0]->id, $numberofstudents);
+        $this->insert_previous_users_in_historic_data($users, $previouscoursesids[0]);
 
         // We get the actual value and we do the assertion.
         $currentcourseid = $this->currentcourse[0]->id;

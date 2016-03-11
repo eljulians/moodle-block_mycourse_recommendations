@@ -85,7 +85,7 @@ class simple_recommendator extends abstract_recommendator {
         foreach ($associations as $associationid => $association) {
             $userid = $association->historic_userid;
             $previouscourseid = $association->historic_courseid;
-            $year = $this->db->get_course_start_week_and_year($previouscourseid)['year'];
+            $year = $this->db->get_course_start_week_and_year($previouscourseid, true)['year'];
             $coursestartweek = $this->db->get_course_start_week_and_year($courseid)['week'];
 
             $lowerlimitweek = $currentweek - parent::TIME_WINDOW;
@@ -97,6 +97,8 @@ class simple_recommendator extends abstract_recommendator {
             }
             $upperlimitweek += parent::TIME_WINDOW;
             $previousrecords = $this->db->query_data($previouscourseid, $year, $lowerlimitweek, $upperlimitweek, $userid);
+            $previousrecords = $this->db->query_historic_course_data($previouscourseid, $year, $lowerlimitweek,
+                                                                  $upperlimitweek, $userid);
 
             $currentyear = $this->db->get_course_start_week_and_year($courseid)['year'];
             $currentrecords = $this->db->query_data($courseid, $currentyear, $lowerlimitweek, $upperlimitweek,
@@ -151,7 +153,7 @@ class simple_recommendator extends abstract_recommendator {
     public function create_associations($courseid, $currentweek) {
         $selectedusers = $this->db->get_selected_users($courseid);
 
-        $coursedates = $this->db->get_course_start_week_and_year($courseid);
+        $coursedates = $this->db->get_course_start_week_and_year($courseid, false);
         $startweek = $coursedates['week'];
         $year = $coursedates['year'];
 
@@ -176,11 +178,11 @@ class simple_recommendator extends abstract_recommendator {
         $previouscourses = $this->db->find_course_previous_teachings_ids($courseid, $year);
         $previouscourse = max($previouscourses);
 
-        $coursedates = $this->db->get_course_start_week_and_year($previouscourse);
+        $coursedates = $this->db->get_course_start_week_and_year($previouscourse, true);
         $startweek = $coursedates['week'];
         $year = $coursedates['year'];
 
-        $previousdata = $this->db->query_data($previouscourse, $year, $startweek, $endweek);
+        $previousdata = $this->db->query_historic_course_data($previouscourse, $year, $startweek, $endweek);
 
         $associatedresources = $this->associate_resources($previousdata, $currentselecteddata);
         $previousdata = $associatedresources['previous'];

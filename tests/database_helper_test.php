@@ -76,6 +76,31 @@ class block_mycourse_database_helper_testcase extends advanced_testcase {
         return $method;
     }
 
+    protected function insert_previous_resources_in_historic_data($resources, $courseid, $uniquekey = null) {
+        global $DB;
+
+        $i = 0;
+        $uq = 0;
+
+        foreach ($resources as $index => $resource) {
+            $record = new stdClass();
+
+            // Dirty, very dirty workaround for generating unique combinations for the records.
+            if ($uniquekey !== null) {
+                $uq = $uniquekey * 100 + $i;
+            }
+            $record->courseid = $courseid;
+            $record->resourcename = (string)$uq; // The value is irrelevant, but it must be unique.
+            $record->resourcetype = 'page'; // Whatever.
+            $record->userid = $uq; // Whatever.
+            $record->views = $uq; // Whatever.
+            $record->timecreated = $uq; // Whatever.
+
+            $DB->insert_record('block_mycourse_hist_data', $record);
+            $i++;
+        }
+    }
+
     /**
      * Tests that function inserts associations properly, with the expected behaviour.
      */
@@ -265,6 +290,44 @@ class block_mycourse_database_helper_testcase extends advanced_testcase {
 
         return $coursesids;
     }
+
+    protected function insert_previous_courses_in_historic_data($previouscourses) {
+        global $DB;
+
+        foreach ($previouscourses as $index => $previouscourse) {
+            $record = new stdClass();
+            $record->fullname = $previouscourse->fullname;
+            $record->shortname = $previouscourse->shortname;
+            $record->startdate = $previouscourse->startdate + $index; // It must be unique.
+            $record->idnumber = $previouscourse->idnumber;
+            $record->category = $previouscourse->category;
+
+            $DB->insert_record('block_mycourse_hist_course', $record);
+        }
+
+        $createdids = array();
+
+        $records = $DB->get_records('block_mycourse_hist_course');
+
+        foreach ($records as $record) {
+            array_push($createdids, $record->id);
+        }
+
+        return $createdids;
+    }
+
+    protected function insert_previous_users_in_historic_data($users, $courseid) {
+        global $DB;
+
+        foreach ($users as $user) {
+            $sql = 'INSERT INTO {block_mycourse_hist_enrol} (userid, courseid)
+                    VALUES (:v1, :v2)';
+            $values = ['v1' => $user->id, 'v2' => $courseid];
+
+            $DB->execute($sql, $values);
+        }
+    }
+
     /**
      * Tests that the function queries properly the ids of the previous teachings of a course, which are currently found
      * looking at the same 'fullname' field.
@@ -286,12 +349,12 @@ class block_mycourse_database_helper_testcase extends advanced_testcase {
         $currentcourse = $this->create_course($fullname, $currenttimestamp, 1);
 
         // We create the previous courses...
-        $previouscourses = array();
         $previouscourses = $this->create_course($fullname, $previouscoursestimestamp, 3);
+        $previouscourses = $this->insert_previous_courses_in_historic_data($previouscourses);
 
         $expected = array();
         foreach ($previouscourses as $expectedcourse) {
-            array_push($expected, $expectedcourse->id);
+            array_push($expected, $expectedcourse);
         }
 
         // We get the method using reflection, and we invoke it.
@@ -322,23 +385,26 @@ class block_mycourse_database_helper_testcase extends advanced_testcase {
         $currentcourse = $this->create_course($fullname, $currenttimestamp, 1);
 
         // We create the previous courses...
-        $previouscourses = array();
         $previouscourses = $this->create_course($fullname, $previouscoursestimestamp, 3);
+        $previouscourses = $this->insert_previous_courses_in_historic_data($previouscourses);
 
         $previoususers = array();
-        $previoususers[$previouscourses[0]->id] = 5;
-        $previoususers[$previouscourses[1]->id] = 15;
-        $previoususers[$previouscourses[2]->id] = 23;
+        $previoususers[$previouscourses[0]] = 5;
+        $previoususers[$previouscourses[1]] = 15;
+        $previoususers[$previouscourses[2]] = 23;
         $expected = 0;
 
+        $users = array();
         foreach ($previoususers as $courseid => $usernumber) {
             for ($index = 0; $index < $usernumber; $index++) {
                 $newuser = $this->getDataGenerator()->create_user();
                 $this->getDataGenerator()->enrol_user($newuser->id, $courseid, $studentroleid);
 
+                array_push($users, $newuser);
                 $expected++;
             }
         }
+        $this->insert_previous_users_in_historic_data($users, $previouscourses[0]);
 
         $actual = $this->databasehelper->get_previous_courses_students_number($currentcourse[0]->id, $currentyear);
 
@@ -354,11 +420,15 @@ class block_mycourse_database_helper_testcase extends advanced_testcase {
      * @param int $number The number of resources to create.
      */
     private function create_resource($courseid, $resourcetype, $number) {
+        $resources = array();
         $generator = $this->getDataGenerator()->get_plugin_generator($resourcetype);
 
         for ($index = 0; $index < $number; $index++) {
-            $generator->create_instance(array('course' => $courseid));
+            $resource = $generator->create_instance(array('course' => $courseid));
+            array_push($resources, $resource);
         }
+
+        return $resources;
     }
 
     public function test_get_previous_courses_resources_number() {
@@ -376,8 +446,8 @@ class block_mycourse_database_helper_testcase extends advanced_testcase {
         $currentcourse = $this->create_course($fullname, $currenttimestamp, 1);
 
         // We create the previous courses...
-        $previouscourses = array();
         $previouscourses = $this->create_course($fullname, $previouscoursestimestamp, 2);
+        $previouscoursesids = $this->insert_previous_courses_in_historic_data($previouscourses);
 
         // We create some resources...
         $previousresources = array();
@@ -389,11 +459,18 @@ class block_mycourse_database_helper_testcase extends advanced_testcase {
         $previousresources[$previouscourses[1]->id]['mod_url'] = 10;
 
         $expected = 0;
+        $coursesresources = array();
         foreach ($previousresources as $courseid => $course) {
             foreach ($course as $resource => $number) {
-                $this->create_resource($courseid, $resource, $number);
+                $resources = $this->create_resource($courseid, $resource, $number);
+                array_push($coursesresources, $resources);
                 $expected += $number;
             }
+        }
+
+        for ($index = 0; $index < count($coursesresources); $index++) {
+            $resourcesbytype = $coursesresources[$index];
+            $this->insert_previous_resources_in_historic_data($resourcesbytype, $previouscoursesids[0], $index);
         }
 
         $actual = $this->databasehelper->get_previous_courses_resources_number($currentcourse[0]->id, $currentyear);

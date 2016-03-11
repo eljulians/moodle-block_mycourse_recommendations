@@ -232,7 +232,7 @@ class database_helper {
             $sql = str_replace('%currentweek', $currentweek, $sql);
         } else {
             $sql = str_replace('and ((extract(YEAR from logs.course_week) - %year) * 52) + extract(WEEK from logs.course_week)',
-                               '', $sql);
+                '', $sql);
             $sql = str_replace('between %coursestartweek and %currentweek', '', $sql);
         }
 
@@ -257,6 +257,52 @@ class database_helper {
         }
 
         $recordset->close();
+
+        return $queryresults;
+    }
+
+    public function query_historic_course_data($courseid, $year, $coursestartweek, $currentweek, $userid = null) {
+        global $DB;
+
+        $sql = "SELECT logs.id,
+                       logs.userid,
+                       logs.resourcename,
+                       logs.resourcetype,
+                       logs.views
+                FROM   {block_mycourse_hist_data} logs
+                INNER JOIN {block_mycourse_hist_course} course
+                    ON logs.courseid = course.id
+                WHERE ((EXTRACT('year' FROM date_trunc('year', to_timestamp(course.startdate))) - %year) * 52)
+	                + EXTRACT('week' FROM date_trunc('week', to_timestamp(course.startdate)))
+                  BETWEEN %coursestartweek AND %currentweek
+                    AND logs.userid = %userid";
+
+        if (is_null($userid)) {
+            $sql = str_replace('AND logs.userid = %userid', '', $sql);
+        }
+
+        $sql = str_replace('%courseid', $courseid, $sql);
+        $sql = str_replace('%year', $year, $sql);
+        $sql = str_replace('%coursestartweek', $coursestartweek, $sql);
+        $sql = str_replace('%currentweek', $currentweek, $sql);
+        $sql = str_replace('%userid', $userid, $sql);
+
+        $records = $DB->get_records_sql($sql);
+
+        $queryresults = array();
+
+        foreach ($records as $record) {
+            $userid = $record->userid;
+            $resourcename = $record->resourcename;
+            $logviews = $record->views;
+
+            // This deserves an specific explanation. In the historic data model, the resources do not exist as an entity,
+            // so, they cannot be identified. By, for later operations, each resource has to be identified in an unique way.
+            // So, we do this trick.
+            $moduleid = $record->id;
+
+            array_push($queryresults, new query_result($userid, $courseid, $moduleid, $resourcename, $logviews));
+        }
 
         return $queryresults;
     }
@@ -456,10 +502,10 @@ class database_helper {
     }
 
     /**
-     * This function finds, for a current course, previous teachings. Encapsulates the logic used to relate different
-     * teachings in time, so, other functions that have the need to relate different teachings, MUST use this function.
-     * Currently, to make the relation, the function looks for courses with same 'fullname' field value, and the course
-     * start year must be lower than the current year.
+     * This function finds, for the given current coures id, the same course but in previous teachings. For that,
+     * the function looks up into the {block_mycourse_hist_course} table, finding courses with the same full name.
+     * So, if it is wanted to generate recommendations for the given current course, an historic course must exist
+     * in the mentioned table, so, the data importation has to be done before.
      *
      * @param int $currentcourseid The id of the current course.
      * @param int $currentyear The year the current course is being teached in.
@@ -468,16 +514,15 @@ class database_helper {
     public function find_course_previous_teachings_ids($currentcourseid, $currentyear) {
         global $DB;
 
-        $sql = 'SELECT prev_courses.id        AS courseid,
-                       prev_courses.startdate AS starttimestamp
-                FROM   {course} cur_course
-                INNER JOIN {course} prev_courses
-                    ON cur_course.fullname = prev_courses.fullname
-                WHERE  cur_course.id = ?
-                    AND prev_courses.id <> ?';
+        $sql = 'SELECT historic_courses.id        AS courseid,
+                       historic_courses.startdate AS starttimestamp
+                FROM   {course} current_courses
+                INNER JOIN {block_mycourse_hist_course} historic_courses
+                    ON current_courses.fullname = historic_courses.fullname
+                WHERE  current_courses.id = ?';
 
         $previouscoursesids = array();
-        $recordset = $DB->get_recordset_sql($sql, array($currentcourseid, $currentcourseid));
+        $recordset = $DB->get_recordset_sql($sql, array($currentcourseid));
 
         foreach ($recordset as $record) {
             $year = getdate($record->starttimestamp)['year'];
@@ -502,16 +547,8 @@ class database_helper {
         global $DB;
 
         $sql = 'SELECT count(*) as count
-                FROM   {user} users
-                INNER JOIN {role_assignments} ra
-                    ON users.id = ra.userid
-                INNER JOIN {context} context
-                    ON ra.contextid = context.id
-                INNER JOIN {course} course
-                    ON context.instanceid = course.id
-                WHERE  context.contextlevel = 50
-                    AND ra.roleid = 5
-                    AND course.id = ?';
+                FROM   {block_mycourse_hist_enrol} historic_users
+                WHERE  historic_users.courseid = ?';
 
         $previouscourses = $this->find_course_previous_teachings_ids($currentcourseid, $currentyear);
 
@@ -538,17 +575,9 @@ class database_helper {
     public function get_previous_courses_resources_number($currentcourseid, $currentyear) {
         global $DB;
 
-        $sql = "SELECT count(*) AS count
-                FROM   {course_modules} c_modules
-                INNER JOIN {modules} modules
-                    ON c_modules.module = modules.id
-                WHERE  c_modules.course = ?
-                    AND (modules.name = 'label'
-                    OR modules.name = 'resource'
-                    OR modules.name = 'folder'
-                    OR modules.name = 'page'
-                    OR modules.name = 'book'
-                    OR modules.name = 'url')";
+        $sql = 'SELECT count(distinct(historic.resourcename)) AS count
+                FROM   {block_mycourse_hist_data} historic
+                WHERE  historic.courseid = ?';
 
         $previouscourses = $this->find_course_previous_teachings_ids($currentcourseid, $currentyear);
 
@@ -607,16 +636,23 @@ class database_helper {
      * @param int $courseid The course to query the start week and year of.
      * @return array The week number ([1, 52]); the year.
      */
-    public function get_course_start_week_and_year($courseid) {
+    public function get_course_start_week_and_year($courseid, $historiccourse = false) {
         global $DB;
 
-        $sql = 'SELECT course.startdate AS starttimestamp
-                FROM   {course} course
-                WHERE  course.id = ?';
+        $coursetable = '{course}';
 
-        $starttimestamp = $DB->get_record_sql($sql, array($courseid))->starttimestamp;
-        $week = date('W', $starttimestamp);
-        $year = date('Y', $starttimestamp);
+        if ($historiccourse) {
+            $coursetable = '{block_mycourse_hist_course}';
+        }
+
+        $sql = "SELECT *
+                FROM   $coursetable course
+                WHERE  course.id = ?";
+
+        $record = $DB->get_record_sql($sql, array($courseid));
+
+        $week = date('W', $record->startdate);
+        $year = date('Y', $record->startdate);
 
         $weekandyear = array();
         $weekandyear['week'] = intval($week);
@@ -825,5 +861,23 @@ class database_helper {
                 WHERE  id = ?';
 
         $DB->execute($sql, array($recommendationid));
+    }
+
+    /**
+     * Inserts the association of a current course with every historic related course.
+     *
+     * @param int $currentcourse The current course, which will receive the recommendations.
+     * @param array $historiccourses The previous course teachings.
+     */
+    public function insert_courses_associations($currentcourse, $historiccourses) {
+        global $DB;
+
+        $sql = 'INSERT INTO {block_mycourse_course_assoc} (current_courseid, historic_courseid)
+                VALUES (:v1, :v2)';
+
+        foreach ($historiccourses as $historiccourse) {
+            $values = ['v1' => $currentcourse, 'v2' => $historiccourse];
+            $DB->execute($sql, $values);
+        }
     }
 }
