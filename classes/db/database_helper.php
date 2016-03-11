@@ -1049,6 +1049,9 @@ class database_helper {
 
     /**
      * Inserts the logview of each user for the given previous course into the plugin's table of historic data.
+     * Tries to insert the logview. If the unique key is violated (courseid, userid, timestamp, resourceid), then,
+     * looks if the record that is violating the key has more views. If it has, updates the record inserted before,
+     * assuming that is more recent.
      *
      * @param int $coursetodump Course identifier in core.
      * @param int $coursehistoricid Course identifier in historic tables.
@@ -1088,6 +1091,7 @@ class database_helper {
                 }
             }
         }
+
     }
 
 
