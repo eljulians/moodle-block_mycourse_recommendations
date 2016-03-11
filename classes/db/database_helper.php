@@ -985,4 +985,81 @@ class database_helper {
             $DB->execute($sql, $values);
         }
     }
+
+    /**
+     * Queries the final grade assigned to an user for a course. It it doesn't have any, 0 is returned. This would not be
+     * the usual case, since this function is going to be used for courses that are known to be finished.
+     *
+     * @param int $userid The user to query the grade of.
+     * @param int $courseid The course to query the grade where.
+     * @return float The final grade (0 if no grade is found).
+     */
+    public function get_users_course_final_grade($userid, $courseid) {
+        global $DB;
+
+        $sql = 'SELECT grades.finalgrade / 10 AS finalgrade
+                FROM   m_grade_grades grades
+                INNER JOINm_grade_items g_items
+                    ON grades.itemid = g_items.id
+                WHERE g_items.itemtype = \'course\'
+                    AND grades.userid = ?
+                    AND g_items.courseid = ?';
+
+        $record = $DB->get_record_sql($sql, array($userid, $courseid));
+
+        $finalgrade = ($record) ? $record->finalgrade : 0;
+
+        return $finalgrade;
+    }
+
+    /**
+     * @param int $coursetodump The course of core tables that will be dumped into plugin's historic tables.
+     * @param int $courseyear The year of the course to dump.
+     */
+    public function dump_previous_core_info_to_historic_tables($coursetodump, $courseyear) {
+        global $DB;
+
+        $usersids = $this->get_students_from_course($coursetodump);
+
+        $enrolmentsql = 'INSERT INTO {block_mycourse_hist_enrol} (userid, courseid, grade)
+                         VALUES (:v1, :v2, :v3)';
+
+        foreach ($usersids as $userid) {
+            $grade = $this->get_users_course_final_grade($userid, $coursetodump);
+            $DB->execute($enrolmentsql, ['v1' => $userid, 'v2' => $coursetodump, 'v3' => $grade]);
+
+            $courseinfo = $DB->get_record('course', array('id' => $coursetodump), null, 'fullname,shortname,stardate,'
+                                                                                        . 'idnumber,category');
+            $coursehistoricid = $DB->insert_record('{block_myocurse_hist_course}', $courseinfo);
+
+            $this->dump_previous_courses_logview_info($coursetodump, $courseyear, $coursehistoricid);
+        }
+    }
+
+    /**
+     * @param int $coursetodump Course identifier in core.
+     * @param int $courseyear Course start year.
+     * @param int $coursehistoricid Course identifier in historic tables.
+     */
+    public function dump_previous_courses_logview_info($coursetodump, $courseyear, $coursehistoricid) {
+        global $DB;
+
+        $startweek = $this->get_course_start_week_and_year($coursetodump)['week'];
+        $toweek = $startweek + 52;
+
+        $logviews = $this->query_data($coursetodump, $courseyear, $startweek, $toweek);
+
+        foreach ($logviews as $logview) {
+            $record = new stdClass();
+
+            $record->courseid = $coursehistoricid;
+            $record->userid = $logview->get_userid();
+            $record->resourcenmae = $logview->get_modulename();
+            $record->views = $logview->get_logviews();
+
+            $DB->insert_record('block_mycourse_hist_data', $record);
+        }
+    }
+
+
 }
