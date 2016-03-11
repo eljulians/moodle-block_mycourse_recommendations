@@ -1067,7 +1067,7 @@ class database_helper {
 
             $record->courseid = $coursehistoricid;
             $record->userid = $logview->get_userid();
-            $record->resourcenmae = $logview->get_modulename();
+            $record->resourcename = $logview->get_modulename();
             $record->views = $logview->get_logviews();
             $record->resourcetype = $logview->get_moduletype();
             $record->timecreated = $logview->get_timestamp();
