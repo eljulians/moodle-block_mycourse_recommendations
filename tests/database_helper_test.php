@@ -90,8 +90,9 @@ class block_mycourse_database_helper_testcase extends advanced_testcase {
                 $uq = $uniquekey * 100 + $i;
             }
             $record->courseid = $courseid;
-            $record->resourcename = (string)$uq; // The value is irrelevant, but it must be unique.
+            $record->resourcename = 'some resource'; // Whatever.
             $record->resourcetype = 'page'; // Whatever.
+            $record->resourceid = $uq; // The value is irrelevant, but it must be unique.
             $record->userid = $uq; // Whatever.
             $record->views = $uq; // Whatever.
             $record->timecreated = $uq; // Whatever.

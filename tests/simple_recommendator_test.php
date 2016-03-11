@@ -187,7 +187,8 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         }
     }
 
-    protected function create_previous_course_logview($userid, $courseid, $resourcename, $resourcetype, $views, $timecreated) {
+    protected function create_previous_course_logview($userid, $courseid, $resourcename, $resourcetype, $views,
+                                                      $timecreated, $uniquevalue) {
         global $DB;
 
         $logview = new stdClass();
@@ -196,6 +197,7 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         $logview->userid = $userid;
         $logview->resourcename = $resourcename;
         $logview->resourcetype = $resourcetype;
+        $logview->resourceid = $uniquevalue;
         $logview->views = $views;
         $logview->timecreated = $timecreated;
 
@@ -237,7 +239,7 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         foreach ($previouslogviews as $userid => $resourceslogviews) {
             foreach ($resourceslogviews as $resourceindex => $logviews) {
                 $this->create_previous_course_logview($userid, $previouscoursesids[0], $resources[$resourceindex]->name,
-                                                      'page', $logviews, $this->previousstartdate);
+                                                      'page', $logviews, $this->previousstartdate, $resourceindex);
             }
         }
 
@@ -367,7 +369,7 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         foreach ($previouslogviews as $previoususerid => $previousresourcesviews) {
             foreach ($previousresourcesviews as $resourceindex => $resourceviews) {
                 $this->create_previous_course_logview($previoususerid, $previouscoursesids[0],
-                    $previousresources[$resourceindex]->name, 'page', $resourceviews, $this->previousstartdate);
+                    $previousresources[$resourceindex]->name, 'page', $resourceviews, $this->previousstartdate, $resourceindex);
             }
         }
 
@@ -388,7 +390,7 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
             foreach ($previousnextresourcesviews as $resourceindex => $resourceviews) {
                 $this->create_previous_course_logview($previoususerid, $previouscoursesids[0],
                     $previousnextresources[$resourceindex]->name, 'page', $resourceviews,
-                    $this->previousstartdate);
+                    $this->previousstartdate, $resourceindex + count($previousresourcesviews)); // The index has been used before.
             }
         }
 

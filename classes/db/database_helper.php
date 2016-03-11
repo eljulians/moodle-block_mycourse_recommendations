@@ -62,6 +62,7 @@ class database_helper {
        logs.module_name,
        logs.userid,
        logs.log_views,
+       logs.course_week as view_date,
        logs.grades
   from (select modules.course,
                c.format,
@@ -253,7 +254,11 @@ class database_helper {
             $grades = $record->grades;
             $resourcetype = $record->resource_type;
 
-            $queryresults[$index] = new query_result($userid, $courseid, $moduleid, $modulename, $logviews, $grades, $resourcetype);
+            // The date is comming in yyyy-mm-dd hh:mm:ss+01, so, we add that hour manually, because strtotime doesn't do it.
+            $timestamp = strtotime($record->view_date) + 3600;
+
+            $queryresults[$index] = new query_result($userid, $courseid, $moduleid, $modulename, $logviews,
+                                                     $grades, $resourcetype, $timestamp);
             $index++;
         }
 
@@ -1044,6 +1049,9 @@ class database_helper {
 
     /**
      * Inserts the logview of each user for the given previous course into the plugin's table of historic data.
+     * Tries to insert the logview. If the unique key is violated (courseid, userid, timestamp, resourceid), then,
+     * looks if the record that is violating the key has more views. If it has, updates the record inserted before,
+     * assuming that is more recent.
      *
      * @param int $coursetodump Course identifier in core.
      * @param int $coursehistoricid Course identifier in historic tables.
@@ -1062,11 +1070,28 @@ class database_helper {
 
             $record->courseid = $coursehistoricid;
             $record->userid = $logview->get_userid();
-            $record->resourcenmae = $logview->get_modulename();
+            $record->resourcename = $logview->get_modulename();
             $record->views = $logview->get_logviews();
+            $record->resourcetype = $logview->get_moduletype();
+            $record->resourceid = $logview->get_moduleid();
+            $record->timecreated = $logview->get_timestamp();
 
-            $DB->insert_record('block_mycourse_hist_data', $record);
+            try {
+                $DB->insert_record('block_mycourse_hist_data', $record);
+            } catch (\Exception $e) {
+                $existingrecord = $DB->get_record('block_mycourse_hist_data', array('courseid' => $record->courseid,
+                    'userid' => $record->userid, 'resourceid' => $record->resourceid, 'resourcetype' => $record->resourcetype,
+                    'timecreated' => $record->timecreated));
+
+                $moreviews = $record->views > $existingrecord->views;
+
+                if ($moreviews) {
+                    $record->id = $existingrecord->id;
+                    $DB->update_record('block_mycourse_hist_data', $record);
+                }
+            }
         }
+
     }
 
 
