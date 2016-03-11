@@ -406,7 +406,7 @@ class block_mycourse_database_helper_testcase extends advanced_testcase {
         }
         $this->insert_previous_users_in_historic_data($users, $previouscourses[0]);
 
-        $actual = $this->databasehelper->get_previous_courses_students_number($currentcourse[0]->id, $currentyear);
+        $actual = $this->databasehelper->get_previous_courses_students_number_core_tables($currentcourse[0]->id, $currentyear);
 
         $this->assertEquals($expected, $actual);
     }
@@ -473,7 +473,7 @@ class block_mycourse_database_helper_testcase extends advanced_testcase {
             $this->insert_previous_resources_in_historic_data($resourcesbytype, $previouscoursesids[0], $index);
         }
 
-        $actual = $this->databasehelper->get_previous_courses_resources_number($currentcourse[0]->id, $currentyear);
+        $actual = $this->databasehelper->get_previous_courses_resources_number_core_tables($currentcourse[0]->id, $currentyear);
 
         $this->assertEquals($expected, $actual);
     }
