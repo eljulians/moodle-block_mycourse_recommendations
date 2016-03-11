@@ -251,8 +251,9 @@ class database_helper {
             $modulename = $record->module_name;
             $logviews = $record->log_views;
             $grades = $record->grades;
+            $resourcetype = $record->resource_type;
 
-            $queryresults[$index] = new query_result($userid, $courseid, $moduleid, $modulename, $logviews, $grades);
+            $queryresults[$index] = new query_result($userid, $courseid, $moduleid, $modulename, $logviews, $grades, $resourcetype);
             $index++;
         }
 

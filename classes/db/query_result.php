@@ -79,6 +79,13 @@ class query_result {
     private $grades;
 
     /**
+     * Module type.
+     *
+     * @var string
+     */
+    private $moduletype;
+
+    /**
      * Instantiates the class, receiving a value for each queried field.
      *
      * @param int $userid
@@ -87,14 +94,16 @@ class query_result {
      * @param string $modulename
      * @param int $logviews
      * @param float $grades Default set to -1, because it can be empty in database.
+     * @param string $moduletype The module type.
      */
-    public function __construct($userid, $courseid, $moduleid, $modulename, $logviews, $grades = -1) {
+    public function __construct($userid, $courseid, $moduleid, $modulename, $logviews, $grades = -1, $moduletype = '') {
         $this->userid = $userid;
         $this->courseid = $courseid;
         $this->moduleid = $moduleid;
         $this->modulename = $modulename;
         $this->logviews = $logviews;
         $this->grades = $grades;
+        $this->moduletype = $moduletype;
     }
 
     /**
@@ -149,5 +158,14 @@ class query_result {
      */
     public function get_grades() {
         return $this->grades;
+    }
+
+    /**
+     * Returns module type.
+     *
+     * @return string
+     */
+    public function get_moduletype() {
+        return $this->moduletype;
     }
 }
