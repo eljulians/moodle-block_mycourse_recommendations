@@ -233,7 +233,7 @@ class simple_recommendator extends abstract_recommendator {
             foreach ($previousdata as $previousindex => $previousresource) {
                 if ($currentresource->get_modulename() === $previousresource->get_modulename()) {
                     if (!in_array($previousresource, $previousresources)) {
-                        array_push($previousresources, $previousresource);                        
+                        array_push($previousresources, $previousresource);
                     }
                     if (!in_array($currentresource, $currentresources)) {
                         array_push($currentresources, $currentresource);
