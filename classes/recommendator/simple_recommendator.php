@@ -96,7 +96,6 @@ class simple_recommendator extends abstract_recommendator {
                 $upperlimitweek = $currentweek + 52;
             }
             $upperlimitweek += parent::TIME_WINDOW;
-            $previousrecords = $this->db->query_data($previouscourseid, $year, $lowerlimitweek, $upperlimitweek, $userid);
             $previousrecords = $this->db->query_historic_course_data($previouscourseid, $year, $lowerlimitweek,
                                                                   $upperlimitweek, $userid);
 
@@ -226,7 +225,6 @@ class simple_recommendator extends abstract_recommendator {
     public function associate_resources($previousdata, $currentdata) {
         $previousresources = array();
         $currentresources = array();
-        $currenttransformedindex = 0;
 
         sort($previousdata);
         sort($currentdata);
