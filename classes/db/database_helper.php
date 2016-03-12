@@ -274,6 +274,7 @@ class database_helper {
                        logs.userid,
                        logs.resourcename,
                        logs.resourcetype,
+                       logs.resourceid,
                        logs.views
                 FROM   {block_mycourse_hist_data} logs
                 INNER JOIN {block_mycourse_hist_course} course
@@ -281,7 +282,8 @@ class database_helper {
                 WHERE ((EXTRACT('year' FROM date_trunc('year', to_timestamp(course.startdate))) - %year) * 52)
 	                + EXTRACT('week' FROM date_trunc('week', to_timestamp(course.startdate)))
                   BETWEEN %coursestartweek AND %currentweek
-                    AND logs.userid = %userid";
+                    AND logs.userid = %userid
+                    AND course.id = %courseid";
 
         if (is_null($userid)) {
             $sql = str_replace('AND logs.userid = %userid', '', $sql);
@@ -305,7 +307,7 @@ class database_helper {
             // This deserves an specific explanation. In the historic data model, the resources do not exist as an entity,
             // so, they cannot be identified. By, for later operations, each resource has to be identified in an unique way.
             // So, we do this trick.
-            $moduleid = $record->id;
+            $moduleid = $record->resourceid;
 
             array_push($queryresults, new query_result($userid, $courseid, $moduleid, $resourcename, $logviews));
         }

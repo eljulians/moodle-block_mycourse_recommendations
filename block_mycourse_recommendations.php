@@ -161,15 +161,12 @@ class block_mycourse_recommendations extends block_base {
 
             $previouscourses = $this->db->find_course_previous_teaching_ids_core_tables($courseid, $courseyear);
 
-            if (empty($previouscourses)) {
-                $previouscourses = $this->db->find_course_previous_teachings_ids_historic_tables($courseid, $courseyear);
-            }
-            $this->db->insert_courses_associations($courseid, $previouscourses);
-
             foreach ($previouscourses as $previouscourse) {
                 $this->db->dump_previous_core_info_to_historic_tables($previouscourse);
             }
 
+            $previouscourses = $this->db->find_course_previous_teachings_ids_historic_tables($courseid, $courseyear);
+            $this->db->insert_courses_associations($courseid, $previouscourses);
         } else {
             $this->db->insert_course_selection($courseid, $courseyear, 0);
         }
