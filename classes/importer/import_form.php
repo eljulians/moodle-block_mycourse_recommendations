@@ -28,7 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 
-require_once $CFG->libdir.'/formslib.php';
+require_once($CFG->libdir.'/formslib.php');
 require_once($CFG->dirroot . '/user/editlib.php');
 require_once($CFG->dirroot . '/lib/csvlib.class.php');
 
@@ -43,14 +43,20 @@ define('MAX_BYTES', 1000000);
  */
 class import_form extends \moodleform {
 
+    /**
+     * Copy-pasted from admin/tool/uploaduser/user_form.php; probably there's something needed to change.
+     */
     public function definition() {
         $mform = $this->_form;
 
         $mform->addElement('header', 'settingsheader', get_string('upload'));
 
-        $mform->addElement('filemanager', 'attachments', get_string('attachment', 'block_mycourse_recommendations'), null,
-                    array('subdirs' => 0, 'maxbytes' => MAX_BYTES, 'areamaxbytes' => 10485760, 'maxfiles' => MAX_FILES,
-                          'accepted_types' => array('.csv')));
+        //$mform->addElement('filemanager', 'attachments', get_string('attachment', 'block_mycourse_recommendations'), null,
+          //          array('subdirs' => 0, 'maxbytes' => MAX_BYTES, 'areamaxbytes' => 10485760, 'maxfiles' => MAX_FILES,
+            //              'accepted_types' => array('.csv')));
+        $mform->addElement('filepicker', 'courses', get_string('coursefile', 'block_mycourse_recommendations'));
+        $mform->addElement('filepicker', 'users', get_string('usersfile', 'block_mycourse_recommendations'));
+        $mform->addElement('filepicker', 'logs', get_string('logsfile', 'block_mycourse_recommendations'));
 
         $choices = \csv_import_reader::get_delimiter_list();
         $mform->addElement('select', 'delimiter_name', get_string('csvdelimiter', 'tool_uploaduser'), $choices);
@@ -66,7 +72,7 @@ class import_form extends \moodleform {
         $mform->addElement('select', 'encoding', get_string('encoding', 'tool_uploaduser'), $choices);
         $mform->setDefault('encoding', 'UTF-8');
 
-        $choices = array('10'=>10, '20'=>20, '100'=>100, '1000'=>1000, '100000'=>100000);
+        $choices = array('10' => 10, '20' => 20, '100' => 100, '1000' => 1000, '100000' => 100000);
         $mform->addElement('select', 'previewrows', get_string('rowpreviewnum', 'tool_uploaduser'), $choices);
         $mform->setType('previewrows', PARAM_INT);
 

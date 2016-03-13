@@ -41,9 +41,13 @@ $targeturl = $_SERVER['PHP_SELF'] . "?courseid=$courseid";
 echo $OUTPUT->header();
 
 $form = new \block_mycourse_recommendations\import_form($targeturl);
+$formdata = $form->get_data();
+if ($formdata) {
+    $coursefile = $form->get_file_content('courses');
+    $usersfile = $form->get_file_content('users');
+    $logsfile = $form->get_file_content('logs');
 
-if ($form->get_data() ) {
-    \block_mycourse_recommendations\csv_importer::import_data($form->get_data());
+    \block_mycourse_recommendations\csv_importer::import_data($formdata, $coursefile, $usersfile, $logsfile);
 } else {
     $form->display();
 }
