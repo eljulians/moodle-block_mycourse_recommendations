@@ -29,3 +29,4 @@ $string['norecommendations'] = 'There are no recommendations for you for this we
 $string['notpersonalizable'] = 'This course won\'t receive recommendations because it is not personalizable.';
 $string['inactive'] = 'This course won\'t receive more recommendations because is inactive.';
 $string['usernotselected'] = 'You are not selected to receive recommendations.';
+$string['importfromcsv'] = 'Import data from CSV file';
