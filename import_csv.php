@@ -23,15 +23,18 @@
  */
 
 require_once('../../config.php');
+require_once('classes/importer/import_form.php');
 
 require_login();
 $context = context_system::instance(); 
 
-$courseid = optional_param('courseid', 0, PARAM_INT);
+$courseid = required_param('courseid', PARAM_INT);
 $course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
 
-$PAGE->set_course($course);
-$PAGE->set_context($context);
+$PAGE->set_url('/blocks/mycourse_recommendations/import_csv.php', array('courseid' => $courseid));
+
+$form = new \block_mycourse_recommendations\import_form();
+$form->display();
 
 echo $OUTPUT->header();
 echo $OUTPUT->footer();

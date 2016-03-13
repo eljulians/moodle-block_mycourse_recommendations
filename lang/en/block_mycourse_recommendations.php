@@ -30,3 +30,5 @@ $string['notpersonalizable'] = 'This course won\'t receive recommendations becau
 $string['inactive'] = 'This course won\'t receive more recommendations because is inactive.';
 $string['usernotselected'] = 'You are not selected to receive recommendations.';
 $string['importfromcsv'] = 'Import data from CSV file';
+$string['attachment'] = 'Attach your CSV files.';
+
