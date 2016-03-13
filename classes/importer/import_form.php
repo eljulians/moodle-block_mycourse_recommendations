@@ -28,9 +28,12 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 
-require_once($CFG->dirroot . '/lib/formslib.php');
+require_once $CFG->libdir.'/formslib.php';
+require_once($CFG->dirroot . '/user/editlib.php');
+require_once($CFG->dirroot . '/lib/csvlib.class.php');
 
 define('MAX_FILES', 3);
+define('MAX_BYTES', 1000000);
 
 /**
  *
@@ -41,18 +44,37 @@ define('MAX_FILES', 3);
 class import_form extends \moodleform {
 
     public function definition() {
-        global $CFG;
- 
         $mform = $this->_form;
 
+        $mform->addElement('header', 'settingsheader', get_string('upload'));
+
         $mform->addElement('filemanager', 'attachments', get_string('attachment', 'block_mycourse_recommendations'), null,
-                    array('subdirs' => 0, 'maxbytes' => $maxbytes, 'areamaxbytes' => 10485760, 'maxfiles' => MAX_FILES,
+                    array('subdirs' => 0, 'maxbytes' => MAX_BYTES, 'areamaxbytes' => 10485760, 'maxfiles' => MAX_FILES,
                           'accepted_types' => array('.csv')));
-        
+
+        $choices = \csv_import_reader::get_delimiter_list();
+        $mform->addElement('select', 'delimiter_name', get_string('csvdelimiter', 'tool_uploaduser'), $choices);
+        if (array_key_exists('cfg', $choices)) {
+            $mform->setDefault('delimiter_name', 'cfg');
+        } else if (get_string('listsep', 'langconfig') == ';') {
+            $mform->setDefault('delimiter_name', 'semicolon');
+        } else {
+            $mform->setDefault('delimiter_name', 'comma');
+        }
+
+        $choices = \core_text::get_encodings();
+        $mform->addElement('select', 'encoding', get_string('encoding', 'tool_uploaduser'), $choices);
+        $mform->setDefault('encoding', 'UTF-8');
+
+        $choices = array('10'=>10, '20'=>20, '100'=>100, '1000'=>1000, '100000'=>100000);
+        $mform->addElement('select', 'previewrows', get_string('rowpreviewnum', 'tool_uploaduser'), $choices);
+        $mform->setType('previewrows', PARAM_INT);
+
+        $this->add_action_buttons(false, get_string('uploaddata', 'block_mycourse_recommendations'));
     }
 
-    function validation($data, $files) {
-        return array();
+    public function validation($data, $files) {
+
     }
 
 }

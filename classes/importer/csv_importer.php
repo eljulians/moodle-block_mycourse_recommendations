@@ -15,37 +15,27 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Redirect from recommendation to resource itself, after recording into database the recommendation view.
+ * Importation of data from CSV.
  *
  * @package    block_mycourse_recommendations
  * @copyright  2016 onwards Julen Pardo & Mondragon Unibertsitatea
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once('../../config.php');
-require_once('classes/importer/import_form.php');
-require_once('classes/importer/csv_importer.php');
+namespace block_mycourse_recommendations;
 
-global $CFG;
+defined('MOODLE_INTERNAL') || die();
 
-require_login();
-$context = context_system::instance();
+/**
+ * The class that imports data from a CSV file to the historic tables.
+ *
+ * @package    block_mycourse_recommendations
+ * @copyright  2016 onwards Julen Pardo & Mondragon Unibertsitatea
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class csv_importer {
 
-$courseid = required_param('courseid', PARAM_INT);
-$course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
-
-$PAGE->set_url('/blocks/mycourse_recommendations/import_csv.php', array('courseid' => $courseid));
-
-$targeturl = $_SERVER['PHP_SELF'] . "?courseid=$courseid";
-
-echo $OUTPUT->header();
-
-$form = new \block_mycourse_recommendations\import_form($targeturl);
-
-if ($form->get_data() ) {
-    \block_mycourse_recommendations\csv_importer::import_data($form->get_data());
-} else {
-    $form->display();
+    public static function import_data($data) {
+        echo 'TODO: import CSV data after form submit.';
+    }
 }
-
-echo $OUTPUT->footer();
