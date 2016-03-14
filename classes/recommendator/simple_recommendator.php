@@ -181,7 +181,7 @@ class simple_recommendator extends abstract_recommendator {
         $startweek = $coursedates['week'];
         $year = $coursedates['year'];
 
-        $previousdata = $this->db->query_historic_course_data($previouscourse, $year, $startweek, $endweek);
+        $previousdata = $this->db->query_historic_course_data($previouscourse, $year, $startweek, $endweek, null, true);
 
         $associatedresources = $this->associate_resources($previousdata, $currentselecteddata);
         $previousdata = $associatedresources['previous'];

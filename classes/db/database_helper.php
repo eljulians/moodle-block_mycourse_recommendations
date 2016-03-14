@@ -267,7 +267,18 @@ class database_helper {
         return $queryresults;
     }
 
-    public function query_historic_course_data($courseid, $year, $coursestartweek, $currentweek, $userid = null) {
+    /**
+     * Queries the logviews of a course, created between the given weeks, for the specified user (if any).
+     *
+     * @param int $courseid The id of the historic course.
+     * @param int $year The year the course was teached at.
+     * @param int $coursestartweek The start week of the course.
+     * @param int $currentweek The week the associations are being calculated at.
+     * @param int $userid The user id to query data of, by default null, so it will be queried for every user.
+     * @param bool $gradepass If the grade has to be taken into account (>= 5), by default false.
+     * @return array Each row of the logs.
+     */
+    public function query_historic_course_data($courseid, $year, $coursestartweek, $currentweek, $userid = null, $gradepass = false) {
         global $DB;
 
         $sql = "SELECT logs.id,
@@ -279,14 +290,22 @@ class database_helper {
                 FROM   {block_mycourse_hist_data} logs
                 INNER JOIN {block_mycourse_hist_course} course
                     ON logs.courseid = course.id
+                INNER JOIN {block_mycourse_hist_enrol} enrol
+                    ON enrol.courseid = course.id
+                    AND enrol.userid = logs.userid
                 WHERE ((EXTRACT('year' FROM date_trunc('year', to_timestamp(course.startdate))) - %year) * 52)
 	                + EXTRACT('week' FROM date_trunc('week', to_timestamp(course.startdate)))
                   BETWEEN %coursestartweek AND %currentweek
                     AND logs.userid = %userid
-                    AND course.id = %courseid";
+                    AND course.id = %courseid
+                    AND enrol.grade >= 5";
 
         if (is_null($userid)) {
             $sql = str_replace('AND logs.userid = %userid', '', $sql);
+        }
+
+        if (!$gradepass) {
+            $sql = str_replace('AND enrol.grade >= 5', '', $sql);
         }
 
         $sql = str_replace('%courseid', $courseid, $sql);
@@ -303,10 +322,6 @@ class database_helper {
             $userid = $record->userid;
             $resourcename = $record->resourcename;
             $logviews = $record->views;
-
-            // This deserves an specific explanation. In the historic data model, the resources do not exist as an entity,
-            // so, they cannot be identified. By, for later operations, each resource has to be identified in an unique way.
-            // So, we do this trick.
             $moduleid = $record->resourceid;
 
             array_push($queryresults, new query_result($userid, $courseid, $moduleid, $resourcename, $logviews));
