@@ -94,9 +94,8 @@ class create_recommendations_task extends \core\task\scheduled_task {
 
     /**
      * Run MyCourse recommendations cron.
-     *
-     * @see initialize().
-     * @see get_current_week().
+     * If it is the first time the task is executed for the given course, then, $this->import_data is called, to import
+     * the data from core tables (actually, the need for the importation is decided by database_helper->has_data_to_be_imported).
      */
     public function execute() {
         $this->initialize();
@@ -104,6 +103,12 @@ class create_recommendations_task extends \core\task\scheduled_task {
         $coursestorecommend = $this->db->get_selected_active_courses();
 
         foreach ($coursestorecommend as $course) {
+            $importdata = $this->db->has_data_to_be_imported($course->courseid);
+
+            if ($importdata) {
+                $this->import_data($course->courseid);
+            }
+
             $week = $this->get_current_week();
             $this->recommendator->create_recommendations($course->courseid, $week);
         }
@@ -119,5 +124,23 @@ class create_recommendations_task extends \core\task\scheduled_task {
         $week = intval($week);
 
         return $week;
+    }
+
+    /**
+     * Performs the data importation from Moodle core tables (courses, enrolled users, logs). This importation is done only if
+     * database_helper->has_data_to_be_imported() returns true.
+     *
+     * @param int $courseid The current course id for which the data has to be imported.
+     */
+    protected function import_data($courseid) {
+        $courseyear = $this->db->get_course_start_week_and_year($courseid)['year'];
+        $previouscourses = $this->db->find_course_previous_teaching_ids_core_tables($courseid, $courseyear);
+
+        foreach ($previouscourses as $previouscourse) {
+            $this->db->dump_previous_core_info_to_historic_tables($previouscourse);
+        }
+
+        $previouscourses = $this->db->find_course_previous_teachings_ids_historic_tables($courseid, $courseyear);
+        $this->db->insert_courses_associations($courseid, $previouscourses);
     }
 }
