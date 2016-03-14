@@ -1209,4 +1209,22 @@ class database_helper {
         $DB->insert_record('block_mycourse_hist_data', $record);
     }
 
+    /**
+     * Checks if the data has to be imported from core tables for the given course. To check this, looks for the associations
+     * table; if there is no row for the given course, means that the cron task has no been executed for this course before to
+     * create the recommendations, so, the data has to be imported. The next time, the given course would have at least a row
+     * int associations table, meaning that that a data import has been done.
+     *
+     * @param int $courseid The course to check if needs to have the importation.
+     * @return boolean If the data for the given course has to be imported or not.
+     */
+    public function has_data_to_be_imported($courseid) {
+        global $DB;
+
+        $count = $DB->count_records('block_mycourse_assoc', array('current_courseid' => $courseid));
+
+        $importdata = ($count === 0) ? true : false;
+
+        return $importdata;
+    }
 }
