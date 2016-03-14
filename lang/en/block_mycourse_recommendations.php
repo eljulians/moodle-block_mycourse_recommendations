@@ -55,3 +55,5 @@ $string['importedcourses'] = 'Imported courses: ';
 $string['importedusers'] = 'Imported users: ';
 $string['importedlogs'] = 'Imported logs: ';
 $string['errorimporting'] = "An error occurred while importing the data:<br>";
+
+$string['mycourse_recommendations:importfromcsv'] = 'importing data from CSV files';

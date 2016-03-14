@@ -113,7 +113,13 @@ class block_mycourse_recommendations extends block_base {
 
         $this->content = new stdClass();
         $this->content->text = '';
-        $this->content->footer = $this->generate_footer_import_url($COURSE->id);
+
+        $context = context_course::instance($COURSE->id);
+        if (has_capability('block/mycourse_recommendations:importfromcsv', $context)) {
+            $this->content->footer = $this->generate_footer_import_url($COURSE->id);
+        } else {
+            $this->content->footer = '';
+        }
 
         $courseyear = $this->db->get_course_start_week_and_year($COURSE->id)['year'];
         $firstinstance = $this->db->is_blocks_first_instance($COURSE->id);
