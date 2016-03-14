@@ -60,6 +60,8 @@ class csv_importer {
 
         try {
             $courseid = self::import_course($coursefile, $formdata);
+            self::import_users($usersfile, $formdata, $courseid);
+            self::import_logs($logsfile, $formdata, $courseid);
 
             $transaction->allow_commit();
         } catch (\Exception $e) {
@@ -80,7 +82,6 @@ class csv_importer {
         $csvreader->init();
 
         $fields = $csvreader->get_columns();
-        $delimiter = $csvreader->get_delimiter($formdata->delimiter_name);
 
         while ($fields) {
             $record = new \stdClass();
@@ -100,10 +101,9 @@ class csv_importer {
         return $courseid;
     }
 
-    /**
-     * @TODO save information in table.
-     */
-    public static function import_users($usersfile, $formdata, $course) {
+    public static function import_users($usersfile, $formdata, $courseid) {
+        global $DB;
+
         $iid = \csv_import_reader::get_new_iid('usersfile');
         $csvreader = new \csv_import_reader($iid, 'usersfile');
 
@@ -114,7 +114,15 @@ class csv_importer {
         $fields = $csvreader->get_columns();
 
         while ($fields) {
-            var_dump($fields);
+            $userid = $fields[0];
+            $grade = $fields[1];
+
+            $sql = 'INSERT INTO {block_mycourse_hist_enrol} (userid, grade, courseid)
+                    VALUES (:v1, :v2, :v3)';
+            $values = array('v1' => $userid, 'v2' => $grade, 'v3' => $courseid);
+
+            $DB->execute($sql, $values);
+
             $fields = $csvreader->next();
         }
 
@@ -124,7 +132,9 @@ class csv_importer {
     /**
      * @TODO save information in table.
      */
-    public static function import_logs($logsfile, $formdata, $course) {
+    public static function import_logs($logsfile, $formdata, $courseid) {
+        global $DB;
+
         $iid = \csv_import_reader::get_new_iid('logsfile');
         $csvreader = new \csv_import_reader($iid, 'logsfile');
 
@@ -135,7 +145,18 @@ class csv_importer {
         $fields = $csvreader->get_columns();
 
         while ($fields) {
-            var_dump($fields);
+            $record = new \stdClass();
+
+            $record->courseid = $courseid;
+            $record->userid = $fields[0];
+            $record->resourcename = $fields[1];
+            $record->resourcetype = $fields[2];
+            $record->resourceid = $fields[3];
+            $record->views = $fields[4];
+            $record->timecreated = $fields[5];
+
+            $DB->insert_record('block_mycourse_hist_data', $record);
+
             $fields = $csvreader->next();
         }
 
