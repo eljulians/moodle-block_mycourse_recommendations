@@ -42,32 +42,36 @@ use block_mycourse_recommendations\database_helper;
  */
 class csv_importer {
 
+    /**
+     * Receiving the three required CSVs, performs the importation of the data of a course: course info, enrolled users,
+     * and log info. The data is imported to a total of three different tables. All operations are done in a unique
+     * transaction: if something fails (a CSV does not respect the format, an importing course exists, etc.), nothing
+     * will be saved.
+     *
+     * @param object $formdata The data submited in form.
+     * @param file $coursefile The CSV file with the information about the course.
+     * @param file $usersfile The CSV file with the information about the users enrolled in courses.
+     * @param file $logsfile The CSV file with the information about the log views of the users.
+     */
     public static function import_data($formdata, $coursefile, $usersfile, $logsfile) {
-        $iid = \csv_import_reader::get_new_iid('asdf');
-        $cir = new \csv_import_reader($iid, 'asdf');
+        global $DB;
 
-        self::import_course($coursefile, $formdata);
-        self::import_users($usersfile, $formdata, 0);
-        self::import_logs($logsfile, $formdata, 0);
-/*
-        $readcount = $cir->load_csv_content($filecontent, $formdata->encoding, $formdata->delimiter_name);
-        
-        $cir->init();
-        
-        $fields = $cir->get_columns(); 
+        $transaction = $DB->start_delegated_transaction();
 
-        while ($fields) {
-            var_dump($fields);
-            $fields = $cir->next();
+        try {
+            $courseid = self::import_course($coursefile, $formdata);
+
+            $transaction->allow_commit();
+        } catch (\Exception $e) {
+            $transaction->rollback($e);
+            echo $e->getMessage();
         }
         
-        $cir->close();
-        
-        //var_dump($formdata);
-        */
     }
 
     public static function import_course($coursefile, $formdata) {
+        global $DB;
+
         $iid = \csv_import_reader::get_new_iid('coursefile');
         $csvreader = new \csv_import_reader($iid, 'coursefile');
 
@@ -76,16 +80,29 @@ class csv_importer {
         $csvreader->init();
 
         $fields = $csvreader->get_columns();
-        echo "course";
+        $delimiter = $csvreader->get_delimiter($formdata->delimiter_name);
+
         while ($fields) {
-            var_dump($fields);
+            $record = new \stdClass();
+            $record->fullname = $fields[0];
+            $record->shortname = $fields[1];
+            $record->startdate = $fields[2];
+            $record->idnumber = $fields[3];
+            $record->category = $fields[4];
+
+            $courseid = $DB->insert_record('block_mycourse_hist_course', $record);
+
             $fields = $csvreader->next();
         }
 
-
         $csvreader->close();
+
+        return $courseid;
     }
 
+    /**
+     * @TODO save information in table.
+     */
     public static function import_users($usersfile, $formdata, $course) {
         $iid = \csv_import_reader::get_new_iid('usersfile');
         $csvreader = new \csv_import_reader($iid, 'usersfile');
@@ -95,7 +112,7 @@ class csv_importer {
         $csvreader->init();
 
         $fields = $csvreader->get_columns();
-        echo "users";
+
         while ($fields) {
             var_dump($fields);
             $fields = $csvreader->next();
@@ -104,6 +121,9 @@ class csv_importer {
         $csvreader->close();
     }
 
+    /**
+     * @TODO save information in table.
+     */
     public static function import_logs($logsfile, $formdata, $course) {
         $iid = \csv_import_reader::get_new_iid('logsfile');
         $csvreader = new \csv_import_reader($iid, 'logsfile');
@@ -113,7 +133,7 @@ class csv_importer {
         $csvreader->init();
 
         $fields = $csvreader->get_columns();
-        echo "logs";
+
         while ($fields) {
             var_dump($fields);
             $fields = $csvreader->next();
