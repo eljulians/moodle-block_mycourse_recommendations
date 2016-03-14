@@ -98,7 +98,7 @@ if ($formdata) {
         echo html_writer::start_tag('br');
         echo $e->getTraceAsString();
     }
-// Display the form if we're not handling the submission.
+    // Display the form if we're not handling the submission.
 } else {
     $form->display();
 }
