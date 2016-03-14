@@ -49,30 +49,38 @@ class csv_importer {
      * will be saved.
      *
      * @param object $formdata The data submited in form.
-     * @param file $coursefile The CSV file with the information about the course.
-     * @param file $usersfile The CSV file with the information about the users enrolled in courses.
-     * @param file $logsfile The CSV file with the information about the log views of the users.
+     * @param object $coursefile The CSV file with the information about the course.
+     * @param object $usersfile The CSV file with the information about the users enrolled in courses.
+     * @param object $logsfile The CSV file with the information about the log views of the users.
      */
     public static function import_data($formdata, $coursefile, $usersfile, $logsfile) {
-        global $DB;
+        $db = new database_helper();
 
-        $transaction = $DB->start_delegated_transaction();
+        $transaction = $db->start_transaction();
 
         try {
-            $courseid = self::import_course($coursefile, $formdata);
-            self::import_users($usersfile, $formdata, $courseid);
-            self::import_logs($logsfile, $formdata, $courseid);
+            $courseid = self::import_course($coursefile, $formdata, $db);
+            self::import_users($usersfile, $formdata, $courseid, $db);
+            self::import_logs($logsfile, $formdata, $courseid, $db);
 
-            $transaction->allow_commit();
+            $db->commit_transaction($transaction);
         } catch (\Exception $e) {
-            $transaction->rollback($e);
+            $db->rollback_transaction($transaction);
             echo $e->getMessage();
         }
-        
     }
 
-    public static function import_course($coursefile, $formdata) {
-        global $DB;
+    /**
+     * Imports the course defined in the csv file, and then returns the generated identifier for it. This is made under the transaction
+     * initiated in import_data function.
+     *
+     * @param object $coursefile Course csv file.
+     * @param object $formdata Submitted form data, needed to load the csv.
+     * @param \block_mycourse_recommendations\database_helper $db Database handler object, passed as argument to instance it
+     * again.
+     * @return int Course id generated.
+     */
+    public static function import_course($coursefile, $formdata, $db) {
 
         $iid = \csv_import_reader::get_new_iid('coursefile');
         $csvreader = new \csv_import_reader($iid, 'coursefile');
@@ -84,14 +92,13 @@ class csv_importer {
         $fields = $csvreader->get_columns();
 
         while ($fields) {
-            $record = new \stdClass();
-            $record->fullname = $fields[0];
-            $record->shortname = $fields[1];
-            $record->startdate = $fields[2];
-            $record->idnumber = $fields[3];
-            $record->category = $fields[4];
+            $fullname = $fields[0];
+            $shortname = $fields[1];
+            $startdate = $fields[2];
+            $idnumber = $fields[3];
+            $category = $fields[4];
 
-            $courseid = $DB->insert_record('block_mycourse_hist_course', $record);
+            $courseid = $db->insert_historic_course($fullname, $shortname, $startdate, $idnumber, $category);
 
             $fields = $csvreader->next();
         }
@@ -101,9 +108,17 @@ class csv_importer {
         return $courseid;
     }
 
-    public static function import_users($usersfile, $formdata, $courseid) {
-        global $DB;
-
+    /**
+     * Imports the users defined in the csv file, iterating each row. This is made under the transaction initiated in import_data
+     * function.
+     *
+     * @param object $usersfile Course csv file.
+     * @param object $formdata Submitted form data, needed to load the csv.
+     * param int $courseid Generated course id in this transaction.
+     * @param \block_mycourse_recommendations\database_helper $db Database handler object, passed as argument to instance it
+     * again.
+     */
+    public static function import_users($usersfile, $formdata, $courseid, $db) {
         $iid = \csv_import_reader::get_new_iid('usersfile');
         $csvreader = new \csv_import_reader($iid, 'usersfile');
 
@@ -117,11 +132,7 @@ class csv_importer {
             $userid = $fields[0];
             $grade = $fields[1];
 
-            $sql = 'INSERT INTO {block_mycourse_hist_enrol} (userid, grade, courseid)
-                    VALUES (:v1, :v2, :v3)';
-            $values = array('v1' => $userid, 'v2' => $grade, 'v3' => $courseid);
-
-            $DB->execute($sql, $values);
+            $db->insert_historic_user_enrol($userid, $grade, $courseid);
 
             $fields = $csvreader->next();
         }
@@ -130,11 +141,16 @@ class csv_importer {
     }
 
     /**
-     * @TODO save information in table.
+     * Imports the log views defined in the csv file, iterating each row. This is made under the transaction initiated in
+     * import_data function.
+     *
+     * @param object $logsfile Course csv file.
+     * @param object $formdata Submitted form data, needed to load the csv.
+     * param int $courseid Generated course id in this transaction.
+     * @param \block_mycourse_recommendations\database_helper $db Database handler object, passed as argument to instance it
+     * again.
      */
-    public static function import_logs($logsfile, $formdata, $courseid) {
-        global $DB;
-
+    public static function import_logs($logsfile, $formdata, $courseid, $db) {
         $iid = \csv_import_reader::get_new_iid('logsfile');
         $csvreader = new \csv_import_reader($iid, 'logsfile');
 
@@ -145,17 +161,14 @@ class csv_importer {
         $fields = $csvreader->get_columns();
 
         while ($fields) {
-            $record = new \stdClass();
+            $userid = $fields[0];
+            $resourcename = $fields[1];
+            $resourcetype = $fields[2];
+            $resourceid = $fields[3];
+            $views = $fields[4];
+            $timecreated = $fields[5];
 
-            $record->courseid = $courseid;
-            $record->userid = $fields[0];
-            $record->resourcename = $fields[1];
-            $record->resourcetype = $fields[2];
-            $record->resourceid = $fields[3];
-            $record->views = $fields[4];
-            $record->timecreated = $fields[5];
-
-            $DB->insert_record('block_mycourse_hist_data', $record);
+            $db->insert_historic_logs($userid, $courseid, $resourcename, $resourcetype, $resourceid, $views, $timecreated);
 
             $fields = $csvreader->next();
         }
