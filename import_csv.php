@@ -35,13 +35,16 @@ global $CFG, $COURSE;
  * @return int Course id of current course.
  */
 function init_page() {
-    global $DB, $PAGE;
+    global $PAGE;
 
     require_login();
     $courseid = required_param('courseid', PARAM_INT);
-    $course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
 
-    $PAGE->set_context(context_course::instance($courseid));
+    $context = context_course::instance($courseid);
+
+    require_capability('block/mycourse_recommendations:importfromcsv', $context);
+
+    $PAGE->set_context($context);
     $PAGE->set_url('/blocks/mycourse_recommendations/import_csv.php', array('courseid' => $courseid));
     $PAGE->set_title(get_string('upload_title', 'block_mycourse_recommendations'));
     $PAGE->set_pagelayout('course');
