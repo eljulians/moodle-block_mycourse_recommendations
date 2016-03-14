@@ -113,7 +113,7 @@ class block_mycourse_recommendations extends block_base {
 
         $this->content = new stdClass();
         $this->content->text = '';
-        $this->content->footer = '';
+        $this->content->footer = $this->generate_footer_import_url($COURSE->id);
 
         $courseyear = $this->db->get_course_start_week_and_year($COURSE->id)['year'];
         $firstinstance = $this->db->is_blocks_first_instance($COURSE->id);
@@ -182,6 +182,22 @@ class block_mycourse_recommendations extends block_base {
         $week = intval($week);
 
         return $week;
+    }
+
+    /**
+     * Creates the link to the csv imporatation page, that will be shown in block's footer.
+     *
+     * @param int $courseid The course the block is being displayed on.
+     */
+    private function generate_footer_import_url($courseid) {
+        $importurl = new \moodle_url("/blocks/mycourse_recommendations/import_csv.php",
+                                     array('courseid' => $courseid));
+        $string = get_string('importfromcsv', 'block_mycourse_recommendations');
+
+        $url = '<hr>';
+        $url .= "<a href='$importurl'>$string</a>";
+
+        return $url;
     }
 
 }

@@ -177,6 +177,17 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
         }
     }
 
+    private function generate_footer_import_url($courseid) {
+        $importurl = new \moodle_url("/blocks/mycourse_recommendations/import_csv.php",
+                                     array('courseid' => $courseid));
+        $string = get_string('importfromcsv', 'block_mycourse_recommendations');
+
+        $url = '<hr>';
+        $url .= "<a href='$importurl'>$string</a>";
+
+        return $url;
+    }
+
     public function test_get_content_firstinstance_nopersonalizable() {
         global $COURSE;
 
@@ -189,7 +200,7 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
 
         $expected = new stdClass();
         $expected->text = get_string('notpersonalizable', 'block_mycourse_recommendations');
-        $expected->footer = '';
+        $expected->footer = $this->generate_footer_import_url($COURSE->id);
         $actual = $this->block->get_content();
 
         $this->assertEquals($expected, $actual);
@@ -214,7 +225,7 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
 
         $expected = new stdClass();
         $expected->text = get_string('notpersonalizable', 'block_mycourse_recommendations');
-        $expected->footer = '';
+        $expected->footer = $this->generate_footer_import_url($COURSE->id);
         $actual = $this->block->get_content();
 
         $this->assertEquals($expected, $actual);
@@ -240,7 +251,7 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
 
         $expected = new stdClass();
         $expected->text = get_string('inactive', 'block_mycourse_recommendations');
-        $expected->footer = '';
+        $expected->footer = $this->generate_footer_import_url($COURSE->id);
         $actual = $this->block->get_content();
 
         $this->assertEquals($expected, $actual);
@@ -271,7 +282,7 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
 
         $expected = new stdClass();
         $expected->text = get_string('usernotselected', 'block_mycourse_recommendations');
-        $expected->footer = '';
+        $expected->footer = $this->generate_footer_import_url($COURSE->id);
         $actual = $this->block->get_content();
 
         $this->assertEquals($expected, $actual);
@@ -340,7 +351,7 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
 
         // We create the expected block output.
         $expected = new stdClass();
-        $expected->footer = '';
+        $expected->footer = $this->generate_footer_import_url($COURSE->id);
         $expected->text = '<ol>';
 
         $currentrecommendationid = $firstinsertedid;
@@ -407,7 +418,7 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
         $hasuserbeenselected = in_array($user->id, $selectedusers);
 
         $expected = new stdClass();
-        $expected->footer = '';
+        $expected->footer = $this->generate_footer_import_url($COURSE->id);
 
         if ($hasuserbeenselected) {
             $expected->text = get_string('norecommendations', 'block_mycourse_recommendations');
