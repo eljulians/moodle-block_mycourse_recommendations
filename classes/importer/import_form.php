@@ -44,7 +44,12 @@ define('MAX_BYTES', 1000000);
 class import_form extends \moodleform {
 
     /**
-     * Copy-pasted from admin/tool/uploaduser/user_form.php; probably there's something needed to change.
+     * Defines the form, which will have:
+     *  - Input for courses csv.
+     *  - Input for users csv.
+     *  - Input for logs csv.
+     *  - Select for csv delimiter.
+     *  - Select for files encoding.
      */
     public function definition() {
         $mform = $this->_form;
@@ -81,15 +86,7 @@ class import_form extends \moodleform {
         $mform->addElement('select', 'encoding', get_string('encoding', 'tool_uploaduser'), $choices);
         $mform->setDefault('encoding', 'UTF-8');
 
-        $choices = array('10' => 10, '20' => 20, '100' => 100, '1000' => 1000, '100000' => 100000);
-        $mform->addElement('select', 'previewrows', get_string('rowpreviewnum', 'tool_uploaduser'), $choices);
-        $mform->setType('previewrows', PARAM_INT);
-
         $this->add_action_buttons(false, get_string('uploaddata', 'block_mycourse_recommendations'));
-    }
-
-    public function validation($data, $files) {
-
     }
 
 }

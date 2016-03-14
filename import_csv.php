@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Redirect from recommendation to resource itself, after recording into database the recommendation view.
+ * The form to insert the historic data from CSVs.
  *
  * @package    block_mycourse_recommendations
  * @copyright  2016 onwards Julen Pardo & Mondragon Unibertsitatea
@@ -23,6 +23,7 @@
  */
 
 require_once('../../config.php');
+require_once('../../lib/outputcomponents.php');
 require_once('classes/importer/import_form.php');
 require_once('classes/importer/csv_importer.php');
 
@@ -48,6 +49,30 @@ function init_page() {
     return $courseid;
 }
 
+/**
+ * Prints the summary of the made insertions.
+ */
+function print_success_summary() {
+    echo html_writer::start_tag('h4');
+    echo get_string('success', 'block_mycourse_recommendations');
+    echo html_writer::end_tag('h4');
+    echo html_writer::start_tag('hr');
+
+    echo 'Summary of importation:';
+    echo html_writer::start_tag('br');
+
+    $insertedcourses = \block_mycourse_recommendations\csv_importer::get_lastinsertedcourses();
+    $insertedcourses = get_string('importedcourses', 'block_mycourse_recommendations') . $insertedcourses;
+
+    $insertedusers = \block_mycourse_recommendations\csv_importer::get_lastinsertedusers();
+    $insertedusers = get_string('importedusers', 'block_mycourse_recommendations') . $insertedusers;
+
+    $insertedlogs = \block_mycourse_recommendations\csv_importer::get_lastinsertedlogs();
+    $insertedlogs = get_string('importedlogs', 'block_mycourse_recommendations') . $insertedlogs;
+
+    echo html_writer::alist(array($insertedcourses, $insertedusers, $insertedlogs));
+}
+
 $courseid = init_page();
 
 $actionurl = $_SERVER['PHP_SELF'] . "?courseid=$courseid";
@@ -58,12 +83,22 @@ echo $OUTPUT->navbar();
 $form = new \block_mycourse_recommendations\import_form($actionurl);
 $formdata = $form->get_data();
 
+// If the form has submitted, this branch is entered, where the data is imported using the csv importer.
 if ($formdata) {
     $coursefile = $form->get_file_content('courses');
     $usersfile = $form->get_file_content('users');
     $logsfile = $form->get_file_content('logs');
 
-    \block_mycourse_recommendations\csv_importer::import_data($formdata, $coursefile, $usersfile, $logsfile);
+    try {
+        \block_mycourse_recommendations\csv_importer::import_data($formdata, $coursefile, $usersfile, $logsfile);
+        print_success_summary();
+    } catch (Exception $e) {
+        echo get_string('errorimporting', 'block_mycourse_recommendations');
+        echo $e->getMessage();
+        echo html_writer::start_tag('br');
+        echo $e->getTraceAsString();
+    }
+// Display the form if we're not handling the submission.
 } else {
     $form->display();
 }

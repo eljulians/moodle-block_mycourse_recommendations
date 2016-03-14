@@ -43,6 +43,24 @@ use block_mycourse_recommendations\database_helper;
 class csv_importer {
 
     /**
+     * The count of inserted last courses.
+     * @var int
+     */
+    private static $lastinsertedcourses = 0;
+
+    /**
+     * The count of last inserted users.
+     * @var int
+     */
+    private static $lastinsertedusers = 0;
+
+    /**
+     * The count of last inserted logs.
+     * @var int
+     */
+    private static $lastinsertedlogs = 0;
+
+    /**
      * Receiving the three required CSVs, performs the importation of the data of a course: course info, enrolled users,
      * and log info. The data is imported to a total of three different tables. All operations are done in a unique
      * transaction: if something fails (a CSV does not respect the format, an importing course exists, etc.), nothing
@@ -52,9 +70,15 @@ class csv_importer {
      * @param object $coursefile The CSV file with the information about the course.
      * @param object $usersfile The CSV file with the information about the users enrolled in courses.
      * @param object $logsfile The CSV file with the information about the log views of the users.
+     * @throws \Exception If something bad happened when trying to insert the data. The exception is thrown after doing the
+     * rollback.
      */
     public static function import_data($formdata, $coursefile, $usersfile, $logsfile) {
         $db = new database_helper();
+
+        self::$lastinsertedcourses = 0;
+        self::$lastinsertedusers = 0;
+        self::$lastinsertedusers = 0;
 
         $transaction = $db->start_transaction();
 
@@ -66,7 +90,7 @@ class csv_importer {
             $db->commit_transaction($transaction);
         } catch (\Exception $e) {
             $db->rollback_transaction($transaction);
-            echo $e->getMessage();
+            throw $e;
         }
     }
 
@@ -99,6 +123,7 @@ class csv_importer {
             $category = $fields[4];
 
             $courseid = $db->insert_historic_course($fullname, $shortname, $startdate, $idnumber, $category);
+            self::$lastinsertedcourses++;
 
             $fields = $csvreader->next();
         }
@@ -133,6 +158,7 @@ class csv_importer {
             $grade = $fields[1];
 
             $db->insert_historic_user_enrol($userid, $grade, $courseid);
+            self::$lastinsertedusers++;
 
             $fields = $csvreader->next();
         }
@@ -169,10 +195,38 @@ class csv_importer {
             $timecreated = $fields[5];
 
             $db->insert_historic_logs($userid, $courseid, $resourcename, $resourcetype, $resourceid, $views, $timecreated);
+            self::$lastinsertedlogs++;
 
             $fields = $csvreader->next();
         }
 
         $csvreader->close();
+    }
+
+    /**
+     * Returns the number of last inserted courses.
+     *
+     * @return int Number of last inserted courses.
+     */
+    public static function get_lastinsertedcourses() {
+        return self::$lastinsertedcourses;
+    }
+
+    /**
+     * Returns the number of last inserted users.
+     *
+     * @return int Number of last inserted users.
+     */
+    public static function get_lastinsertedusers() {
+        return self::$lastinsertedusers;
+    }
+
+    /**
+     * Returns the number of last inserted logs.
+     *
+     * @return int Number of last inserted logs.
+     */
+    public static function get_lastinsertedlogs() {
+        return self::$lastinsertedlogs;
     }
 }
