@@ -51,9 +51,6 @@ class import_form extends \moodleform {
 
         $mform->addElement('header', 'settingsheader', get_string('upload'));
 
-        //$mform->addElement('filemanager', 'attachments', get_string('attachment', 'block_mycourse_recommendations'), null,
-          //          array('subdirs' => 0, 'maxbytes' => MAX_BYTES, 'areamaxbytes' => 10485760, 'maxfiles' => MAX_FILES,
-            //              'accepted_types' => array('.csv')));
         $mform->addElement('filepicker', 'courses', get_string('coursefile', 'block_mycourse_recommendations'));
         $mform->addElement('filepicker', 'users', get_string('usersfile', 'block_mycourse_recommendations'));
         $mform->addElement('filepicker', 'logs', get_string('logsfile', 'block_mycourse_recommendations'));
