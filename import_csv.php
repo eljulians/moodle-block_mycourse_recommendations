@@ -26,22 +26,38 @@ require_once('../../config.php');
 require_once('classes/importer/import_form.php');
 require_once('classes/importer/csv_importer.php');
 
-global $CFG;
+global $CFG, $COURSE;
 
-require_login();
-$context = context_system::instance();
+/**
+ * Initializes the page.
+ *
+ * @return int Course id of current course.
+ */
+function init_page() {
+    global $DB, $PAGE;
 
-$courseid = required_param('courseid', PARAM_INT);
-$course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
+    require_login();
+    $courseid = required_param('courseid', PARAM_INT);
+    $course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
 
-$PAGE->set_url('/blocks/mycourse_recommendations/import_csv.php', array('courseid' => $courseid));
+    $PAGE->set_context(context_course::instance($courseid));
+    $PAGE->set_url('/blocks/mycourse_recommendations/import_csv.php', array('courseid' => $courseid));
+    $PAGE->set_title(get_string('upload_title', 'block_mycourse_recommendations'));
+    $PAGE->set_pagelayout('course');
 
-$targeturl = $_SERVER['PHP_SELF'] . "?courseid=$courseid";
+    return $courseid;
+}
+
+$courseid = init_page();
+
+$actionurl = $_SERVER['PHP_SELF'] . "?courseid=$courseid";
 
 echo $OUTPUT->header();
+echo $OUTPUT->navbar();
 
-$form = new \block_mycourse_recommendations\import_form($targeturl);
+$form = new \block_mycourse_recommendations\import_form($actionurl);
 $formdata = $form->get_data();
+
 if ($formdata) {
     $coursefile = $form->get_file_content('courses');
     $usersfile = $form->get_file_content('users');

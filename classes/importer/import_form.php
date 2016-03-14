@@ -49,11 +49,23 @@ class import_form extends \moodleform {
     public function definition() {
         $mform = $this->_form;
 
-        $mform->addElement('header', 'settingsheader', get_string('upload'));
+        $mform->addElement('header', 'settingsheader', get_string('upload', 'block_mycourse_recommendations'));
+        $mform->addElement('static', 'description', '', get_string('upload_desc', 'block_mycourse_recommendations'));
 
-        $mform->addElement('filepicker', 'courses', get_string('coursefile', 'block_mycourse_recommendations'));
-        $mform->addElement('filepicker', 'users', get_string('usersfile', 'block_mycourse_recommendations'));
-        $mform->addElement('filepicker', 'logs', get_string('logsfile', 'block_mycourse_recommendations'));
+        $mform->addElement('static', 'description', get_string('coursefile', 'block_mycourse_recommendations'),
+                            get_string('coursefile_desc', 'block_mycourse_recommendations'));
+        $mform->addElement('filepicker', 'courses', '');
+        $mform->addRule('courses', null, 'required');
+
+        $mform->addElement('static', 'description', get_string('usersfile', 'block_mycourse_recommendations'),
+                            get_string('usersfile_desc', 'block_mycourse_recommendations'));
+        $mform->addElement('filepicker', 'users', '');
+        $mform->addRule('users', null, 'required');
+
+        $mform->addElement('static', 'description', get_string('logsfile', 'block_mycourse_recommendations'),
+                            get_string('logsfile_desc', 'block_mycourse_recommendations'));
+        $mform->addElement('filepicker', 'logs', '');
+        $mform->addRule('logs', null, 'required');
 
         $choices = \csv_import_reader::get_delimiter_list();
         $mform->addElement('select', 'delimiter_name', get_string('csvdelimiter', 'tool_uploaduser'), $choices);
