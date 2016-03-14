@@ -71,8 +71,8 @@ class csv_importer {
     }
 
     /**
-     * Imports the course defined in the csv file, and then returns the generated identifier for it. This is made under the transaction
-     * initiated in import_data function.
+     * Imports the course defined in the csv file, and then returns the generated identifier for it. This is made under the
+     * transaction initiated in import_data function.
      *
      * @param object $coursefile Course csv file.
      * @param object $formdata Submitted form data, needed to load the csv.
