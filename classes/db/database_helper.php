@@ -1043,7 +1043,7 @@ class database_helper {
 
         foreach ($usersids as $userid) {
             $grade = $this->get_users_course_final_grade($userid, $coursetodump);
-            $DB->execute($enrolmentsql, ['v1' => $userid, 'v2' => $coursetodump, 'v3' => $grade]);
+            $DB->execute($enrolmentsql, ['v1' => $userid, 'v2' => $coursehistoricid, 'v3' => $grade]);
 
             $this->dump_previous_courses_logview_info($coursetodump, $coursehistoricid);
         }
