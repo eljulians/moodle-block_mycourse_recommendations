@@ -200,7 +200,7 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
 
         $expected = new stdClass();
         $expected->text = get_string('notpersonalizable', 'block_mycourse_recommendations');
-        $expected->footer = $this->generate_footer_import_url($COURSE->id);
+        $expected->footer = $this->generate_footer_import_url($COURSE->id);;
         $actual = $this->block->get_content();
 
         $this->assertEquals($expected, $actual);
@@ -225,7 +225,7 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
 
         $expected = new stdClass();
         $expected->text = get_string('notpersonalizable', 'block_mycourse_recommendations');
-        $expected->footer = $this->generate_footer_import_url($COURSE->id);
+        $expected->footer = $this->generate_footer_import_url($COURSE->id);;
         $actual = $this->block->get_content();
 
         $this->assertEquals($expected, $actual);
@@ -282,7 +282,7 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
 
         $expected = new stdClass();
         $expected->text = get_string('usernotselected', 'block_mycourse_recommendations');
-        $expected->footer = $this->generate_footer_import_url($COURSE->id);
+        $expected->footer = '';
         $actual = $this->block->get_content();
 
         $this->assertEquals($expected, $actual);
@@ -351,7 +351,7 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
 
         // We create the expected block output.
         $expected = new stdClass();
-        $expected->footer = $this->generate_footer_import_url($COURSE->id);
+        $expected->footer = '';
         $expected->text = '<ol>';
 
         $currentrecommendationid = $firstinsertedid;
@@ -418,7 +418,7 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
         $hasuserbeenselected = in_array($user->id, $selectedusers);
 
         $expected = new stdClass();
-        $expected->footer = $this->generate_footer_import_url($COURSE->id);
+        $expected->footer = '';
 
         if ($hasuserbeenselected) {
             $expected->text = get_string('norecommendations', 'block_mycourse_recommendations');
