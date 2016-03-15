@@ -1243,4 +1243,14 @@ class database_helper {
 
         return $importdata;
     }
+
+    public function associate_current_course_with_historic($currentcourse, $historiccourse) {
+        global $DB;
+
+        $sql = 'INSERT INTO {block_mycourse_course_assoc} (current_courseid, historic_courseid)
+                VALUES (:v1, :v2)';
+        $values = ['v1' => $currentcourse, 'v2' => $historiccourse];
+
+        $DB->execute($sql, $values);
+    }
 }

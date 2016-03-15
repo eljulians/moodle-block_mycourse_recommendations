@@ -93,7 +93,7 @@ if ($formdata) {
     $logsfile = $form->get_file_content('logs');
 
     try {
-        \block_mycourse_recommendations\csv_importer::import_data($formdata, $coursefile, $usersfile, $logsfile);
+        \block_mycourse_recommendations\csv_importer::import_data($formdata, $coursefile, $usersfile, $logsfile, $courseid);
         print_success_summary();
     } catch (Exception $e) {
         echo get_string('errorimporting', 'block_mycourse_recommendations');
