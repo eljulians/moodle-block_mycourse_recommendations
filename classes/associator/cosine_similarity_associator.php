@@ -80,7 +80,7 @@ class cosine_similarity_associator implements abstract_associator {
      * @see cosine_similarity($vector1, $vector2).
      * @param array $currentdata A 2D array.
      * @param array $historicdata A 2D array.
-     * @return array The association matrix.
+     * @return array The association matrix; empty if no association could be made.
      */
     public function create_associations_matrix($currentdata, $historicdata) {
         $db = new database_helper();
@@ -90,6 +90,8 @@ class cosine_similarity_associator implements abstract_associator {
 
         $currentusers = array_keys($currenttransformeddata);
         $historicusers = array_keys($historictransformeddata);
+
+        $matrix = array();
 
         foreach ($currentusers as $currentuser) {
             $currentviewsvector = $currenttransformeddata[$currentuser];
