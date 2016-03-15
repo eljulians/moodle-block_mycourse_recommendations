@@ -160,15 +160,19 @@ class block_mycourse_recommendations extends block_base {
      * Initializes the course, when is the first instance of the block, looking if it is personalizable or not, and
      * saving this in database.
      *
+     * Currently, the students are being selected independently the course is personalizable or not, because maybe later
+     * a csv importation is made, and like this there's no need to select students later.
+     *
      * @param int $courseid The course where the first instance of this block has been loaded in.
      * @param int $courseyear The start year of the course.
      */
     private function initialize_course($courseid, $courseyear) {
+        $this->recommendator->select_students($courseid, $courseyear);
+
         $personalizable = course_filter::is_course_personalizable($courseid, $courseyear);
 
         if ($personalizable) {
             $this->db->insert_course_selection($courseid, $courseyear, 1);
-            $this->recommendator->select_students($courseid, $courseyear);
         } else {
             $this->db->insert_course_selection($courseid, $courseyear, 0);
         }

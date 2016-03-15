@@ -526,6 +526,36 @@ class database_helper {
     }
 
     /**
+     * Sets the given course to active for receiving recommendations.
+     *
+     * @param int $courseid The course to set active.
+     */
+    public function set_course_active($courseid) {
+        global $DB;
+
+        $sql = "UPDATE {block_mycourse_course_sel}
+                SET    active = 1
+                WHERE  courseid = $courseid";
+
+        $DB->execute($sql);
+    }
+
+    /**
+     * Sets the given course as personalizable.
+     *
+     * @param int $courseid The course to set personalizable.
+     */
+    public function set_course_personalizable($courseid) {
+        global $DB;
+
+        $sql = "UPDATE {block_mycourse_course_sel}
+                SET    personalizable = 1
+                WHERE  courseid = $courseid";
+
+        $DB->execute($sql);
+    }
+
+    /**
      * This function finds, for the given current coures id, the same course but in previous teachings, in Moodle's core tables.
      * For that, the function looks up into the {block_mycourse_hist_course} table, finding courses with the same full name.
      * So, if it is wanted to generate recommendations for the given current course, an historic course must exist
