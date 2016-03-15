@@ -91,7 +91,7 @@ class csv_importer {
             $db->associate_current_course_with_historic($currentcourseid, $generatedcourseid);
             $db->commit_transaction($transaction);
         } catch (\Exception $e) {
-            $db->rollback_transaction($transaction);
+            $db->rollback_transaction($transaction, $e);
             throw $e;
         }
     }
