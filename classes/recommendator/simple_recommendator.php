@@ -73,64 +73,71 @@ class simple_recommendator extends abstract_recommendator {
      * @see insert_recommendations($number, $associationids, $resourcesids, $priorities) in database_helper.php.
      * @param int $courseid
      * @param int $currentweek
+     * @return boolean False if any association could be done; true if yes.
      */
     public function create_recommendations($courseid, $currentweek) {
-        $this->create_associations($courseid, $currentweek);
+        $associationscreated = $this->create_associations($courseid, $currentweek);
 
-        $associations = $this->db->get_associations($courseid, $currentweek);
+        if ($associationscreated) {
+            $associations = $this->db->get_associations($courseid, $currentweek);
 
-        $recommendations = array();
-        $recommendationindex = 0;
+            $recommendations = array();
+            $recommendationindex = 0;
 
-        foreach ($associations as $associationid => $association) {
-            $userid = $association->historic_userid;
-            $previouscourseid = $association->historic_courseid;
-            $year = $this->db->get_course_start_week_and_year($previouscourseid, true)['year'];
-            $coursestartweek = $this->db->get_course_start_week_and_year($courseid)['week'];
+            foreach ($associations as $associationid => $association) {
+                $userid = $association->historic_userid;
+                $previouscourseid = $association->historic_courseid;
+                $year = $this->db->get_course_start_week_and_year($previouscourseid, true)['year'];
+                $coursestartweek = $this->db->get_course_start_week_and_year($courseid)['week'];
 
-            $lowerlimitweek = $currentweek - parent::TIME_WINDOW;
-            $yearchange = $coursestartweek > $currentweek;
+                $lowerlimitweek = $currentweek - parent::TIME_WINDOW;
+                $yearchange = $coursestartweek > $currentweek;
 
-            $upperlimitweek = $currentweek;
-            if ($yearchange) {
-                $upperlimitweek = $currentweek + 52;
+                $upperlimitweek = $currentweek;
+                if ($yearchange) {
+                    $upperlimitweek = $currentweek + 52;
+                }
+                $upperlimitweek += parent::TIME_WINDOW;
+                $previousrecords = $this->db->query_historic_course_data($previouscourseid, $year, $lowerlimitweek,
+                    $upperlimitweek, $userid);
+
+                $currentyear = $this->db->get_course_start_week_and_year($courseid)['year'];
+                $currentrecords = $this->db->query_data($courseid, $currentyear, $lowerlimitweek, $upperlimitweek,
+                    $association->current_userid, true, true);
+
+                $associatedresources = $this->associate_resources($previousrecords, $currentrecords);
+                $previousresources = $associatedresources['previous'];
+                $currentresources = $associatedresources['current'];
+
+                $previousresources = $this->keep_latest_logviews($previousresources);
+                $logviews = $this->save_logviews_by_resource($previousresources, $currentresources);
+
+                $recommendations[$recommendationindex] = new \stdClass();
+                $recommendations[$recommendationindex]->number = count($logviews);
+                $recommendations[$recommendationindex]->associationids = array();
+                $recommendations[$recommendationindex]->resourcesids = array();
+                $recommendations[$recommendationindex]->priorities = array();
+
+                $index = 0;
+                foreach ($logviews as $currentresourceid => $views) {
+                    $recommendations[$recommendationindex]->associationids[$index] = $associationid;
+                    $recommendations[$recommendationindex]->resourcesids[$index] = $currentresourceid;
+                    $recommendations[$recommendationindex]->priorities[$index] = $index;
+
+                    $index++;
+                }
+
+                $recommendationindex++;
             }
-            $upperlimitweek += parent::TIME_WINDOW;
-            $previousrecords = $this->db->query_historic_course_data($previouscourseid, $year, $lowerlimitweek,
-                                                                  $upperlimitweek, $userid);
 
-            $currentyear = $this->db->get_course_start_week_and_year($courseid)['year'];
-            $currentrecords = $this->db->query_data($courseid, $currentyear, $lowerlimitweek, $upperlimitweek,
-                                                    $association->current_userid, true, true);
-
-            $associatedresources = $this->associate_resources($previousrecords, $currentrecords);
-            $previousresources = $associatedresources['previous'];
-            $currentresources = $associatedresources['current'];
-
-            $previousresources = $this->keep_latest_logviews($previousresources);
-            $logviews = $this->save_logviews_by_resource($previousresources, $currentresources);
-
-            $recommendations[$recommendationindex] = new \stdClass();
-            $recommendations[$recommendationindex]->number = count($logviews);
-            $recommendations[$recommendationindex]->associationids = array();
-            $recommendations[$recommendationindex]->resourcesids = array();
-            $recommendations[$recommendationindex]->priorities = array();
-
-            $index = 0;
-            foreach ($logviews as $currentresourceid => $views) {
-                $recommendations[$recommendationindex]->associationids[$index] = $associationid;
-                $recommendations[$recommendationindex]->resourcesids[$index] = $currentresourceid;
-                $recommendations[$recommendationindex]->priorities[$index] = $index;
-
-                $index++;
+            foreach ($recommendations as $index => $recommendation) {
+                $this->db->insert_recommendations($recommendation->number, $recommendation->associationids,
+                    $recommendation->resourcesids, $recommendation->priorities);
             }
 
-            $recommendationindex++;
-        }
-
-        foreach ($recommendations as $index => $recommendation) {
-            $this->db->insert_recommendations($recommendation->number, $recommendation->associationids,
-                                              $recommendation->resourcesids, $recommendation->priorities);
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -148,6 +155,7 @@ class simple_recommendator extends abstract_recommendator {
      * @see insert_associations in database_helper.php.
      * @param int $courseid The current course id.
      * @param int $currentweek The current week of the current course.
+     * @return boolean False if no association could be done; true if yes.
      */
     public function create_associations($courseid, $currentweek) {
         $selectedusers = $this->db->get_selected_users($courseid);
@@ -176,7 +184,6 @@ class simple_recommendator extends abstract_recommendator {
 
         //$previouscourses = $this->db->find_course_previous_teachings_ids_historic_tables($courseid, $year);
         $previouscourses = $this->db->get_associated_courses($courseid);
-        var_Dump($previouscourses);
         $previouscourse = max($previouscourses);
 
         $coursedates = $this->db->get_course_start_week_and_year($previouscourse, true);
@@ -194,23 +201,30 @@ class simple_recommendator extends abstract_recommendator {
         $this->associator->set_currentweek($currentweek);
         $associationmatrix = $this->associator->create_associations_matrix($currentdata, $previousdata);
 
-        $number = count($associationmatrix);
-        $currentusersids = array();
-        $historicusersids = array();
+        if (!empty($associationmatrix)) {
 
-        // We have to find the highest coefficient of the relation of each current user with each previous student.
-        foreach ($associationmatrix as $currentuser => $similarities) {
-            $highestsimilarityindex = array_keys($similarities, max($similarities));
+            $number = count($associationmatrix);
+            $currentusersids = array();
+            $historicusersids = array();
 
-            $associatedhistoric = $similarities[$highestsimilarityindex[0]];
+            // We have to find the highest coefficient of the relation of each current user with each previous student.
+            foreach ($associationmatrix as $currentuser => $similarities) {
+                $highestsimilarityindex = array_keys($similarities, max($similarities));
 
-            array_push($currentusersids, $currentuser);
-            // The key, user id, of the highest similarity coefficient, will be the most similar user.
-            array_push($historicusersids, intval($highestsimilarityindex[0]));
+                $associatedhistoric = $similarities[$highestsimilarityindex[0]];
+
+                array_push($currentusersids, $currentuser);
+                // The key, user id, of the highest similarity coefficient, will be the most similar user.
+                array_push($historicusersids, intval($highestsimilarityindex[0]));
+            }
+
+            // Finally, we call the function that will insert the associations into the database.
+            $this->db->insert_associations($number, $currentusersids, $courseid, $historicusersids, $previouscourse, $currentweek);
+
+            return true;
+        } else {
+            return false;
         }
-
-        // Finally, we call the function that will insert the associations into the database.
-        $this->db->insert_associations($number, $currentusersids, $courseid, $historicusersids, $previouscourse, $currentweek);
     }
 
     /**
