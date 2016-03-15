@@ -66,6 +66,9 @@ class csv_importer {
      * transaction: if something fails (a CSV does not respect the format, an importing course exists, etc.), nothing
      * will be saved.
      *
+     * After the importation, associates the just created historic course with the current course, and sets this course as
+     * active and personalizable, just in case it was marked as inactive and/or not personalizable.
+     *
      * @param object $formdata The data submited in form.
      * @param object $coursefile The CSV file with the information about the course.
      * @param object $usersfile The CSV file with the information about the users enrolled in courses.
@@ -89,6 +92,9 @@ class csv_importer {
             self::import_logs($logsfile, $formdata, $generatedcourseid, $db);
 
             $db->associate_current_course_with_historic($currentcourseid, $generatedcourseid);
+            $db->set_course_active($currentcourseid);
+            $db->set_course_personalizable($currentcourseid);
+
             $db->commit_transaction($transaction);
         } catch (\Exception $e) {
             $db->rollback_transaction($transaction, $e);
