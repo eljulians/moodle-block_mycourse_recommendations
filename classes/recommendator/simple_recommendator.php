@@ -174,7 +174,9 @@ class simple_recommendator extends abstract_recommendator {
             }
         }
 
-        $previouscourses = $this->db->find_course_previous_teachings_ids_historic_tables($courseid, $year);
+        //$previouscourses = $this->db->find_course_previous_teachings_ids_historic_tables($courseid, $year);
+        $previouscourses = $this->db->get_associated_courses($courseid);
+        var_Dump($previouscourses);
         $previouscourse = max($previouscourses);
 
         $coursedates = $this->db->get_course_start_week_and_year($previouscourse, true);

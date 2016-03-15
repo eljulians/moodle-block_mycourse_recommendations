@@ -1289,4 +1289,27 @@ class database_helper {
 
         $DB->execute($sql, $values);
     }
+
+    /**
+     * Gets the historic courses that have been associated to the given current course.
+     *
+     * @param int $currentcourseid The course for which find associated historic courses.
+     * @return array Index-based array with associated historic course ids.
+     */
+    public function get_associated_courses($currentcourseid) {
+        global $DB;
+
+        $sql = 'SELECT historic_courseid
+                FROM   {block_mycourse_course_assoc}
+                WHERE  current_courseid = ?';
+
+        $records = $DB->get_records_sql($sql, array($currentcourseid));
+        $courses = array();
+
+        foreach ($records as $record) {
+            array_push($courses, $record->historic_courseid);
+        }
+
+        return $courses;
+    }
 }
