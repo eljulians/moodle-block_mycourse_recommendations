@@ -198,6 +198,10 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
         $course = $this->create_courses(array(), 1)[0];
         $COURSE = $course;
 
+        // We need the students because the function that selects the students for creating recommendations is called even if the
+        // course is not personalizable.
+        $this->create_and_enrol_students($course->id, 10);
+
         $expected = new stdClass();
         $expected->text = get_string('notpersonalizable', 'block_mycourse_recommendations');
         $expected->footer = $this->generate_footer_import_url($COURSE->id);;
