@@ -215,7 +215,6 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
 
     public function test_create_associations() {
         global $DB;
-        global $CFG;
 
         $this->resetAfterTest();
         $this->setAdminUser();
@@ -254,6 +253,15 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
 
         // We create the current users...
         $currentcourses = $this->create_courses($this->currentcourseattributes, 1);
+        $currentcourseid = $currentcourses[0]->id;
+
+        // We need to insert the courses associations in its table, because the recommendator looks at that table which
+        // historic courses are related to the given current course.
+        foreach ($previouscoursesids as $previouscoursesid) {
+            $sql = "INSERT INTO {block_mycourse_course_assoc} (current_courseid, historic_courseid)
+                    VALUES ($currentcourseid, $previouscoursesid)";
+            $DB->execute($sql);
+        }
 
         $currentusers = $this->create_and_enrol_students($currentcourses[0]->id, 3);
 
@@ -411,6 +419,15 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         $currentattributes = array('fullname' => $coursesname,
                                     'startdate' => $currentstartdate);
         $currentcourse = $this->create_courses($currentattributes, 1)[0];
+        $currentcourseid = $currentcourse->id;
+
+        // We need to insert the courses associations in its table, because the recommendator looks at that table which
+        // historic courses are related to the given current course.
+        foreach ($previouscoursesids as $previouscoursesid) {
+            $sql = "INSERT INTO {block_mycourse_course_assoc} (current_courseid, historic_courseid)
+                    VALUES ($currentcourseid, $previouscoursesid)";
+            $DB->execute($sql);
+        }
 
         // We create and enrol the current users...
         $currentusers = $this->create_and_enrol_students($currentcourse->id, 3);
