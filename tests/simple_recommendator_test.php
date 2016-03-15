@@ -143,19 +143,28 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         return $createdresources;
     }
 
-    /**
-     * Creates n number of students (roleid = 5) for the given course.
-     *
-     * @param int $courseid The course to enrol the student in.
-     * @param int $number The number of students to create.
-     */
-    protected function create_and_enrol_students($courseid, $number) {
+    protected function create_and_enrol_students($courseid, $number, $previoususers = false) {
+        global $DB;
+
         $users = array();
 
-        for ($index = 0; $index < $number; $index++) {
-            $newuser = $this->getDataGenerator()->create_user();
-            $this->getDataGenerator()->enrol_user($newuser->id, $courseid, 5); // The student role id.
-            array_push($users, $newuser);
+        if (!$previoususers) {
+            for ($index = 0; $index < $number; $index++) {
+                $newuser = $this->getDataGenerator()->create_user();
+                $this->getDataGenerator()->enrol_user($newuser->id, $courseid, 5); // The student role id.
+
+                array_push($users, $newuser);
+            }
+        } else {
+            for ($index = 0; $index < $number; $index++) {
+                $newuser = $this->getDataGenerator()->create_user();
+                $this->getDataGenerator()->enrol_user($newuser->id, $courseid, 5); // The student role id.
+                $sql = 'INSERT INTO {block_mycourse_hist_enrol} (userid, courseid, grade)
+                        VALUES(:v1, :v2, :v3)';
+                $values = ['v1' => $newuser->id, 'v2' => $courseid, 'v3' => 7];
+                $DB->execute($sql, $values);
+                array_push($users, $newuser);
+            }
         }
 
         return $users;
@@ -222,7 +231,7 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         $previouscoursesids = $this->insert_previous_courses_in_historic_data($previouscourses);
 
         // We create the previous users...
-        $previoususers = $this->create_and_enrol_students($previouscourses[0]->id, 3);
+        $previoususers = $this->create_and_enrol_students($previouscoursesids[0], 3, true);
 
         // We create the resources...
         $numberofresources = 3;
@@ -352,7 +361,7 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         $previouscoursesids = $this->insert_previous_courses_in_historic_data(array($previouscourse));
 
         // We create and enrol the previous users...
-        $previoususers = $this->create_and_enrol_students($previouscourse->id, 3);
+        $previoususers = $this->create_and_enrol_students($previouscoursesids[0], 3, true);
 
         // We create the previous resources...
         $previousresourcesnumber = count($resourcesnames);
