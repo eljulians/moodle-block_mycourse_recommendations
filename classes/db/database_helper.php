@@ -278,7 +278,8 @@ class database_helper {
      * @param bool $gradepass If the grade has to be taken into account (>= 5), by default false.
      * @return array Each row of the logs.
      */
-    public function query_historic_course_data($courseid, $year, $coursestartweek, $currentweek, $userid = null, $gradepass = false) {
+    public function query_historic_course_data($courseid, $year, $coursestartweek, $currentweek,
+                                               $userid = null, $gradepass = false) {
         global $DB;
 
         $sql = "SELECT logs.id,
