@@ -70,10 +70,11 @@ class csv_importer {
      * @param object $coursefile The CSV file with the information about the course.
      * @param object $usersfile The CSV file with the information about the users enrolled in courses.
      * @param object $logsfile The CSV file with the information about the log views of the users.
+     * @param int $currentcourseid The course id of the course for which the csv is being imported.
      * @throws \Exception If something bad happened when trying to insert the data. The exception is thrown after doing the
      * rollback.
      */
-    public static function import_data($formdata, $coursefile, $usersfile, $logsfile) {
+    public static function import_data($formdata, $coursefile, $usersfile, $logsfile, $currentcourseid) {
         $db = new database_helper();
 
         self::$lastinsertedcourses = 0;
@@ -83,10 +84,11 @@ class csv_importer {
         $transaction = $db->start_transaction();
 
         try {
-            $courseid = self::import_course($coursefile, $formdata, $db);
-            self::import_users($usersfile, $formdata, $courseid, $db);
-            self::import_logs($logsfile, $formdata, $courseid, $db);
+            $generatedcourseid = self::import_course($coursefile, $formdata, $db);
+            self::import_users($usersfile, $formdata, $generatedcourseid, $db);
+            self::import_logs($logsfile, $formdata, $generatedcourseid, $db);
 
+            $db->associate_current_course_with_historic($currentcourseid, $generatedcourseid);
             $db->commit_transaction($transaction);
         } catch (\Exception $e) {
             $db->rollback_transaction($transaction);
