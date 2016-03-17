@@ -172,7 +172,7 @@ class simple_recommendator extends abstract_recommendator {
         $trace->output('Selected users to receive recommendations:');
 
         foreach ($selectedusers as $selecteduser) {
-            $trace->output("\t- $selecteduser->userid");
+            $trace->output("\t- $selecteduser");
         }
 
         $coursedates = $this->db->get_course_start_week_and_year($courseid, false);
