@@ -126,6 +126,8 @@ class create_recommendations_task extends \core\task\scheduled_task {
             $trace->output("Current week: $week");
             $this->recommendator->create_recommendations($course->courseid, $week, $trace);
         }
+
+        $trace->output('"MyCourse Recommendations" task execution finished.');
     }
 
     /**

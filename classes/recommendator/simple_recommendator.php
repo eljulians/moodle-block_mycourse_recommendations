@@ -135,10 +135,16 @@ class simple_recommendator extends abstract_recommendator {
                 $recommendationindex++;
             }
 
+            $trace->output('All the recommendations have been created. Total count of recommendations: '
+                            . count($recommendations));
+            $trace->output('Inserting recommendations into database...');
+
             foreach ($recommendations as $index => $recommendation) {
                 $this->db->insert_recommendations($recommendation->number, $recommendation->associationids,
                     $recommendation->resourcesids, $recommendation->priorities);
             }
+
+            $trace->output('The recommendations have been inserted into database.');
 
             return true;
         } else {
@@ -178,7 +184,7 @@ class simple_recommendator extends abstract_recommendator {
         $coursedates = $this->db->get_course_start_week_and_year($courseid, false);
         $startweek = $coursedates['week'];
         $year = $coursedates['year'];
-        $trace->output('Course start year: $year; start week: $startweek');
+        $trace->output("Course start year: $year; start week: $startweek");
 
         $yearchange = $startweek > $currentweek;
         $endweek = $currentweek;
@@ -187,7 +193,7 @@ class simple_recommendator extends abstract_recommendator {
         }
         $endweek += parent::TIME_WINDOW;
 
-        $trace->output("Log data for course: '$courseid' will be queried with the following parameters: year: $year;
+        $trace->output("Log data for course '$courseid' will be queried with the following parameters: year: $year;
                         from start week: $startweek; to end week: $endweek");
         $currentdata = $this->db->query_data($courseid, $year, $startweek, $endweek);
 
@@ -209,7 +215,7 @@ class simple_recommendator extends abstract_recommendator {
         $startweek = $coursedates['week'];
         $year = $coursedates['year'];
 
-        $trace->output("Log data for course: '$previouscourse' will be queried with the following parameters: year: $year;
+        $trace->output("Log data for course '$previouscourse' will be queried with the following parameters: year: $year;
                         from start week: $startweek; to end week: $endweek");
         $previousdata = $this->db->query_historic_course_data($previouscourse, $year, $startweek, $endweek, null, true);
 
