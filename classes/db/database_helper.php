@@ -294,8 +294,8 @@ class database_helper {
                 INNER JOIN {block_mycourse_hist_enrol} enrol
                     ON enrol.courseid = course.id
                     AND enrol.userid = logs.userid
-                WHERE ((EXTRACT('year' FROM date_trunc('year', to_timestamp(course.startdate))) - %year) * 52)
-	                + EXTRACT('week' FROM date_trunc('week', to_timestamp(course.startdate)))
+                WHERE ((EXTRACT('year' FROM date_trunc('year', to_timestamp(logs.timecreated))) - %year) * 52)
+	                + EXTRACT('week' FROM date_trunc('week', to_timestamp(logs.timecreated)))
                   BETWEEN %coursestartweek AND %currentweek
                     AND logs.userid = %userid
                     AND course.id = %courseid
@@ -315,6 +315,7 @@ class database_helper {
         $sql = str_replace('%currentweek', $currentweek, $sql);
         $sql = str_replace('%userid', $userid, $sql);
 
+        echo "\n $sql \n";
         $records = $DB->get_records_sql($sql);
 
         $queryresults = array();
