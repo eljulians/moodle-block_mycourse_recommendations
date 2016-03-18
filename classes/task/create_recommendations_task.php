@@ -110,7 +110,7 @@ class create_recommendations_task extends \core\task\scheduled_task {
 
         $coursestorecommend = $this->db->get_selected_active_courses($trace);
 
-        $trace->output('Selected active courses for which recommendations will be created:');
+        $trace->output('[mycourse]: Selected active courses for which recommendations will be created:');
         foreach ($coursestorecommend as $course) {
             $trace->output("\t- $course->courseid");
         }
@@ -123,11 +123,11 @@ class create_recommendations_task extends \core\task\scheduled_task {
             }
 
             $week = $this->get_current_week();
-            $trace->output("Current week: $week");
+            $trace->output("[mycourse]: Current week: $week");
             $this->recommendator->create_recommendations($course->courseid, $week, $trace);
         }
 
-        $trace->output('"MyCourse Recommendations" task execution finished.');
+        $trace->output('[mycourse]: "MyCourse Recommendations" task execution finished.');
     }
 
     /**
