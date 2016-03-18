@@ -87,8 +87,8 @@ class simple_recommendator extends abstract_recommendator {
             $recommendationindex = 0;
 
             foreach ($associations as $associationid => $association) {
-                $trace->output("[mycourse]: Creating recommendations for current user '$association->current_userid', associated with
-                                historic user '$association->historic_userid'.");
+                $trace->output("[mycourse]: Creating recommendations for current user '$association->current_userid', associated"
+                                . "with historic user '$association->historic_userid'.");
 
                 $userid = $association->historic_userid;
                 $previouscourseid = $association->historic_courseid;
