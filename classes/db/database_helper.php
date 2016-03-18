@@ -315,7 +315,6 @@ class database_helper {
         $sql = str_replace('%currentweek', $currentweek, $sql);
         $sql = str_replace('%userid', $userid, $sql);
 
-        echo "\n $sql \n";
         $records = $DB->get_records_sql($sql);
 
         $queryresults = array();
