@@ -81,8 +81,9 @@ abstract class abstract_recommendator {
      *
      * @param int $courseid
      * @param int $currentweek
+     * @param \text_progress_trace $trace Text output trace.
      */
-    abstract public function create_recommendations($courseid, $currentweek);
+    abstract public function create_recommendations($courseid, $currentweek, $trace = null);
 
     /**
      * Creates the associations between the current users and historic users, i.e., it decides which historic user is
@@ -90,8 +91,9 @@ abstract class abstract_recommendator {
      *
      * @param int $courseid The current course id.
      * @param int $currentweek The current week of the current course.
+     * @param \text_progress_trace $trace Text output trace.
      */
-    abstract public function create_associations($courseid, $currentweek);
+    abstract public function create_associations($courseid, $currentweek, $trace = null);
 
     /**
      * Given the course identificator, selects, randomly, 50% of the students enrolled in the course,

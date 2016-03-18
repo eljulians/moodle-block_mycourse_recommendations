@@ -26,6 +26,7 @@ namespace block_mycourse_recommendations;
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once($CFG->dirroot . '/lib/weblib.php');
 require_once('abstract_recommendator.php');
 require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/db/database_helper.php');
 require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/matrix/abstract_matrix.php');
@@ -73,10 +74,11 @@ class simple_recommendator extends abstract_recommendator {
      * @see insert_recommendations($number, $associationids, $resourcesids, $priorities) in database_helper.php.
      * @param int $courseid
      * @param int $currentweek
+     * @param \text_progress_trace $trace Text output trace.
      * @return boolean False if any association could be done; true if yes.
      */
-    public function create_recommendations($courseid, $currentweek) {
-        $associationscreated = $this->create_associations($courseid, $currentweek);
+    public function create_recommendations($courseid, $currentweek, $trace = null) {
+        $associationscreated = $this->create_associations($courseid, $currentweek, $trace);
 
         if ($associationscreated) {
             $associations = $this->db->get_associations($courseid, $currentweek);
@@ -85,6 +87,9 @@ class simple_recommendator extends abstract_recommendator {
             $recommendationindex = 0;
 
             foreach ($associations as $associationid => $association) {
+                $trace->output("[mycourse]: Creating recommendations for current user '$association->current_userid', associated"
+                                . " with historic user '$association->historic_userid'.");
+
                 $userid = $association->historic_userid;
                 $previouscourseid = $association->historic_courseid;
                 $year = $this->db->get_course_start_week_and_year($previouscourseid, true)['year'];
@@ -130,13 +135,21 @@ class simple_recommendator extends abstract_recommendator {
                 $recommendationindex++;
             }
 
+            $trace->output('[mycourse]: All the recommendations have been created. Total count of recommendations: '
+                            . count($recommendations));
+            $trace->output('[mycourse]: Inserting recommendations into database...');
+
             foreach ($recommendations as $index => $recommendation) {
                 $this->db->insert_recommendations($recommendation->number, $recommendation->associationids,
-                    $recommendation->resourcesids, $recommendation->priorities);
+                        $recommendation->resourcesids, $recommendation->priorities);
             }
+
+            $trace->output('[mycourse]: The recommendations have been inserted into database.');
 
             return true;
         } else {
+            $trace->output('[mycourse]: No recommendations will be created because no association could be done.');
+
             return false;
         }
     }
@@ -155,14 +168,23 @@ class simple_recommendator extends abstract_recommendator {
      * @see insert_associations in database_helper.php.
      * @param int $courseid The current course id.
      * @param int $currentweek The current week of the current course.
+     * @param \text_progress_trace $trace Text output trace.
      * @return boolean False if no association could be done; true if yes.
      */
-    public function create_associations($courseid, $currentweek) {
+    public function create_associations($courseid, $currentweek, $trace = null) {
+        $trace->output('[mycourse]: Creating associations.');
         $selectedusers = $this->db->get_selected_users($courseid);
+
+        $trace->output('[mycourse]: Selected users to receive recommendations:');
+
+        foreach ($selectedusers as $selecteduser) {
+            $trace->output("[mycourse]: \t- $selecteduser");
+        }
 
         $coursedates = $this->db->get_course_start_week_and_year($courseid, false);
         $startweek = $coursedates['week'];
         $year = $coursedates['year'];
+        $trace->output("[mycourse]: Course start year: $year; start week: $startweek");
 
         $yearchange = $startweek > $currentweek;
         $endweek = $currentweek;
@@ -171,6 +193,8 @@ class simple_recommendator extends abstract_recommendator {
         }
         $endweek += parent::TIME_WINDOW;
 
+        $trace->output("[mycourse]: Log data for course '$courseid' will be queried with the following parameters: year: $year;"
+                        . " from start week: $startweek; to end week: $endweek");
         $currentdata = $this->db->query_data($courseid, $year, $startweek, $endweek);
 
         // We keep only the users that are selected to receive the recommendations.
@@ -183,12 +207,17 @@ class simple_recommendator extends abstract_recommendator {
         }
 
         $previouscourses = $this->db->get_associated_courses($courseid);
+
         $previouscourse = max($previouscourses);
+        $trace->output("[mycourse]: Current course: '$courseid' will use the historic course '$previouscourse'"
+                        . " for the associations.");
 
         $coursedates = $this->db->get_course_start_week_and_year($previouscourse, true);
         $startweek = $coursedates['week'];
         $year = $coursedates['year'];
 
+        $trace->output("[mycourse]: Log data for course '$previouscourse' will be queried with the following parameters:"
+                        . " year: $year; from start week: $startweek; to end week: $endweek");
         $previousdata = $this->db->query_historic_course_data($previouscourse, $year, $startweek, $endweek, null, true);
 
         $associatedresources = $this->associate_resources($previousdata, $currentselecteddata);
@@ -201,6 +230,7 @@ class simple_recommendator extends abstract_recommendator {
         $associationmatrix = $this->associator->create_associations_matrix($currentdata, $previousdata);
 
         if (!empty($associationmatrix)) {
+            $trace->output('[mycourse]: Associations between current and historic users were made successfully.');
 
             $number = count($associationmatrix);
             $currentusersids = array();
@@ -215,13 +245,20 @@ class simple_recommendator extends abstract_recommendator {
                 array_push($currentusersids, $currentuser);
                 // The key, user id, of the highest similarity coefficient, will be the most similar user.
                 array_push($historicusersids, intval($highestsimilarityindex[0]));
+
+                $trace->output("[mycourse]: Current user '$currentuser' has been associated with historic user"
+                                . " '$highestsimilarityindex[0]'.");
             }
 
             // Finally, we call the function that will insert the associations into the database.
             $this->db->insert_associations($number, $currentusersids, $courseid, $historicusersids, $previouscourse, $currentweek);
 
+            $trace->output('[mycourse]: Users associations have been inserted into database.');
+
             return true;
         } else {
+            $trace->output("[mycourse]: No associations could be done because the current course '$courseid' and the historic course
+                            '$previouscourse' do not share any resources.");
             return false;
         }
     }

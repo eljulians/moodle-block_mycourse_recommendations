@@ -26,6 +26,9 @@ namespace block_mycourse_recommendations\task;
 
 defined('MOODLE_INTERNAL') || die();
 
+global $CFG;
+
+require_once($CFG->dirroot . '/lib/weblib.php');
 require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/db/database_helper.php');
 require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/matrix/decimal_matrix.php');
 require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/associator/cosine_similarity_associator.php');
@@ -75,12 +78,16 @@ class create_recommendations_task extends \core\task\scheduled_task {
 
     /**
      * Creates the instances of the components to use to calculate the recommendations.
+     *
+     * @param \text_progress_trace $trace Text output trace.
      */
-    protected function initialize() {
+    protected function initialize($trace) {
         $this->db = new database_helper();
         $this->matrix = new decimal_matrix();
         $this->associator = new cosine_similarity_associator($this->matrix);
         $this->recommendator = new simple_recommendator($this->associator);
+
+        $trace->output('[mycourse]: Components initializated.');
     }
 
     /**
@@ -98,9 +105,15 @@ class create_recommendations_task extends \core\task\scheduled_task {
      * the data from core tables (actually, the need for the importation is decided by database_helper->has_data_to_be_imported).
      */
     public function execute() {
-        $this->initialize();
+        $trace = new \text_progress_trace();
+        $this->initialize($trace);
 
-        $coursestorecommend = $this->db->get_selected_active_courses();
+        $coursestorecommend = $this->db->get_selected_active_courses($trace);
+
+        $trace->output('[mycourse]: Selected active courses for which recommendations will be created:');
+        foreach ($coursestorecommend as $course) {
+            $trace->output("[mycourse]:\t- $course->courseid");
+        }
 
         foreach ($coursestorecommend as $course) {
             $importdata = $this->db->has_data_to_be_imported($course->courseid);
@@ -110,8 +123,11 @@ class create_recommendations_task extends \core\task\scheduled_task {
             }
 
             $week = $this->get_current_week();
-            $this->recommendator->create_recommendations($course->courseid, $week);
+            $trace->output("[mycourse]: Current week: $week");
+            $this->recommendator->create_recommendations($course->courseid, $week, $trace);
         }
+
+        $trace->output('[mycourse]: "MyCourse Recommendations" task execution finished.');
     }
 
     /**
