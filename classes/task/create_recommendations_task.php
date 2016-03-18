@@ -87,7 +87,7 @@ class create_recommendations_task extends \core\task\scheduled_task {
         $this->associator = new cosine_similarity_associator($this->matrix);
         $this->recommendator = new simple_recommendator($this->associator);
 
-        $trace->output('Components initializated.');
+        $trace->output('[mycourse]: Components initializated.');
     }
 
     /**
@@ -112,7 +112,7 @@ class create_recommendations_task extends \core\task\scheduled_task {
 
         $trace->output('[mycourse]: Selected active courses for which recommendations will be created:');
         foreach ($coursestorecommend as $course) {
-            $trace->output("\t- $course->courseid");
+            $trace->output("[mycourse]:\t- $course->courseid");
         }
 
         foreach ($coursestorecommend as $course) {

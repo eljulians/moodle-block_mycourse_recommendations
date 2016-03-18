@@ -88,7 +88,7 @@ class simple_recommendator extends abstract_recommendator {
 
             foreach ($associations as $associationid => $association) {
                 $trace->output("[mycourse]: Creating recommendations for current user '$association->current_userid', associated"
-                                . "with historic user '$association->historic_userid'.");
+                                . " with historic user '$association->historic_userid'.");
 
                 $userid = $association->historic_userid;
                 $previouscourseid = $association->historic_courseid;
@@ -141,7 +141,7 @@ class simple_recommendator extends abstract_recommendator {
 
             foreach ($recommendations as $index => $recommendation) {
                 $this->db->insert_recommendations($recommendation->number, $recommendation->associationids,
-                    $recommendation->resourcesids, $recommendation->priorities);
+                        $recommendation->resourcesids, $recommendation->priorities);
             }
 
             $trace->output('[mycourse]: The recommendations have been inserted into database.');
@@ -193,8 +193,8 @@ class simple_recommendator extends abstract_recommendator {
         }
         $endweek += parent::TIME_WINDOW;
 
-        $trace->output("[mycourse]: Log data for course '$courseid' will be queried with the following parameters: year: $year;
-                        from start week: $startweek; to end week: $endweek");
+        $trace->output("[mycourse]: Log data for course '$courseid' will be queried with the following parameters: year: $year;"
+                        . " from start week: $startweek; to end week: $endweek");
         $currentdata = $this->db->query_data($courseid, $year, $startweek, $endweek);
 
         // We keep only the users that are selected to receive the recommendations.
