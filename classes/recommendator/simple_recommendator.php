@@ -103,20 +103,14 @@ class simple_recommendator extends abstract_recommendator {
                     $upperlimitweek = $currentweek + 52;
                 }
                 $upperlimitweek += parent::TIME_WINDOW;
-                $previousrecords = $this->db->query_historic_course_data($previouscourseid, $year, $lowerlimitweek,
-                    $upperlimitweek, $userid);
+                $previousrecords = $this->db->query_historic_course_data_grouped_by_views($courseid, $year, $lowerlimitweek,
+                                                                                          $upperlimitweek, $userid);
 
-                $currentyear = $this->db->get_course_start_week_and_year($courseid)['year'];
-                $currentrecords = $this->db->query_data($courseid, $currentyear, $lowerlimitweek, $upperlimitweek,
-                    $association->current_userid, true, true);
-
+                $currentrecords = $this->db->query_current_not_viewed_resources($association->current_userid, $courseid);
                 $associatedresources = $this->associate_resources($previousrecords, $currentrecords);
                 $previousresources = $associatedresources['previous'];
                 $currentresources = $associatedresources['current'];
 
-                $lastviewedresources = $this->keep_latest_logviews($previousresources, $currentresources);
-                $previousresources = $lastviewedresources['previous'];
-                $currentresources = $lastviewedresources['current'];
                 $logviews = $this->save_logviews_by_resource($previousresources, $currentresources);
 
                 $recommendations[$recommendationindex] = new \stdClass();
@@ -266,6 +260,39 @@ class simple_recommendator extends abstract_recommendator {
     }
 
     /**
+     * Removes the repeated resources from the array. Two resources would be considered equals if they have the same name and
+     * resource type.
+     *
+     * @param $data
+     * @return mixed
+     */
+    protected function discard_repeated_resources($data) {
+        $auxdata = $data;
+        $discardedrows = 0;
+
+        for ($index = 0; $index < count($data); $index++) {
+            $referencerow = $data[$index];
+            for ($innerindex = $index + 1; $innerindex < count($data); $innerindex++) {
+                $comparingrow = $data[$innerindex];
+
+                $samename = $referencerow->get_modulename() === $comparingrow->get_modulename();
+                $sametype = $referencerow->get_moduletype() === $comparingrow->get_moduletype();
+
+                if ($samename && $sametype) {
+                    $samenamebutdistinctid = $referencerow->get_moduleid() !== $comparingrow->get_moduleid();
+
+                    if ($samenamebutdistinctid) {
+                        unset($auxdata[$innerindex - $discardedrows]);
+                        $discardedrows--;
+                    }
+                }
+            }
+        }
+
+        return $auxdata;
+    }
+
+    /**
      * Makes the relations between the resources of current and previous courses. To determine the association between two
      * resources, the name is used. So, the names must match exactly to consider the association.
      * Current resources are iterated, finding the relation with previous. The result is the same received data, but with the
@@ -285,9 +312,14 @@ class simple_recommendator extends abstract_recommendator {
 
         foreach ($currentdata as $currentindex => $currentresource) {
             foreach ($previousdata as $previousindex => $previousresource) {
-                if ($currentresource->get_modulename() === $previousresource->get_modulename()) {
+                $samename = $currentresource->get_modulename() === $previousresource->get_modulename();
+                $sametype = $currentresource->get_moduletype() === $previousresource->get_moduletype();
+
+                if ($samename && $sametype) {
                     array_push($previousresources, $previousresource);
                     array_push($currentresources, $currentresource);
+
+                    continue;
                 }
             }
         }
