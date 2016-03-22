@@ -1328,18 +1328,23 @@ class database_helper {
     public function query_historic_course_data_grouped_by_views($courseid, $year, $lowerlimitweek, $upperlimitweek, $userid) {
         global $DB;
 
-        $sql = 'SELECT logs.userid,
+        $sql = "SELECT logs.id,
+                       logs.userid,
                        logs.resourcename,
                        logs.resourcetype,
                        logs.resourceid,
-                       SUM(logs.views) as views
+                       logs.views
                 FROM   {block_mycourse_hist_data} logs
-                WHERE ((EXTRACT(\'year\' FROM date_trunc(\'year\', to_timestamp(logs.timecreated))) - %year) * 52)
-	                + EXTRACT(\'week\' FROM date_trunc(\'week\', to_timestamp(logs.timecreated)))
-                      BETWEEN %coursestartweek AND %currentweek
+                INNER JOIN {block_mycourse_hist_course} course
+                    ON logs.courseid = course.id
+                INNER JOIN {block_mycourse_hist_enrol} enrol
+                    ON enrol.courseid = course.id
+                    AND enrol.userid = logs.userid
+                WHERE ((EXTRACT('year' FROM date_trunc('year', to_timestamp(logs.timecreated))) - %year) * 52)
+	                + EXTRACT('week' FROM date_trunc('week', to_timestamp(logs.timecreated)))
+                  BETWEEN %coursestartweek AND %currentweek
                     AND logs.userid = %userid
-                    AND course.id = %courseid
-                GROUP BY logs.userid, logs.resourcename, logs.resourcetype, logs.resourceid';
+                    AND course.id = %courseid";
 
         $sql = str_replace('%courseid', $courseid, $sql);
         $sql = str_replace('%year', $year, $sql);
@@ -1392,10 +1397,10 @@ class database_helper {
         $sql = str_replace('logs.format,', '', $sql);
         $sql = str_replace('logs.section,', '', $sql);
         $sql = str_replace('logs.log_views,', '', $sql);
-        $sql = str_replace('logs.course_week as view_date,'. ''. $sql);
-        $sql = str_replace('logs.grades'. ''. $sql);
+        $sql = str_replace('logs.course_week as view_date,', '', $sql);
+        $sql = str_replace('logs.grades', '', $sql);
         $sql = str_replace('order by logs.userid;', '', $sql);
-        $sql = str_replace('logs.userid,'. 'logs.userid'. $sql); // The last column before the 'from' clause.
+        $sql = str_replace('logs.userid,', 'logs.userid', $sql); // The last column before the 'from' clause.
 
         $sql .= ' ' . $groupby;
 
@@ -1405,7 +1410,7 @@ class database_helper {
         $sql = str_replace('between %coursestartweek and %currentweek', '', $sql);
 
         // We set the userid and the courseid we want to query.
-        $sql = str_replace('where logs.course = %courseid', "where logs.userid = $userid and logs.course = %courseid ", $sql);
+        $sql = str_replace('where logs.course = %courseid', "where logs.userid = $userid and logs.course = $courseid ", $sql);
 
         $records = $DB->get_records_sql($sql);
 

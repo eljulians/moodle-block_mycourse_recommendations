@@ -103,7 +103,7 @@ class simple_recommendator extends abstract_recommendator {
                     $upperlimitweek = $currentweek + 52;
                 }
                 $upperlimitweek += parent::TIME_WINDOW;
-                $previousrecords = $this->db->query_historic_course_data_grouped_by_views($courseid, $year, $lowerlimitweek,
+                $previousrecords = $this->db->query_historic_course_data_grouped_by_views($previouscourseid, $year, $lowerlimitweek,
                                                                                           $upperlimitweek, $userid);
 
                 $currentrecords = $this->db->query_current_not_viewed_resources($association->current_userid, $courseid);
@@ -313,8 +313,8 @@ class simple_recommendator extends abstract_recommendator {
         foreach ($currentdata as $currentindex => $currentresource) {
             foreach ($previousdata as $previousindex => $previousresource) {
                 $samename = $currentresource->get_modulename() === $previousresource->get_modulename();
-                $sametype = $currentresource->get_moduletype() === $previousresource->get_moduletype();
-
+                //$sametype = $currentresource->get_moduletype() === $previousresource->get_moduletype();
+                $sametype = true;
                 if ($samename && $sametype) {
                     array_push($previousresources, $previousresource);
                     array_push($currentresources, $currentresource);
