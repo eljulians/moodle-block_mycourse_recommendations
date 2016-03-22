@@ -322,7 +322,6 @@ class simple_recommendator extends abstract_recommendator {
             }
         }
 
-        //return array_values($auxpreviousresources);
         return array('previous' => array_values($auxpreviousresources), 'current' => array_values($auxcurrentresources));
     }
 

@@ -1312,4 +1312,121 @@ class database_helper {
 
         return $courses;
     }
+
+    /**
+     * Queries the total sum of log views for each resource by each user in a course in the given week interval. The results
+     * are grouped in the sum of views because this result will later be used to associate this resources, by name and type,
+     * with the current resources, so it doesn't make sense to have more than a row per resource.
+     *
+     * @param int $courseid The id of the historic course.
+     * @param int $year The year the course was teached at.
+     * @param int $lowerlimitweek The start week of the course.
+     * @param int $upperlimitweek The week the associations are being calculated at.
+     * @param int $userid The user id to query data of, by default null, so it will be queried for every user.
+     * @return array Each row of the logs.
+     */
+    public function query_historic_course_data_grouped_by_views($courseid, $year, $lowerlimitweek, $upperlimitweek, $userid) {
+        global $DB;
+
+        $sql = 'SELECT logs.userid,
+                       logs.resourcename,
+                       logs.resourcetype,
+                       logs.resourceid,
+                       SUM(logs.views) as views
+                FROM   {block_mycourse_hist_data} logs
+                WHERE ((EXTRACT(\'year\' FROM date_trunc(\'year\', to_timestamp(logs.timecreated))) - %year) * 52)
+	                + EXTRACT(\'week\' FROM date_trunc(\'week\', to_timestamp(logs.timecreated)))
+                      BETWEEN %coursestartweek AND %currentweek
+                    AND logs.userid = %userid
+                    AND course.id = %courseid
+                GROUP BY logs.userid, logs.resourcename, logs.resourcetype, logs.resourceid';
+
+        $sql = str_replace('%courseid', $courseid, $sql);
+        $sql = str_replace('%year', $year, $sql);
+        $sql = str_replace('%coursestartweek', $lowerlimitweek, $sql);
+        $sql = str_replace('%currentweek', $upperlimitweek, $sql);
+        $sql = str_replace('%userid', $userid, $sql);
+
+        $records = $DB->get_records_sql($sql);
+
+        $queryresults = array();
+
+        foreach ($records as $record) {
+            $userid = $record->userid;
+            $resourcename = $record->resourcename;
+            $logviews = $record->views;
+            $resourceid = $record->resourceid;
+            $resourcetype = $record->resourcetype;
+
+            $grades = -1; // Is required for the construct of the query result, but not meaningful for this query.
+            array_push($queryresults, new query_result($userid, $courseid, $resourceid, $resourcename,
+                                                       $logviews, $grades, $resourcetype));
+        }
+
+        return $queryresults;
+    }
+
+    /**
+     * Queries the resources that have not been viewed any time by a user in a course, looking at core tables. The results
+     * are grouped by different resources this result will later be used to associate this resources, by name and type,
+     * with the historic resources, so it doesn't make sense to have more than a row per resource.
+     * The way the query is constructed is, uhm, a bit dirty, but for the moment is the faster and easier way.
+     *
+     * @todo Refactor the way the query is being constructed.
+     * @param int $userid The user id for querying its not viewed resources.
+     * @param int $courseid The course the user is enrolled in.
+     * @return array Each row of the logs.
+     */
+    public function query_current_not_viewed_resources($userid, $courseid) {
+        global $DB;
+
+        $sql = $this->sql;
+
+        // For getting the results grouped by resources.
+        $groupby = 'GROUP BY logs.id,
+                    logs.resource_type,
+                    logs.moduleid,
+                    logs.module_name,
+                    logs.userid';
+
+        $sql = str_replace('logs.format,', '', $sql);
+        $sql = str_replace('logs.section,', '', $sql);
+        $sql = str_replace('logs.log_views,', '', $sql);
+        $sql = str_replace('logs.course_week as view_date,'. ''. $sql);
+        $sql = str_replace('logs.grades'. ''. $sql);
+        $sql = str_replace('order by logs.userid;', '', $sql);
+        $sql = str_replace('logs.userid,'. 'logs.userid'. $sql); // The last column before the 'from' clause.
+
+        $sql .= ' ' . $groupby;
+
+        // We ignore the weeks, since we want to get the resources that have not been viewed, in the whole course teaching.
+        $sql = str_replace('and ((extract(YEAR from logs.course_week) - %year) * 52) + extract(WEEK from logs.course_week)',
+            '', $sql);
+        $sql = str_replace('between %coursestartweek and %currentweek', '', $sql);
+
+        // We set the userid and the courseid we want to query.
+        $sql = str_replace('where logs.course = %courseid', "where logs.userid = $userid and logs.course = %courseid ", $sql);
+
+        $records = $DB->get_records_sql($sql);
+
+        $queryresults = array();
+
+        foreach ($records as $record) {
+            $userid = $record->userid;
+            $moduleid = $record->moduleid;
+            $modulename = $record->module_name;
+            $resourcetype = $record->resource_type;
+            // The following data is not relevant for this results.
+            $logviews = -1;
+            $grades = -1;
+            $timestamp = -1;
+
+            $queryresult = new query_result($userid, $courseid, $moduleid, $modulename, $logviews,
+                                            $grades, $resourcetype, $timestamp);
+
+            array_push($queryresults, $queryresult);
+        }
+
+        return $queryresults;
+    }
 }
