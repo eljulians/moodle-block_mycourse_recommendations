@@ -484,7 +484,7 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
                 INNER JOIN {block_mycourse_assoc} assoc
                 ON recs.associationid = assoc.id';
         $actualrowcount = $DB->get_record_sql($sql)->c;
-        
+
         $expectedrowcount = $DB->count_records('block_mycourse_user_sel');
 
         $this->assertEquals($expectedrowcount, $actualrowcount);
