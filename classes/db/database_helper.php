@@ -324,8 +324,13 @@ class database_helper {
             $resourcename = $record->resourcename;
             $logviews = $record->views;
             $moduleid = $record->resourceid;
+            $resourcetype = $record->resourcetype;
 
-            array_push($queryresults, new query_result($userid, $courseid, $moduleid, $resourcename, $logviews));
+            // This is irrelevant but required for the constructor.
+            $grades = -1;
+
+            array_push($queryresults, new query_result($userid, $courseid, $moduleid, $resourcename,
+                                                       $logviews, $grades, $resourcetype));
         }
 
         return $queryresults;

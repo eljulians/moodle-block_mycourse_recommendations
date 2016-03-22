@@ -184,6 +184,7 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
             $logview->component = $component;
             $logview->action = 'viewed';
             $logview->target = 'course_module';
+            $logview->objecttable = str_replace('mod_', '', $component);
             $logview->contextlevel = 50;
             $logview->userid = $userid;
             $logview->courseid = $courseid;

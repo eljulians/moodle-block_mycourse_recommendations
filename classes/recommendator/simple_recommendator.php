@@ -313,8 +313,8 @@ class simple_recommendator extends abstract_recommendator {
         foreach ($currentdata as $currentindex => $currentresource) {
             foreach ($previousdata as $previousindex => $previousresource) {
                 $samename = $currentresource->get_modulename() === $previousresource->get_modulename();
-                //$sametype = $currentresource->get_moduletype() === $previousresource->get_moduletype();
-                $sametype = true;
+                $sametype = $currentresource->get_moduletype() === $previousresource->get_moduletype();
+
                 if ($samename && $sametype) {
                     array_push($previousresources, $previousresource);
                     array_push($currentresources, $currentresource);
