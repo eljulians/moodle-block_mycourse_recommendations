@@ -88,7 +88,7 @@ class simple_recommendator extends abstract_recommendator {
 
             foreach ($associations as $associationid => $association) {
                 $trace->output("[mycourse]: Creating recommendations for current user '$association->current_userid', associated"
-                                . " with historic user '$association->historic_userid'.");
+                    . " with historic user '$association->historic_userid'.");
 
                 $userid = $association->historic_userid;
                 $previouscourseid = $association->historic_courseid;
@@ -114,7 +114,9 @@ class simple_recommendator extends abstract_recommendator {
                 $previousresources = $associatedresources['previous'];
                 $currentresources = $associatedresources['current'];
 
-                $previousresources = $this->keep_latest_logviews($previousresources);
+                $lastviewedresources = $this->keep_latest_logviews($previousresources, $currentresources);
+                $previousresources = $lastviewedresources['previous'];
+                $currentresources = $lastviewedresources['current'];
                 $logviews = $this->save_logviews_by_resource($previousresources, $currentresources);
 
                 $recommendations[$recommendationindex] = new \stdClass();
@@ -136,12 +138,12 @@ class simple_recommendator extends abstract_recommendator {
             }
 
             $trace->output('[mycourse]: All the recommendations have been created. Total count of recommendations: '
-                            . count($recommendations));
+                . count($recommendations));
             $trace->output('[mycourse]: Inserting recommendations into database...');
 
             foreach ($recommendations as $index => $recommendation) {
                 $this->db->insert_recommendations($recommendation->number, $recommendation->associationids,
-                        $recommendation->resourcesids, $recommendation->priorities);
+                    $recommendation->resourcesids, $recommendation->priorities);
             }
 
             $trace->output('[mycourse]: The recommendations have been inserted into database.');
@@ -194,7 +196,7 @@ class simple_recommendator extends abstract_recommendator {
         $endweek += parent::TIME_WINDOW;
 
         $trace->output("[mycourse]: Log data for course '$courseid' will be queried with the following parameters: year: $year;"
-                        . " from start week: $startweek; to end week: $endweek");
+            . " from start week: $startweek; to end week: $endweek");
         $currentdata = $this->db->query_data($courseid, $year, $startweek, $endweek);
 
         // We keep only the users that are selected to receive the recommendations.
@@ -210,14 +212,14 @@ class simple_recommendator extends abstract_recommendator {
 
         $previouscourse = max($previouscourses);
         $trace->output("[mycourse]: Current course: '$courseid' will use the historic course '$previouscourse'"
-                        . " for the associations.");
+            . " for the associations.");
 
         $coursedates = $this->db->get_course_start_week_and_year($previouscourse, true);
         $startweek = $coursedates['week'];
         $year = $coursedates['year'];
 
         $trace->output("[mycourse]: Log data for course '$previouscourse' will be queried with the following parameters:"
-                        . " year: $year; from start week: $startweek; to end week: $endweek");
+            . " year: $year; from start week: $startweek; to end week: $endweek");
         $previousdata = $this->db->query_historic_course_data($previouscourse, $year, $startweek, $endweek, null, true);
 
         $associatedresources = $this->associate_resources($previousdata, $currentselecteddata);
@@ -247,7 +249,7 @@ class simple_recommendator extends abstract_recommendator {
                 array_push($historicusersids, intval($highestsimilarityindex[0]));
 
                 $trace->output("[mycourse]: Current user '$currentuser' has been associated with historic user"
-                                . " '$highestsimilarityindex[0]'.");
+                    . " '$highestsimilarityindex[0]'.");
             }
 
             // Finally, we call the function that will insert the associations into the database.
@@ -284,12 +286,8 @@ class simple_recommendator extends abstract_recommendator {
         foreach ($currentdata as $currentindex => $currentresource) {
             foreach ($previousdata as $previousindex => $previousresource) {
                 if ($currentresource->get_modulename() === $previousresource->get_modulename()) {
-                    if (!in_array($previousresource, $previousresources)) {
-                        array_push($previousresources, $previousresource);
-                    }
-                    if (!in_array($currentresource, $currentresources)) {
-                        array_push($currentresources, $currentresource);
-                    }
+                    array_push($previousresources, $previousresource);
+                    array_push($currentresources, $currentresource);
                 }
             }
         }
@@ -309,20 +307,23 @@ class simple_recommendator extends abstract_recommendator {
      * @return blocks_mycourse_recommendations\query_result The received queried data, but only with the latest views
      * of the resources.
      */
-    protected function keep_latest_logviews($previousresources) {
+    protected function keep_latest_logviews($previousresources, $currentresources) {
         $auxpreviousresources = $previousresources;
+        $auxcurrentresources = $currentresources;
 
         foreach ($previousresources as $previousindex => $previousresource) {
             foreach ($auxpreviousresources as $auxindex => $aux) {
                 if ($aux->get_moduleid() === $previousresource->get_moduleid()) {
                     if ($previousresource->get_logviews() > $aux->get_logviews()) {
                         unset($auxpreviousresources[$auxindex]);
+                        unset($auxcurrentresources[$auxindex]);
                     }
                 }
             }
         }
 
-        return array_values($auxpreviousresources);
+        //return array_values($auxpreviousresources);
+        return array('previous' => array_values($auxpreviousresources), 'current' => array_values($auxcurrentresources));
     }
 
     /**

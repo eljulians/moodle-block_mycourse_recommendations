@@ -63,12 +63,12 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         $this->previousstartdate = strtotime("06-01-$this->previousyear");
 
         $this->previouscourseattributes = array('fullname' => 'Software Engineering II',
-                                                'startdate' => $this->previousstartdate);
+            'startdate' => $this->previousstartdate);
 
         $this->currentyear = 2016;
         $this->currentstartdate = strtotime("12-01-$this->currentyear");
         $this->currentcourseattributes = array('fullname' => 'Software Engineering II',
-                                               'startdate' => $this->currentstartdate);
+            'startdate' => $this->currentstartdate);
 
         $this->currentcourse = $this->create_courses($this->currentcourseattributes, 1);
         $this->dbhelper = new database_helper();
@@ -247,7 +247,7 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         foreach ($previouslogviews as $userid => $resourceslogviews) {
             foreach ($resourceslogviews as $resourceindex => $logviews) {
                 $this->create_previous_course_logview($userid, $previouscoursesids[0], $resources[$resourceindex]->name,
-                                                      'page', $logviews, $this->previousstartdate, $resourceindex);
+                    'page', $logviews, $this->previousstartdate, $resourceindex);
             }
         }
 
@@ -293,7 +293,7 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         foreach ($currentlogviews as $userid => $resourceslogviews) {
             foreach ($resourceslogviews as $resourceindex => $logviews) {
                 $this->create_logview($userid, $currentcourses[0]->id, $resources[$resourceindex]->id,
-                                      $eventname, $component, $this->currentstartdate, $logviews);
+                    $eventname, $component, $this->currentstartdate, $logviews);
             }
         }
 
@@ -361,7 +361,7 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         $previousyear = 2015;
         $previousstartdate = strtotime("06-01-$previousyear");
         $previousattributes = array('fullname' => $coursesname,
-                                    'startdate' => $previousstartdate);
+            'startdate' => $previousstartdate);
 
         $previouscourse = $this->create_courses($previousattributes, 1)[0];
 
@@ -417,7 +417,7 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         $currentyear = 2016;
         $currentstartdate = strtotime("06-01-$currentyear");
         $currentattributes = array('fullname' => $coursesname,
-                                    'startdate' => $currentstartdate);
+            'startdate' => $currentstartdate);
         $currentcourse = $this->create_courses($currentattributes, 1)[0];
         $currentcourseid = $currentcourse->id;
 
@@ -459,7 +459,7 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         foreach ($currentlogviews as $currentuserid => $currentresourcesviews) {
             foreach ($currentresourcesviews as $resourceindex => $resourceviews) {
                 $this->create_logview($currentuserid, $currentcourse->id, $currentresources[$resourceindex]->id, $eventname,
-                                      $component, $currentstartdate, $resourceviews);
+                    $component, $currentstartdate, $resourceviews);
             }
         }
 
@@ -602,15 +602,15 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         $functioninput = array();
         foreach ($inputs as $index => $input) {
             $functioninput[$index] = new query_result($input->userid, $input->courseid, $input->moduleid,
-                                                      $input->modulename, $input->logviews);
+                $input->modulename, $input->logviews);
         }
 
-        $actuals = $testfunction->invokeArgs($this->recommendator, array($functioninput));
+        $actuals = $testfunction->invokeArgs($this->recommendator, array($functioninput, $functioninput))['previous'];
 
         $expecteds = array();
         foreach ($inputs as $index => $input) {
             $expecteds[$index] = new query_result($input->userid, $input->courseid, $input->moduleid,
-                                                      $input->modulename, $input->logviews);
+                $input->modulename, $input->logviews);
         }
         // We remove the record that the function it's supposed to remove, and we re-align the array.
         unset($expecteds[1]);
@@ -656,9 +656,9 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
 
         foreach ($inputs as $index => $input) {
             $functioninput[$index] = new query_result($input->userid, $input->courseid, $input->moduleid,
-                                                      $input->modulename, $input->logviews);
+                $input->modulename, $input->logviews);
             $functioncurrentinput[$index] = new query_result($input->userid, $input->courseid, $input->moduleid,
-                                                             $input->modulename, $input->logviews);
+                $input->modulename, $input->logviews);
         }
 
         $actuals = $testfunction->invokeArgs($this->recommendator, array($functioninput, $functioncurrentinput));
