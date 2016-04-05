@@ -798,6 +798,8 @@ class database_helper {
      * Queries the week and year start of a course.
      *
      * @param int $courseid The course to query the start week and year of.
+     * @param boolean $historiccourse If the course is historic or not, in order to look for the information in plugin's
+     * historic tables (if true); or to look in core tables (if false).
      * @return array The week number ([1, 52]); the year.
      */
     public function get_course_start_week_and_year($courseid, $historiccourse = false) {

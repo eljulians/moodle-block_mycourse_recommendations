@@ -30,9 +30,9 @@ $tasks = array(
         'classname' => 'block_mycourse_recommendations\task\create_recommendations_task',
         'blocking' => '0',
         'minute' => '00',
-        'hour' => '4',
+        'hour' => '1',
         'day' => '*',
-        'dayofweek' => '0',
+        'dayofweek' => '1',
         'month' => '*'
     )
 );

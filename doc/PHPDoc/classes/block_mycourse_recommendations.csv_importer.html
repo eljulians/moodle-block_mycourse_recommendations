@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+    <meta charset="utf-8"/>
+    <title>API Documentation</title>
+    <meta name="author" content=""/>
+    <meta name="description" content=""/>
+
+    <link href="../css/bootstrap-combined.no-icons.min.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/prism.css" rel="stylesheet" media="all"/>
+    <link href="../css/template.css" rel="stylesheet" media="all"/>
+    
+    <!--[if lt IE 9]>
+    <script src="../js/html5.js"></script>
+    <![endif]-->
+    <script src="../js/jquery-1.11.0.min.js"></script>
+    <script src="../js/ui/1.10.4/jquery-ui.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+    <script src="../js/jquery.smooth-scroll.js"></script>
+    <script src="../js/prism.min.js"></script>
+    <!-- TODO: Add http://jscrollpane.kelvinluck.com/ to style the scrollbars for browsers not using webkit-->
+    <script type="text/javascript">
+    function loadExternalCodeSnippets() {
+        Array.prototype.slice.call(document.querySelectorAll('pre[data-src]')).forEach(function (pre) {
+            var src = pre.getAttribute('data-src');
+            var extension = (src.match(/\.(\w+)$/) || [, ''])[1];
+            var language = 'php';
+
+            var code = document.createElement('code');
+            code.className = 'language-' + language;
+
+            pre.textContent = '';
+
+            code.textContent = 'Loading…';
+
+            pre.appendChild(code);
+
+            var xhr = new XMLHttpRequest();
+
+            xhr.open('GET', src, true);
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4) {
+
+                    if (xhr.status < 400 && xhr.responseText) {
+                        code.textContent = xhr.responseText;
+
+                        Prism.highlightElement(code);
+                    }
+                    else if (xhr.status >= 400) {
+                        code.textContent = '✖ Error ' + xhr.status + ' while fetching file: ' + xhr.statusText;
+                    }
+                    else {
+                        code.textContent = '✖ Error: File does not exist or is empty';
+                    }
+                }
+            };
+
+            xhr.send(null);
+        });
+    }
+
+    $(document).ready(function(){
+        loadExternalCodeSnippets();
+    });
+    $('#source-view').on('shown', function () {
+        loadExternalCodeSnippets();
+    })
+</script>
+
+    <link rel="shortcut icon" href="../images/favicon.ico"/>
+    <link rel="apple-touch-icon" href="../images/apple-touch-icon.png"/>
+    <link rel="apple-touch-icon" sizes="72x72" href="../images/apple-touch-icon-72x72.png"/>
+    <link rel="apple-touch-icon" sizes="114x114" href="../images/apple-touch-icon-114x114.png"/>
+</head>
+<body>
+
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <i class="icon-ellipsis-vertical"></i>
+            </a>
+            <a class="brand" href="../index.html">API Documentation</a>
+
+            <div class="nav-collapse">
+                <ul class="nav pull-right">
+                                        <li class="dropdown">
+                        <a href="../index.html" class="dropdown-toggle" data-toggle="dropdown">
+                            API Documentation <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                                                        <li><a href="../namespaces/block_mycourse_recommendations.html">\block_mycourse_recommendations</a></li>
+                                                    </ul>
+                    </li>
+                                        <li class="dropdown" id="charts-menu">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            Charts <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="../graphs/class.html">
+                                    <i class="icon-list-alt"></i>&#160;Class hierarchy diagram
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="dropdown" id="reports-menu">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            Reports <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="../reports/errors.html">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">0</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="../reports/markers.html">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Markers <span class="label label-info pull-right">1</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="../reports/deprecated.html">
+                                                                                                            <i class="icon-list-alt"></i>&#160;Deprecated <span class="label label-info pull-right">0</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!--<div class="go_to_top">-->
+    <!--<a href="#___" style="color: inherit">Back to top&#160;&#160;<i class="icon-upload icon-white"></i></a>-->
+    <!--</div>-->
+</div>
+
+<div id="___" class="container-fluid">
+        <section class="row-fluid">
+        <div class="span2 sidebar">
+                                <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-1207956057"></a>
+                                <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
+            </div>
+            <div id="namespace-1207956057" class="accordion-body collapse in">
+                <div class="accordion-inner">
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1374874897"></a>
+                                <a href="../namespaces/block_mycourse_recommendations.html" style="margin-left: 30px; padding-left: 0">block_mycourse_recommendations</a>
+            </div>
+            <div id="namespace-1374874897" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-868626816"></a>
+                                <a href="../namespaces/block_mycourse_recommendations.task.html" style="margin-left: 30px; padding-left: 0">task</a>
+            </div>
+            <div id="namespace-868626816" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/block_mycourse_recommendations.task.create_recommendations_task.html">create_recommendations_task</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                    
+                    <ul>
+                                                    <li class="interface"><a href="../classes/block_mycourse_recommendations.abstract_associator.html">abstract_associator</a></li>
+                                                    <li class="interface"><a href="../classes/block_mycourse_recommendations.abstract_matrix.html">abstract_matrix</a></li>
+                                                                                                    <li class="class"><a href="../classes/block_mycourse_recommendations.abstract_recommendator.html">abstract_recommendator</a></li>
+                                                    <li class="class"><a href="../classes/block_mycourse_recommendations.cosine_similarity_associator.html">cosine_similarity_associator</a></li>
+                                                    <li class="class"><a href="../classes/block_mycourse_recommendations.course_filter.html">course_filter</a></li>
+                                                    <li class="class"><a href="../classes/block_mycourse_recommendations.csv_importer.html">csv_importer</a></li>
+                                                    <li class="class"><a href="../classes/block_mycourse_recommendations.database_helper.html">database_helper</a></li>
+                                                    <li class="class"><a href="../classes/block_mycourse_recommendations.decimal_matrix.html">decimal_matrix</a></li>
+                                                    <li class="class"><a href="../classes/block_mycourse_recommendations.import_form.html">import_form</a></li>
+                                                    <li class="class"><a href="../classes/block_mycourse_recommendations.query_result.html">query_result</a></li>
+                                                    <li class="class"><a href="../classes/block_mycourse_recommendations.recommendations_renderer.html">recommendations_renderer</a></li>
+                                                    <li class="class"><a href="../classes/block_mycourse_recommendations.simple_recommendator.html">simple_recommendator</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                    
+                    <ul>
+                                                                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        </div>
+    </section>
+    <section class="row-fluid">
+        <div class="span10 offset2">
+            <div class="row-fluid">
+                <div class="span8 content class">
+                    <nav>
+                                                <a href="../namespaces/block_mycourse_recommendations.html">\block_mycourse_recommendations</a> <i class="icon-level-up"></i>
+                                            </nav>
+                    <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal"><i class="icon-code"></i></a>
+
+                    <h1><small>\block_mycourse_recommendations</small>csv_importer</h1>
+                    <p><em>The class that imports data from a CSV file to the historic tables.</em></p>
+                    
+                    
+                                        
+                    <section id="summary">
+                        <h2>Summary</h2>
+                        <section class="row-fluid heading">
+                            <section class="span4">
+                                <a href="#methods">Methods</a>
+                            </section>
+                            <section class="span4">
+                                <a href="#properties">Properties</a>
+                            </section>
+                            <section class="span4">
+                                <a href="#constants">Constants</a>
+                            </section>
+                        </section>
+                        <section class="row-fluid public">
+                            <section class="span4">
+                                                                    <a href="../classes/block_mycourse_recommendations.csv_importer.html#method_import_data" class="">import_data()</a><br />
+                                                                    <a href="../classes/block_mycourse_recommendations.csv_importer.html#method_import_course" class="">import_course()</a><br />
+                                                                    <a href="../classes/block_mycourse_recommendations.csv_importer.html#method_import_users" class="">import_users()</a><br />
+                                                                    <a href="../classes/block_mycourse_recommendations.csv_importer.html#method_import_logs" class="">import_logs()</a><br />
+                                                                    <a href="../classes/block_mycourse_recommendations.csv_importer.html#method_get_lastinsertedcourses" class="">get_lastinsertedcourses()</a><br />
+                                                                    <a href="../classes/block_mycourse_recommendations.csv_importer.html#method_get_lastinsertedusers" class="">get_lastinsertedusers()</a><br />
+                                                                    <a href="../classes/block_mycourse_recommendations.csv_importer.html#method_get_lastinsertedlogs" class="">get_lastinsertedlogs()</a><br />
+                                                            </section>
+                            <section class="span4">
+                                                                    <em>No public properties found</em>
+                                                            </section>
+                            <section class="span4">
+                                                                    <em>No constants found</em>
+                                                            </section>
+                        </section>
+                        <section class="row-fluid protected">
+                            <section class="span4">
+                                                                    <em>No protected methods found</em>
+                                                            </section>
+                            <section class="span4">
+                                                                    <em>No protected properties found</em>
+                                                            </section>
+                            <section class="span4">
+                                <em>N/A</em>
+                            </section>
+                        </section>
+                        <section class="row-fluid private">
+                            <section class="span4">
+                                                                    <em>No private methods found</em>
+                                                            </section>
+                            <section class="span4">
+                                                                    <a href="../classes/block_mycourse_recommendations.csv_importer.html#property_lastinsertedcourses" class="">$lastinsertedcourses</a><br />
+                                                                    <a href="../classes/block_mycourse_recommendations.csv_importer.html#property_lastinsertedusers" class="">$lastinsertedusers</a><br />
+                                                                    <a href="../classes/block_mycourse_recommendations.csv_importer.html#property_lastinsertedlogs" class="">$lastinsertedlogs</a><br />
+                                                            </section>
+                            <section class="span4">
+                                <em>N/A</em>
+                            </section>
+                        </section>
+                    </section>
+                </div>
+                <aside class="span4 detailsbar">
+                                        
+                    
+                    <dl>
+                        <dt>File</dt>
+                            <dd><a href="../files/importer.csv_importer.html"><div class="path-wrapper">importer/csv_importer.php</div></a></dd>
+                                                <dt>Package</dt>
+                            <dd><div class="namespace-wrapper">block_mycourse_recommendations</div></dd>
+                                                <dt>Class hierarchy</dt>
+                            <dd class="hierarchy">
+                                                                                                                                                                    <div class="namespace-wrapper">\block_mycourse_recommendations\csv_importer</div>
+                            </dd>
+
+                        
+                        
+                        
+                        
+                                                                        </dl>
+                    <h2>Tags</h2>
+                    <table class="table table-condensed">
+                                            <tr>
+                            <th>
+                                copyright
+                            </th>
+                            <td>
+                                                                    <p>2016 onwards Julen Pardo &amp; Mondragon Unibertsitatea</p>
+                                                            </td>
+                        </tr>
+                                            <tr>
+                            <th>
+                                license
+                            </th>
+                            <td>
+                                                                    <p><a href="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</a> GNU GPL v3 or later</p>
+                                                            </td>
+                        </tr>
+                                        </table>
+                </aside>
+            </div>
+
+                        
+                                    <a id="properties" name="properties"></a>
+            <div class="row-fluid">
+                <div class="span8 content class">
+                    <h2>Properties</h2>
+                </div>
+                <aside class="span4 detailsbar"></aside>
+            </div>
+
+                                                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_lastinsertedcourses" name="property_lastinsertedcourses" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$lastinsertedcourses</h3>
+                <pre class="signature">$lastinsertedcourses : integer</pre>
+                <p><em>The count of inserted last courses.</em></p>
+                
+
+                                <h4>Type</h4>
+                integer
+                                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_lastinsertedusers" name="property_lastinsertedusers" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$lastinsertedusers</h3>
+                <pre class="signature">$lastinsertedusers : integer</pre>
+                <p><em>The count of last inserted users.</em></p>
+                
+
+                                <h4>Type</h4>
+                integer
+                                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_lastinsertedlogs" name="property_lastinsertedlogs" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$lastinsertedlogs</h3>
+                <pre class="signature">$lastinsertedlogs : integer</pre>
+                <p><em>The count of last inserted logs.</em></p>
+                
+
+                                <h4>Type</h4>
+                integer
+                                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                            
+                                    <a id="methods" name="methods"></a>
+            <div class="row-fluid">
+                <div class="span8 content class"><h2>Methods</h2></div>
+                <aside class="span4 detailsbar"></aside>
+            </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_import_data" name="method_import_data" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">import_data()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">import_data(object  <span class="argument">$formdata</span>, object  <span class="argument">$coursefile</span>, object  <span class="argument">$usersfile</span>, object  <span class="argument">$logsfile</span>, integer  <span class="argument">$currentcourseid</span>) </pre>
+                <p><em>Receiving the three required CSVs, performs the importation of the data of a course: course info, enrolled users,
+and log info. The data is imported to a total of three different tables. All operations are done in a unique
+transaction: if something fails (a CSV does not respect the format, an importing course exists, etc.), nothing
+will be saved.</em></p>
+                <p>After the importation, associates the just created historic course with the current course, and sets this course as
+active and personalizable, just in case it was marked as inactive and/or not personalizable.</p>
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>object</td>
+                                <td>$formdata </td>
+                                <td><p>The data submited in form.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>object</td>
+                                <td>$coursefile </td>
+                                <td><p>The CSV file with the information about the course.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>object</td>
+                                <td>$usersfile </td>
+                                <td><p>The CSV file with the information about the users enrolled in courses.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>object</td>
+                                <td>$logsfile </td>
+                                <td><p>The CSV file with the information about the log views of the users.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$currentcourseid </td>
+                                <td><p>The course id of the course for which the csv is being imported.</p></td>
+                            </tr>
+                                            </table>
+                
+                                    <h4>Throws</h4>
+                    <dl>
+                                                    <dt>\Exception</dt>
+                            <dd><p>If something bad happened when trying to insert the data. The exception is thrown after doing the
+rollback.</p></dd>
+                                                                    </dl>
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                            <span class="label label-info">static</span>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_import_course" name="method_import_course" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">import_course()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">import_course(object  <span class="argument">$coursefile</span>, object  <span class="argument">$formdata</span>, \block_mycourse_recommendations\database_helper  <span class="argument">$db</span>) : integer</pre>
+                <p><em>Imports the course defined in the csv file, and then returns the generated identifier for it. This is made under the
+transaction initiated in import_data function.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>object</td>
+                                <td>$coursefile </td>
+                                <td><p>Course csv file.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>object</td>
+                                <td>$formdata </td>
+                                <td><p>Submitted form data, needed to load the csv.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td><a href="../classes/block_mycourse_recommendations.database_helper.html">\block_mycourse_recommendations\database_helper</a></td>
+                                <td>$db </td>
+                                <td><p>Database handler object, passed as argument to instance it
+again.</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    integer
+                                            &mdash; <p>Course id generated.</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                            <span class="label label-info">static</span>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_import_users" name="method_import_users" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">import_users()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">import_users(object  <span class="argument">$usersfile</span>, object  <span class="argument">$formdata</span>, integer  <span class="argument">$courseid</span>, \block_mycourse_recommendations\database_helper  <span class="argument">$db</span>) </pre>
+                <p><em>Imports the users defined in the csv file, iterating each row. This is made under the transaction initiated in import_data
+function.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>object</td>
+                                <td>$usersfile </td>
+                                <td><p>Course csv file.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>object</td>
+                                <td>$formdata </td>
+                                <td><p>Submitted form data, needed to load the csv.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$courseid </td>
+                                <td><p>Generated course id in this transaction.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td><a href="../classes/block_mycourse_recommendations.database_helper.html">\block_mycourse_recommendations\database_helper</a></td>
+                                <td>$db </td>
+                                <td><p>Database handler object, passed as argument to instance it
+again.</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                            <span class="label label-info">static</span>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_import_logs" name="method_import_logs" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">import_logs()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">import_logs(object  <span class="argument">$logsfile</span>, object  <span class="argument">$formdata</span>, integer  <span class="argument">$courseid</span>, \block_mycourse_recommendations\database_helper  <span class="argument">$db</span>) </pre>
+                <p><em>Imports the log views defined in the csv file, iterating each row. This is made under the transaction initiated in
+import_data function.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>object</td>
+                                <td>$logsfile </td>
+                                <td><p>Course csv file.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>object</td>
+                                <td>$formdata </td>
+                                <td><p>Submitted form data, needed to load the csv.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$courseid </td>
+                                <td><p>Generated course id in this transaction.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td><a href="../classes/block_mycourse_recommendations.database_helper.html">\block_mycourse_recommendations\database_helper</a></td>
+                                <td>$db </td>
+                                <td><p>Database handler object, passed as argument to instance it
+again.</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                            <span class="label label-info">static</span>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_get_lastinsertedcourses" name="method_get_lastinsertedcourses" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">get_lastinsertedcourses()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">get_lastinsertedcourses() : integer</pre>
+                <p><em>Returns the number of last inserted courses.</em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    integer
+                                            &mdash; <p>Number of last inserted courses.</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                            <span class="label label-info">static</span>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_get_lastinsertedusers" name="method_get_lastinsertedusers" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">get_lastinsertedusers()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">get_lastinsertedusers() : integer</pre>
+                <p><em>Returns the number of last inserted users.</em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    integer
+                                            &mdash; <p>Number of last inserted users.</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                            <span class="label label-info">static</span>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_get_lastinsertedlogs" name="method_get_lastinsertedlogs" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">get_lastinsertedlogs()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">get_lastinsertedlogs() : integer</pre>
+                <p><em>Returns the number of last inserted logs.</em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    integer
+                                            &mdash; <p>Number of last inserted logs.</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                            <span class="label label-info">static</span>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                                                    </div>
+    </section>
+
+    <div id="source-view" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="source-view-label" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="source-view-label">csv_importer.php</h3>
+        </div>
+        <div class="modal-body">
+            <pre data-src="../files/importer/csv_importer.php.txt" class="language-php line-numbers"></pre>
+        </div>
+    </div>
+
+    <footer class="row-fluid">
+        <section class="span10 offset2">
+            <section class="row-fluid">
+                <section class="span10 offset1">
+                    <section class="row-fluid footer-sections">
+                        <section class="span4">
+                                                        <h1><i class="icon-code"></i></h1>
+                            <div>
+                                <ul>
+                                                                            <li><a href="../namespaces/block_mycourse_recommendations.html">\block_mycourse_recommendations</a></li>
+                                                                    </ul>
+                            </div>
+                        </section>
+                        <section class="span4">
+                                                        <h1><i class="icon-bar-chart"></i></h1>
+                            <div>
+                                <ul>
+                                    <li><a href="../graphs/class.html">Class Hierarchy Diagram</a></li>
+                                </ul>
+                            </div>
+                        </section>
+                        <section class="span4">
+                                                        <h1><i class="icon-pushpin"></i></h1>
+                            <div>
+                                <ul>
+                                    <li><a href="../reports/errors.html">Errors</a></li>
+                                    <li><a href="../reports/markers.html">Markers</a></li>
+                                </ul>
+                            </div>
+                        </section>
+                    </section>
+                </section>
+            </section>
+            <section class="row-fluid">
+                <section class="span10 offset1">
+                    <hr />
+                    Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
+                    on April 5th, 2016 at 19:12.
+                </section>
+            </section>
+        </section>
+    </footer>
+</div>
+
+</body>
+</html>

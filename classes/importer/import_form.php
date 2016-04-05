@@ -36,6 +36,7 @@ define('MAX_FILES', 3);
 define('MAX_BYTES', 1000000);
 
 /**
+ * Class import_form to import historic data from CSV files.
  *
  * @package    block_mycourse_recommendations
  * @copyright  2016 onwards Julen Pardo & Mondragon Unibertsitatea

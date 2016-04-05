@@ -95,6 +95,7 @@ class query_result {
      * @param int $logviews
      * @param float $grades Default set to -1, because it can be empty in database.
      * @param string $moduletype The module type.
+     * @param int timestamp The UNIX timestamp that indicates the time of the view of the resource, trunked to week start.
      */
     public function __construct($userid, $courseid, $moduleid, $modulename, $logviews, $grades = -1,
                                 $moduletype = '', $timestamp = 0) {

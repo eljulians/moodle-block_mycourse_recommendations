@@ -147,7 +147,7 @@ class csv_importer {
      *
      * @param object $usersfile Course csv file.
      * @param object $formdata Submitted form data, needed to load the csv.
-     * param int $courseid Generated course id in this transaction.
+     * @param int $courseid Generated course id in this transaction.
      * @param \block_mycourse_recommendations\database_helper $db Database handler object, passed as argument to instance it
      * again.
      */
@@ -180,7 +180,7 @@ class csv_importer {
      *
      * @param object $logsfile Course csv file.
      * @param object $formdata Submitted form data, needed to load the csv.
-     * param int $courseid Generated course id in this transaction.
+     * @param int $courseid Generated course id in this transaction.
      * @param \block_mycourse_recommendations\database_helper $db Database handler object, passed as argument to instance it
      * again.
      */

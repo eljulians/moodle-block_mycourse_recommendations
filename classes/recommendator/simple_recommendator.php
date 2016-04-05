@@ -335,9 +335,10 @@ class simple_recommendator extends abstract_recommendator {
      * Discards the older results of a query, removing those duplicated rows for a resource that have less views compared with
      * other views of the same resource.
      *
-     * @param blocks_mycourse_recommendations\query_result $previousresources The queried data of the previous course.
-     * @return blocks_mycourse_recommendations\query_result The received queried data, but only with the latest views
-     * of the resources.
+     * @param \block_mycourse_recommendations\query_result $previousresources The queried data of the previous course.
+     * @param \block_mycourse_recommendations\query_result $currentresources The queried data of the current course.
+     * @return array The received queried data, but only with the latest
+     * views of the resources.
      */
     protected function keep_latest_logviews($previousresources, $currentresources) {
         $auxpreviousresources = $previousresources;
