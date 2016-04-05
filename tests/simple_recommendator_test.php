@@ -63,12 +63,12 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         $this->previousstartdate = strtotime("06-01-$this->previousyear");
 
         $this->previouscourseattributes = array('fullname' => 'Software Engineering II',
-                                                'startdate' => $this->previousstartdate);
+            'startdate' => $this->previousstartdate);
 
         $this->currentyear = 2016;
         $this->currentstartdate = strtotime("12-01-$this->currentyear");
         $this->currentcourseattributes = array('fullname' => 'Software Engineering II',
-                                               'startdate' => $this->currentstartdate);
+            'startdate' => $this->currentstartdate);
 
         $this->currentcourse = $this->create_courses($this->currentcourseattributes, 1);
         $this->dbhelper = new database_helper();
@@ -96,6 +96,31 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         return $courses;
     }
 
+    protected function insert_previous_courses_in_historic_data($previouscourses) {
+        global $DB;
+
+        foreach ($previouscourses as $previouscourse) {
+            $record = new stdClass();
+            $record->fullname = $previouscourse->fullname;
+            $record->shortname = $previouscourse->shortname;
+            $record->startdate = $previouscourse->startdate;
+            $record->idnumber = $previouscourse->idnumber;
+            $record->category = $previouscourse->category;
+
+            $DB->insert_record('block_mycourse_hist_course', $record);
+        }
+
+        $createdids = array();
+
+        $records = $DB->get_records('block_mycourse_hist_course');
+
+        foreach ($records as $record) {
+            array_push($createdids, $record->id);
+        }
+
+        return $createdids;
+    }
+
     /**
      * Creates resources.
      *
@@ -118,19 +143,28 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         return $createdresources;
     }
 
-    /**
-     * Creates n number of students (roleid = 5) for the given course.
-     *
-     * @param int $courseid The course to enrol the student in.
-     * @param int $number The number of students to create.
-     */
-    protected function create_and_enrol_students($courseid, $number) {
+    protected function create_and_enrol_students($courseid, $number, $previoususers = false) {
+        global $DB;
+
         $users = array();
 
-        for ($index = 0; $index < $number; $index++) {
-            $newuser = $this->getDataGenerator()->create_user();
-            $this->getDataGenerator()->enrol_user($newuser->id, $courseid, 5); // The student role id.
-            array_push($users, $newuser);
+        if (!$previoususers) {
+            for ($index = 0; $index < $number; $index++) {
+                $newuser = $this->getDataGenerator()->create_user();
+                $this->getDataGenerator()->enrol_user($newuser->id, $courseid, 5); // The student role id.
+
+                array_push($users, $newuser);
+            }
+        } else {
+            for ($index = 0; $index < $number; $index++) {
+                $newuser = $this->getDataGenerator()->create_user();
+                $this->getDataGenerator()->enrol_user($newuser->id, $courseid, 5); // The student role id.
+                $sql = 'INSERT INTO {block_mycourse_hist_enrol} (userid, courseid, grade)
+                        VALUES(:v1, :v2, :v3)';
+                $values = ['v1' => $newuser->id, 'v2' => $courseid, 'v3' => 7];
+                $DB->execute($sql, $values);
+                array_push($users, $newuser);
+            }
         }
 
         return $users;
@@ -150,6 +184,7 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
             $logview->component = $component;
             $logview->action = 'viewed';
             $logview->target = 'course_module';
+            $logview->objecttable = str_replace('mod_', '', $component);
             $logview->contextlevel = 50;
             $logview->userid = $userid;
             $logview->courseid = $courseid;
@@ -160,12 +195,27 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
 
             $DB->insert_record('logstore_standard_log', $logview);
         }
+    }
 
+    protected function create_previous_course_logview($userid, $courseid, $resourcename, $resourcetype, $views,
+                                                      $timecreated, $uniquevalue) {
+        global $DB;
+
+        $logview = new stdClass();
+
+        $logview->courseid = $courseid;
+        $logview->userid = $userid;
+        $logview->resourcename = $resourcename;
+        $logview->resourcetype = $resourcetype;
+        $logview->resourceid = $uniquevalue;
+        $logview->views = $views;
+        $logview->timecreated = $timecreated;
+
+        $DB->insert_record('block_mycourse_hist_data', $logview);
     }
 
     public function test_create_associations() {
         global $DB;
-        global $CFG;
 
         $this->resetAfterTest();
         $this->setAdminUser();
@@ -177,8 +227,11 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         // We have to creates a course before creating resources, with the attributes defined in setUp.
         $previouscourses = $this->create_courses($this->previouscourseattributes, 1);
 
+        // We have to insert those courses in the historic data tables.
+        $previouscoursesids = $this->insert_previous_courses_in_historic_data($previouscourses);
+
         // We create the previous users...
-        $previoususers = $this->create_and_enrol_students($previouscourses[0]->id, 3);
+        $previoususers = $this->create_and_enrol_students($previouscoursesids[0], 3, true);
 
         // We create the resources...
         $numberofresources = 3;
@@ -194,13 +247,22 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
 
         foreach ($previouslogviews as $userid => $resourceslogviews) {
             foreach ($resourceslogviews as $resourceindex => $logviews) {
-                $this->create_logview($userid, $previouscourses[0]->id, $resources[$resourceindex]->id,
-                                      $eventname, $component, $this->previousstartdate, $logviews);
+                $this->create_previous_course_logview($userid, $previouscoursesids[0], $resources[$resourceindex]->name,
+                    'page', $logviews, $this->previousstartdate, $resourceindex);
             }
         }
 
         // We create the current users...
         $currentcourses = $this->create_courses($this->currentcourseattributes, 1);
+        $currentcourseid = $currentcourses[0]->id;
+
+        // We need to insert the courses associations in its table, because the recommendator looks at that table which
+        // historic courses are related to the given current course.
+        foreach ($previouscoursesids as $previouscoursesid) {
+            $sql = "INSERT INTO {block_mycourse_course_assoc} (current_courseid, historic_courseid)
+                    VALUES ($currentcourseid, $previouscoursesid)";
+            $DB->execute($sql);
+        }
 
         $currentusers = $this->create_and_enrol_students($currentcourses[0]->id, 3);
 
@@ -232,12 +294,12 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         foreach ($currentlogviews as $userid => $resourceslogviews) {
             foreach ($resourceslogviews as $resourceindex => $logviews) {
                 $this->create_logview($userid, $currentcourses[0]->id, $resources[$resourceindex]->id,
-                                      $eventname, $component, $this->currentstartdate, $logviews);
+                    $eventname, $component, $this->currentstartdate, $logviews);
             }
         }
 
         // After the logs are created, we can call the function we're testing.
-        $this->recommendator->create_associations($currentcourses[0]->id, 2);
+        $this->recommendator->create_associations($currentcourses[0]->id, 2,  new \null_progress_trace());
 
         // The number of rows of the table has to be equal to the number of selected students, otherwise, something is wrong.
         $actualrowcount = $DB->count_records('block_mycourse_assoc');
@@ -262,23 +324,20 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         $expecteds[0]->current_userid = $currentusers[0]->id;
         $expecteds[0]->current_courseid = $currentcourses[0]->id;
         $expecteds[0]->historic_userid = $previoususers[2]->id;
-        $expecteds[0]->historic_courseid = $previouscourses[0]->id;
+        $expecteds[0]->historic_courseid = $previouscoursesids[0];
         $expecteds[0]->week = 2;
 
         $expecteds[1] = new stdClass();
         $expecteds[1]->current_userid = $currentusers[1]->id;
         $expecteds[1]->current_courseid = $currentcourses[0]->id;
         $expecteds[1]->historic_userid = $previoususers[0]->id;
-        $expecteds[1]->historic_courseid = $previouscourses[0]->id;
+        $expecteds[1]->historic_courseid = $previouscoursesids[0];
         $expecteds[1]->week = "2";
 
         // Probably asserting each object, instead of the whole arrays of objects, will cause less trouble.
         foreach (array_keys($actuals) as $index) {
             $this->assertEquals($expecteds[$index], $actuals[$index]);
         }
-
-        $DB->delete_records('block_mycourse_recs');
-        $DB->delete_records('block_mycourse_assoc');
     }
 
     public function test_create_recommendations() {
@@ -303,12 +362,15 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         $previousyear = 2015;
         $previousstartdate = strtotime("06-01-$previousyear");
         $previousattributes = array('fullname' => $coursesname,
-                                    'startdate' => $previousstartdate);
+            'startdate' => $previousstartdate);
 
         $previouscourse = $this->create_courses($previousattributes, 1)[0];
 
+        // We have to insert those courses in the historic data tables.
+        $previouscoursesids = $this->insert_previous_courses_in_historic_data(array($previouscourse));
+
         // We create and enrol the previous users...
-        $previoususers = $this->create_and_enrol_students($previouscourse->id, 3);
+        $previoususers = $this->create_and_enrol_students($previouscoursesids[0], 3, true);
 
         // We create the previous resources...
         $previousresourcesnumber = count($resourcesnames);
@@ -324,8 +386,8 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
 
         foreach ($previouslogviews as $previoususerid => $previousresourcesviews) {
             foreach ($previousresourcesviews as $resourceindex => $resourceviews) {
-                $this->create_logview($previoususerid, $previouscourse->id, $previousresources[$resourceindex]->id, $eventname,
-                                      $component, $previousstartdate, $resourceviews);
+                $this->create_previous_course_logview($previoususerid, $previouscoursesids[0],
+                    $previousresources[$resourceindex]->name, 'page', $resourceviews, $this->previousstartdate, $resourceindex);
             }
         }
 
@@ -344,8 +406,9 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
 
         foreach ($previousnextlogviews as $previoususerid => $previousnextresourcesviews) {
             foreach ($previousnextresourcesviews as $resourceindex => $resourceviews) {
-                $this->create_logview($previoususerid, $previouscourse->id, $previousnextresources[$resourceindex]->id,
-                                      $eventname, $component, $previousnexttimestamp, $resourceviews);
+                $this->create_previous_course_logview($previoususerid, $previouscoursesids[0],
+                    $previousnextresources[$resourceindex]->name, 'page', $resourceviews,
+                    $this->previousstartdate, $resourceindex + count($previousresourcesviews)); // The index has been used before.
             }
         }
 
@@ -355,8 +418,17 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         $currentyear = 2016;
         $currentstartdate = strtotime("06-01-$currentyear");
         $currentattributes = array('fullname' => $coursesname,
-                                    'startdate' => $currentstartdate);
+            'startdate' => $currentstartdate);
         $currentcourse = $this->create_courses($currentattributes, 1)[0];
+        $currentcourseid = $currentcourse->id;
+
+        // We need to insert the courses associations in its table, because the recommendator looks at that table which
+        // historic courses are related to the given current course.
+        foreach ($previouscoursesids as $previouscoursesid) {
+            $sql = "INSERT INTO {block_mycourse_course_assoc} (current_courseid, historic_courseid)
+                    VALUES ($currentcourseid, $previouscoursesid)";
+            $DB->execute($sql);
+        }
 
         // We create and enrol the current users...
         $currentusers = $this->create_and_enrol_students($currentcourse->id, 3);
@@ -388,7 +460,7 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         foreach ($currentlogviews as $currentuserid => $currentresourcesviews) {
             foreach ($currentresourcesviews as $resourceindex => $resourceviews) {
                 $this->create_logview($currentuserid, $currentcourse->id, $currentresources[$resourceindex]->id, $eventname,
-                                      $component, $currentstartdate, $resourceviews);
+                    $component, $currentstartdate, $resourceviews);
             }
         }
 
@@ -399,7 +471,7 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         $currentnextresources = $this->create_resources($currentnextresources, $nextresourcesnames);
 
         // Finally, we call the function.
-        $this->recommendator->create_recommendations($currentcourse->id, 2);
+        $this->recommendator->create_recommendations($currentcourse->id, 2,  new \null_progress_trace());
 
         // We query the actual values generated by the function...
         $actuals = $DB->get_records('block_mycourse_recs');
@@ -414,6 +486,7 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         $actualrowcount = $DB->get_record_sql($sql)->c;
 
         $expectedrowcount = $DB->count_records('block_mycourse_user_sel');
+
         $this->assertEquals($expectedrowcount, $actualrowcount);
 
         // If there's no actual value, something is wrong.
@@ -433,22 +506,22 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         $expecteds[0] = new stdClass();
         $expecteds[0]->resourceid = $currentnextresources[0]->id;
         $expecteds[0]->priority = 0;
-        $expecteds[0]->followed = 0;
+        $expecteds[0]->views = 0;
 
         $expecteds[1] = new stdClass();
         $expecteds[1]->resourceid = $currentnextresources[0]->id;
         $expecteds[1]->priority = 1;
-        $expecteds[1]->followed = 0;
+        $expecteds[1]->views = 0;
 
         $expecteds[2] = new stdClass();
         $expecteds[2]->resourceid = $currentnextresources[1]->id;
         $expecteds[2]->priority = 0;
-        $expecteds[2]->followed = 0;
+        $expecteds[2]->views = 0;
 
         $expecteds[3] = new stdClass();
         $expecteds[3]->resourceid = $currentnextresources[1]->id;
         $expecteds[3]->priority = 1;
-        $expecteds[3]->followed = 0;
+        $expecteds[3]->views = 0;
 
         // We sort both arrays with the same criteria, to allow compare arrays' objects in a loop.
         usort($expecteds, array($this, 'sort_recommendations'));
@@ -531,15 +604,15 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         $functioninput = array();
         foreach ($inputs as $index => $input) {
             $functioninput[$index] = new query_result($input->userid, $input->courseid, $input->moduleid,
-                                                      $input->modulename, $input->logviews);
+                $input->modulename, $input->logviews);
         }
 
-        $actuals = $testfunction->invokeArgs($this->recommendator, array($functioninput));
+        $actuals = $testfunction->invokeArgs($this->recommendator, array($functioninput, $functioninput))['previous'];
 
         $expecteds = array();
         foreach ($inputs as $index => $input) {
             $expecteds[$index] = new query_result($input->userid, $input->courseid, $input->moduleid,
-                                                      $input->modulename, $input->logviews);
+                $input->modulename, $input->logviews);
         }
         // We remove the record that the function it's supposed to remove, and we re-align the array.
         unset($expecteds[1]);
@@ -585,9 +658,9 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
 
         foreach ($inputs as $index => $input) {
             $functioninput[$index] = new query_result($input->userid, $input->courseid, $input->moduleid,
-                                                      $input->modulename, $input->logviews);
+                $input->modulename, $input->logviews);
             $functioncurrentinput[$index] = new query_result($input->userid, $input->courseid, $input->moduleid,
-                                                             $input->modulename, $input->logviews);
+                $input->modulename, $input->logviews);
         }
 
         $actuals = $testfunction->invokeArgs($this->recommendator, array($functioninput, $functioncurrentinput));
@@ -601,4 +674,5 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
             $this->assertEquals($expecteds[$index], $actual);
         }
     }
+
 }

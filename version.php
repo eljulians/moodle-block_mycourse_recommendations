@@ -25,8 +25,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2016020102;        // The current plugin version (Date: YYYYMMDDXX).
-$plugin->release   = '2.9.0 (Build 2016020102)';
+$plugin->version   = 2016020107;        // The current plugin version (Date: YYYYMMDDXX).
+$plugin->release   = 'v2.9.1.1 (version 1.1 for Moodle 2.9) (Build 2016020107)';
 $plugin->requires  = 2015051100;        // Requires this Moodle version.
 $plugin->component = 'block_mycourse_recommendations'; // Full name of the plugin (used for diagnostics).
 $plugin->maturity  = MATURITY_STABLE;

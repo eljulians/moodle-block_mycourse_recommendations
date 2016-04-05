@@ -15,11 +15,11 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Class block_mycourse_recommendations.
+ * Block showing recommendations.
  *
  * @package    block_mycourse_recommendations
  * @copyright  2015 onwards Iñaki Arenaza & Mondragon Unibertsitatea
- *             2016 onwards Julen Pardo & Mondragon Unibertsitatea
+ * @copyright  2016 onwards Julen Pardo & Mondragon Unibertsitatea
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -39,12 +39,42 @@ use block_mycourse_recommendations\recommendations_renderer;
 use block_mycourse_recommendations\database_helper;
 use block_mycourse_recommendations\course_filter;
 
+/**
+ * Class block_mycourse_recommendations.
+ *
+ * @package    block_mycourse_recommendations
+ * @copyright  2015 onwards Iñaki Arenaza & Mondragon Unibertsitatea
+ * @copyright  2016 onwards Julen Pardo & Mondragon Unibertsitatea
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 class block_mycourse_recommendations extends block_base {
 
+    /**
+     * The interface for dealing with the similarities matrix, whose implementation will be the concrete class
+     * implementing the methods.
+     * @var block_mycourse_recommendations\abstract_matrix
+     */
     private $matrix;
+
+    /**
+     * The interface for generating associations, whose implementation will be the concrete class implementing
+     * the methods.
+     * @var block_mycourse_recommendations\abstract_associator
+     */
     private $associator;
+
+    /**
+     * The abstract class for generation recommendations, whose implementation will be a concrete instance implementing
+     * the methods of generating recommendations.
+     * @var block_mycourse_recommendations\abstract_recommendator
+     */
     private $recommendator;
-    private $renderer;
+
+    /**
+     * Database helper, to perform actions with the database.
+     * @var block_mycourse_recommendations\database_helper
+     */
     private $db;
 
     /**
@@ -60,7 +90,13 @@ class block_mycourse_recommendations extends block_base {
     }
 
     /**
-     * @return string
+     * Performs all the operations in order to display the block output:
+     *  - Checks if it is the first time that the block is loaded in the course, to check if the course is personalizable
+     *    or not.
+     *  - Checks if the current user is selected to receive the recommendations.
+     *  - Retrieves the recommendations from the database.
+     *
+     * @return string The content of the block.
      */
     public function get_content() {
         global $COURSE, $USER, $DB;
@@ -77,7 +113,13 @@ class block_mycourse_recommendations extends block_base {
 
         $this->content = new stdClass();
         $this->content->text = '';
-        $this->content->footer = '';
+
+        $context = context_course::instance($COURSE->id);
+        if (has_capability('block/mycourse_recommendations:importfromcsv', $context)) {
+            $this->content->footer = $this->generate_footer_import_url($COURSE->id);
+        } else {
+            $this->content->footer = '';
+        }
 
         $courseyear = $this->db->get_course_start_week_and_year($COURSE->id)['year'];
         $firstinstance = $this->db->is_blocks_first_instance($COURSE->id);
@@ -86,39 +128,51 @@ class block_mycourse_recommendations extends block_base {
             $this->initialize_course($COURSE->id, $courseyear);
         }
 
-        $personalizable = $this->db->is_course_personalizable($COURSE->id);
+        $isuser = has_capability('block/mycourse_recommendations:recommendationstext', $context);
+        if ($isuser) {
+            $personalizable = $this->db->is_course_personalizable($COURSE->id);
 
-        if ($personalizable) {
-            $active = $this->db->is_course_active($COURSE->id);
-            if ($active) {
-                $userselected = $this->db->is_user_selected_for_course($USER->id, $COURSE->id);
-                if (!$userselected) {
-                    $this->content->text = get_string('usernotselected', 'block_mycourse_recommendations');
+            if ($personalizable) {
+                $active = $this->db->is_course_active($COURSE->id);
+                if ($active) {
+                    $userselected = $this->db->is_user_selected_for_course($USER->id, $COURSE->id);
+                    if (!$userselected) {
+                        $this->content->text = get_string('usernotselected', 'block_mycourse_recommendations');
+                    } else {
+                        $currentweek = $this->get_current_week();
+                        $recommendations = $this->db->get_recommendations($COURSE->id, $USER->id, $currentweek);
+                        $this->content->text = recommendations_renderer::render_recommendations($recommendations);
+                    }
                 } else {
-                    $currentweek = $this->get_current_week();
-                    $recommendations = $this->db->get_recommendations($COURSE->id, $USER->id, $currentweek);
-                    $this->content->text = recommendations_renderer::render_recommendations($recommendations);
+                    $this->content->text = get_string('inactive', 'block_mycourse_recommendations');
                 }
             } else {
-                $this->content->text = get_string('inactive', 'block_mycourse_recommendations');
+                $this->content->text = get_string('notpersonalizable', 'block_mycourse_recommendations');
             }
         } else {
-            $this->content->text = get_string('notpersonalizable', 'block_mycourse_recommendations');
+            $this->content->text = get_string('notastudent', 'block_mycourse_recommendations');
         }
 
         return $this->content;
     }
 
     /**
-     * @param int $courseid
-     * @param int $courseyear
+     * Initializes the course, when is the first instance of the block, looking if it is personalizable or not, and
+     * saving this in database.
+     *
+     * Currently, the students are being selected independently the course is personalizable or not, because maybe later
+     * a csv importation is made, and like this there's no need to select students later.
+     *
+     * @param int $courseid The course where the first instance of this block has been loaded in.
+     * @param int $courseyear The start year of the course.
      */
     private function initialize_course($courseid, $courseyear) {
+        $this->recommendator->select_students($courseid, $courseyear);
+
         $personalizable = course_filter::is_course_personalizable($courseid, $courseyear);
 
         if ($personalizable) {
             $this->db->insert_course_selection($courseid, $courseyear, 1);
-            $this->recommendator->select_students($courseid, $courseyear);
         } else {
             $this->db->insert_course_selection($courseid, $courseyear, 0);
         }
@@ -134,6 +188,22 @@ class block_mycourse_recommendations extends block_base {
         $week = intval($week);
 
         return $week;
+    }
+
+    /**
+     * Creates the link to the csv imporatation page, that will be shown in block's footer.
+     *
+     * @param int $courseid The course the block is being displayed on.
+     */
+    private function generate_footer_import_url($courseid) {
+        $importurl = new \moodle_url("/blocks/mycourse_recommendations/import_csv.php",
+                                     array('courseid' => $courseid));
+        $string = get_string('importfromcsv', 'block_mycourse_recommendations');
+
+        $url = '<hr>';
+        $url .= "<a href='$importurl'>$string</a>";
+
+        return $url;
     }
 
 }

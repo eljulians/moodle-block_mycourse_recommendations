@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Encapsulation of query results made with database_helper for querying logview data.
  *
  * @package    block_mycourse_recommendations
  * @copyright  2016 onwards Julen Pardo & Mondragon Unibertsitatea
@@ -28,6 +29,10 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * The class that encapsulates the query made to database (database_helper->query_data()). This class will be
  * used in those classes which will need to access the queried data.
+ *
+ * @package    block_mycourse_recommendations
+ * @copyright  2016 onwards Julen Pardo & Mondragon Unibertsitatea
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class query_result {
 
@@ -40,38 +45,45 @@ class query_result {
 
     /**
      * Course id.
-     *
      * @var int
      */
     private $courseid;
 
     /**
      * Module id.
-     *
      * @var int
      */
     private $moduleid;
 
     /**
      * Module name.
-     *
      * @var string
      */
     private $modulename;
 
     /**
      * Module's log views.
-     *
      * @var int
      */
     private $logviews;
 
     /**
      * Module's grade.
-     *
      * @var float
      */
     private $grades;
+
+    /**
+     * Module type.
+     * @var string
+     */
+    private $moduletype;
+
+    /**
+     * Log view timestamp.
+     * @var int
+     */
+    private $timestamp;
 
     /**
      * Instantiates the class, receiving a value for each queried field.
@@ -82,14 +94,19 @@ class query_result {
      * @param string $modulename
      * @param int $logviews
      * @param float $grades Default set to -1, because it can be empty in database.
+     * @param string $moduletype The module type.
+     * @param int timestamp The UNIX timestamp that indicates the time of the view of the resource, trunked to week start.
      */
-    public function __construct($userid, $courseid, $moduleid, $modulename, $logviews, $grades = -1) {
+    public function __construct($userid, $courseid, $moduleid, $modulename, $logviews, $grades = -1,
+                                $moduletype = '', $timestamp = 0) {
         $this->userid = $userid;
         $this->courseid = $courseid;
         $this->moduleid = $moduleid;
         $this->modulename = $modulename;
         $this->logviews = $logviews;
         $this->grades = $grades;
+        $this->moduletype = $moduletype;
+        $this->timestamp = $timestamp;
     }
 
     /**
@@ -144,5 +161,23 @@ class query_result {
      */
     public function get_grades() {
         return $this->grades;
+    }
+
+    /**
+     * Returns module type.
+     *
+     * @return string
+     */
+    public function get_moduletype() {
+        return $this->moduletype;
+    }
+
+    /**
+     * Returns view timestamp.
+     *
+     * @return int
+     */
+    public function get_timestamp() {
+        return $this->timestamp;
     }
 }

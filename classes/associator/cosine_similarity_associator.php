@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Implementation of block_mycourse_recommendations\abstract_associator interface.
  *
  * @package    block_mycourse_recommendations
  * @copyright  2016 onwards Julen Pardo & Mondragon Unibertsitatea
@@ -25,15 +26,51 @@ namespace block_mycourse_recommendations;
 
 require_once('abstract_associator.php');
 require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/matrix/abstract_matrix.php');
+require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/db/database_helper.php');
 
 use block_mycourse_recommendations\abstract_associator;
+use block_mycourse_recommendations\database_helper;
+
+/**
+ * Class cosine_similarity_associator for implementing the cosine similarity as association determination mechanism.
+ *
+ * @package block_mycourse_recommendations
+ * @copyright  2016 onwards Julen Pardo & Mondragon Unibertsitatea
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 
 class cosine_similarity_associator implements abstract_associator {
 
+    /**
+     * The interface for dealing with the similarities matrix, whose implementation will be the concrete class
+     * implementing the methods.
+     * @var \block_mycourse_recommendations\abstract_matrix
+     */
     private $matrix;
 
+    /**
+     * The week the associations are being calculated at, needed to insert each association into the database.
+     * @var int
+     */
+    private $currentweek;
+
+    /**
+     * cosine_similarity_associator constructor.
+     *
+     * @param \block_mycourse_recommendations\abstract_matrix $matrixinstance The matrix instance
+     * implementing the abstract methods for creating matrix.
+     */
     public function __construct($matrixinstance) {
         $this->matrix = $matrixinstance;
+    }
+
+    /**
+     * Sets the current week.
+     *
+     * @param int $currentweek The week the associations are being calculated at.
+     */
+    public function set_currentweek($currentweek) {
+        $this->currentweek = $currentweek;
     }
 
     /**
@@ -43,14 +80,18 @@ class cosine_similarity_associator implements abstract_associator {
      * @see cosine_similarity($vector1, $vector2).
      * @param array $currentdata A 2D array.
      * @param array $historicdata A 2D array.
-     * @return array The association matrix.
+     * @return array The association matrix; empty if no association could be made.
      */
     public function create_associations_matrix($currentdata, $historicdata) {
+        $db = new database_helper();
+
         $currenttransformeddata = $this->matrix->transform_queried_data($currentdata);
         $historictransformeddata = $this->matrix->transform_queried_data($historicdata);
 
         $currentusers = array_keys($currenttransformeddata);
         $historicusers = array_keys($historictransformeddata);
+
+        $matrix = array();
 
         foreach ($currentusers as $currentuser) {
             $currentviewsvector = $currenttransformeddata[$currentuser];
@@ -62,6 +103,8 @@ class cosine_similarity_associator implements abstract_associator {
                 $similarity = $this->cosine_similarity($currentviewsvector, $historicviewsvector);
                 $similarity = round($similarity, 4);
                 $similarities[$historicuser] = $similarity;
+
+                $db->insert_similarity($currentuser, $historicuser, $similarity, $this->currentweek);
             }
 
             $matrix[$currentuser] = $similarities;
