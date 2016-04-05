@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Database encapsulation.
  *
  * @package    block_mycourse_recommendations
  * @copyright  2016 onwards Julen Pardo & Mondragon Unibertsitatea
@@ -30,10 +31,26 @@ use block_mycourse_recommendations\query_result;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Class database_helper for encapsulating all the database operations, so, the other classes don't have to
+ * know database's tables' names, columns, etc.
+ *
+ * @package block_mycourse_recommendations
+ * @copyright  2016 onwards Julen Pardo & Mondragon Unibertsitatea
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 class database_helper {
 
+    /**
+     * The query to get the logviews by weeks, user and course.
+     * @var string
+     */
     public $sql;
 
+    /**
+     * database_helper constructor.
+     */
     public function __construct() {
         $this->sql = "
        select
@@ -45,6 +62,7 @@ class database_helper {
        logs.module_name,
        logs.userid,
        logs.log_views,
+       logs.course_week as view_date,
        logs.grades
   from (select modules.course,
                c.format,
@@ -189,6 +207,12 @@ class database_helper {
      * @param int $currentweek The week until the data will be queried. For a week n,
      * the queried data will be from the first week, to the week (n-1). When querying
      * historic data, this week will (presumably) be the end week of the course.
+     * @param int $userid The user id to calculate the views of. Default is null, so, by default the
+     * logviews are queried for all the users of the course.
+     * @param boolean $ignoreweeks If the weeks have to be ignored. By default is false, so, by default
+     * the weeks are taken into consideration
+     * @param boolean $onlyunviewed If only the unviewed resources have to be queried. By default is false,
+     * so, by default all the resources are queried, viewed or not.
      *
      * @return array An object for each record in recordset.
      */
@@ -209,7 +233,7 @@ class database_helper {
             $sql = str_replace('%currentweek', $currentweek, $sql);
         } else {
             $sql = str_replace('and ((extract(YEAR from logs.course_week) - %year) * 52) + extract(WEEK from logs.course_week)',
-                               '', $sql);
+                '', $sql);
             $sql = str_replace('between %coursestartweek and %currentweek', '', $sql);
         }
 
@@ -228,12 +252,86 @@ class database_helper {
             $modulename = $record->module_name;
             $logviews = $record->log_views;
             $grades = $record->grades;
+            $resourcetype = $record->resource_type;
 
-            $queryresults[$index] = new query_result($userid, $courseid, $moduleid, $modulename, $logviews, $grades);
+            // The date is comming in yyyy-mm-dd hh:mm:ss+01, so, we add that hour manually, because strtotime doesn't do it.
+            $timestamp = strtotime($record->view_date) + 3600;
+
+            $queryresults[$index] = new query_result($userid, $courseid, $moduleid, $modulename, $logviews,
+                                                     $grades, $resourcetype, $timestamp);
             $index++;
         }
 
         $recordset->close();
+
+        return $queryresults;
+    }
+
+    /**
+     * Queries the logviews of a course, created between the given weeks, for the specified user (if any).
+     *
+     * @param int $courseid The id of the historic course.
+     * @param int $year The year the course was teached at.
+     * @param int $coursestartweek The start week of the course.
+     * @param int $currentweek The week the associations are being calculated at.
+     * @param int $userid The user id to query data of, by default null, so it will be queried for every user.
+     * @param bool $gradepass If the grade has to be taken into account (>= 5), by default false.
+     * @return array Each row of the logs.
+     */
+    public function query_historic_course_data($courseid, $year, $coursestartweek, $currentweek,
+                                               $userid = null, $gradepass = false) {
+        global $DB;
+
+        $sql = "SELECT logs.id,
+                       logs.userid,
+                       logs.resourcename,
+                       logs.resourcetype,
+                       logs.resourceid,
+                       logs.views
+                FROM   {block_mycourse_hist_data} logs
+                INNER JOIN {block_mycourse_hist_course} course
+                    ON logs.courseid = course.id
+                INNER JOIN {block_mycourse_hist_enrol} enrol
+                    ON enrol.courseid = course.id
+                    AND enrol.userid = logs.userid
+                WHERE ((EXTRACT('year' FROM date_trunc('year', to_timestamp(logs.timecreated))) - %year) * 52)
+	                + EXTRACT('week' FROM date_trunc('week', to_timestamp(logs.timecreated)))
+                  BETWEEN %coursestartweek AND %currentweek
+                    AND logs.userid = %userid
+                    AND course.id = %courseid
+                    AND enrol.grade >= 5";
+
+        if (is_null($userid)) {
+            $sql = str_replace('AND logs.userid = %userid', '', $sql);
+        }
+
+        if (!$gradepass) {
+            $sql = str_replace('AND enrol.grade >= 5', '', $sql);
+        }
+
+        $sql = str_replace('%courseid', $courseid, $sql);
+        $sql = str_replace('%year', $year, $sql);
+        $sql = str_replace('%coursestartweek', $coursestartweek, $sql);
+        $sql = str_replace('%currentweek', $currentweek, $sql);
+        $sql = str_replace('%userid', $userid, $sql);
+
+        $records = $DB->get_records_sql($sql);
+
+        $queryresults = array();
+
+        foreach ($records as $record) {
+            $userid = $record->userid;
+            $resourcename = $record->resourcename;
+            $logviews = $record->views;
+            $moduleid = $record->resourceid;
+            $resourcetype = $record->resourcetype;
+
+            // This is irrelevant but required for the constructor.
+            $grades = -1;
+
+            array_push($queryresults, new query_result($userid, $courseid, $moduleid, $resourcename,
+                                                       $logviews, $grades, $resourcetype));
+        }
 
         return $queryresults;
     }
@@ -251,7 +349,7 @@ class database_helper {
      * historic users.
      * @param int $currentcourseid The id of the course the current users belong to. As the
      * associations are calculed for a course, it's a single int value.
-     * @param array $historicuserid The ids of the historics users, which are associated to current
+     * @param array $historicuserids The ids of the historics users, which are associated to current
      * users.
      * @param int $historiccourseid The id of the course the historics users belong to. As the
      * associations are calculed for a course, it's a single int value.
@@ -433,16 +531,46 @@ class database_helper {
     }
 
     /**
-     * This function finds, for a current course, previous teachings. Encapsulates the logic used to relate different
-     * teachings in time, so, other functions that have the need to relate different teachings, MUST use this function.
-     * Currently, to make the relation, the function looks for courses with same 'fullname' field value, and the course
-     * start year must be lower than the current year.
+     * Sets the given course to active for receiving recommendations.
+     *
+     * @param int $courseid The course to set active.
+     */
+    public function set_course_active($courseid) {
+        global $DB;
+
+        $sql = "UPDATE {block_mycourse_course_sel}
+                SET    active = 1
+                WHERE  courseid = $courseid";
+
+        $DB->execute($sql);
+    }
+
+    /**
+     * Sets the given course as personalizable.
+     *
+     * @param int $courseid The course to set personalizable.
+     */
+    public function set_course_personalizable($courseid) {
+        global $DB;
+
+        $sql = "UPDATE {block_mycourse_course_sel}
+                SET    personalizable = 1
+                WHERE  courseid = $courseid";
+
+        $DB->execute($sql);
+    }
+
+    /**
+     * This function finds, for the given current coures id, the same course but in previous teachings, in Moodle's core tables.
+     * For that, the function looks up into the {block_mycourse_hist_course} table, finding courses with the same full name.
+     * So, if it is wanted to generate recommendations for the given current course, an historic course must exist
+     * in the mentioned table, so, the data importation has to be done before.
      *
      * @param int $currentcourseid The id of the current course.
      * @param int $currentyear The year the current course is being teached in.
-     * @return array Previous teachings' ids.
+     * @return array Previous teachings' ids, in Moodle core tables.
      */
-    public function find_course_previous_teachings_ids($currentcourseid, $currentyear) {
+    public function find_course_previous_teaching_ids_core_tables($currentcourseid, $currentyear) {
         global $DB;
 
         $sql = 'SELECT prev_courses.id        AS courseid,
@@ -452,7 +580,6 @@ class database_helper {
                     ON cur_course.fullname = prev_courses.fullname
                 WHERE  cur_course.id = ?
                     AND prev_courses.id <> ?';
-
         $previouscoursesids = array();
         $recordset = $DB->get_recordset_sql($sql, array($currentcourseid, $currentcourseid));
 
@@ -469,13 +596,48 @@ class database_helper {
     }
 
     /**
-     * Queries the number of students that the current course has had in previous teachings.
+     * This function finds, for the given current coures id, the same course but in previous teachings, in plugin's historic tables.
+     * For that, the function looks up into the {block_mycourse_hist_course} table, finding courses with the same full name.
+     * So, if it is wanted to generate recommendations for the given current course, an historic course must exist
+     * in the mentioned table, so, the data importation has to be done before.
      *
      * @param int $currentcourseid The id of the current course.
      * @param int $currentyear The year the current course is being teached in.
-     * @return int The number of students that the course has had in past teachings.
+     * @return array Previous teachings' ids, found in plugin's historic tables.
      */
-    public function get_previous_courses_students_number($currentcourseid, $currentyear) {
+    public function find_course_previous_teachings_ids_historic_tables($currentcourseid, $currentyear) {
+        global $DB;
+
+        $sql = 'SELECT historic_courses.id        AS courseid,
+                       historic_courses.startdate AS starttimestamp
+                FROM   {course} current_courses
+                INNER JOIN {block_mycourse_hist_course} historic_courses
+                    ON current_courses.fullname = historic_courses.fullname
+                WHERE  current_courses.id = ?';
+
+        $previouscoursesids = array();
+        $recordset = $DB->get_recordset_sql($sql, array($currentcourseid));
+
+        foreach ($recordset as $record) {
+            $year = getdate($record->starttimestamp)['year'];
+            if ($year < $currentyear) {
+                array_push($previouscoursesids, $record->courseid);
+            }
+        }
+
+        $recordset->close();
+
+        return $previouscoursesids;
+    }
+
+    /**
+     * Queries the number of students that the current course has had in previous teachings, in Moodle's core tables.
+     *
+     * @param int $currentcourseid The id of the current course.
+     * @param int $currentyear The year the current course is being teached in.
+     * @return int The number of students that the course has had in past teachings, found in core tables.
+     */
+    public function get_previous_courses_students_number_core_tables($currentcourseid, $currentyear) {
         global $DB;
 
         $sql = 'SELECT count(*) as count
@@ -490,7 +652,34 @@ class database_helper {
                     AND ra.roleid = 5
                     AND course.id = ?';
 
-        $previouscourses = $this->find_course_previous_teachings_ids($currentcourseid, $currentyear);
+        $previouscourses = $this->find_course_previous_teaching_ids_core_tables($currentcourseid, $currentyear);
+        $count = 0;
+
+        if (!empty($previouscourses)) {
+            foreach ($previouscourses as $course) {
+                $record = $DB->get_record_sql($sql, array($course));
+                $count += $record->count;
+            }
+        }
+
+        return $count;
+    }
+
+    /**
+     * Queries the number of students that the current course has had in previous teachings, in plugin's historic tables.
+     *
+     * @param int $currentcourseid The id of the current course.
+     * @param int $currentyear The year the current course is being teached in.
+     * @return int The number of students that the course has had in past teachings, found in plugin's historic tables.
+     */
+    public function get_previous_courses_students_number_historic_tables($currentcourseid, $currentyear) {
+        global $DB;
+
+        $sql = 'SELECT count(*) as count
+                FROM   {block_mycourse_hist_enrol} historic_users
+                WHERE  historic_users.courseid = ?';
+
+        $previouscourses = $this->find_course_previous_teachings_ids_historic_tables($currentcourseid, $currentyear);
 
         $count = 0;
 
@@ -510,9 +699,9 @@ class database_helper {
      *
      * @param int $currentcourseid The id of the current course.
      * @param int $currentyear The year the current course is being teached in.
-     * @return int The number of resources
+     * @return int The number of resources found in core tables.
      */
-    public function get_previous_courses_resources_number($currentcourseid, $currentyear) {
+    public function get_previous_courses_resources_number_core_tables($currentcourseid, $currentyear) {
         global $DB;
 
         $sql = "SELECT count(*) AS count
@@ -527,7 +716,34 @@ class database_helper {
                     OR modules.name = 'book'
                     OR modules.name = 'url')";
 
-        $previouscourses = $this->find_course_previous_teachings_ids($currentcourseid, $currentyear);
+        $previouscourses = $this->find_course_previous_teaching_ids_core_tables($currentcourseid, $currentyear);
+        $count = 0;
+
+        if (!empty($previouscourses)) {
+            foreach ($previouscourses as $course) {
+                $record = $DB->get_record_sql($sql, array($course));
+                $count += $record->count;
+            }
+        }
+
+        return $count;
+    }
+
+    /**
+     * Queries the number of resources that the current course had in previous teachings, in plugin's historic tables.
+     *
+     * @param int $currentcourseid The id of the current course.
+     * @param int $currentyear The year the current course is being teached in.
+     * @return int The number of resources found in plugin's historic tables.
+     */
+    public function get_previous_courses_resources_number_historic_tables($currentcourseid, $currentyear) {
+        global $DB;
+
+        $sql = 'SELECT count(distinct(historic.resourcename)) AS count
+                FROM   {block_mycourse_hist_data} historic
+                WHERE  historic.courseid = ?';
+
+        $previouscourses = $this->find_course_previous_teachings_ids_historic_tables($currentcourseid, $currentyear);
 
         $count = 0;
 
@@ -542,9 +758,11 @@ class database_helper {
     }
 
     /**
+     * Calculates the duration in weeks for the given course.
+     *
      * @param int $currentcourseid The id of the current course.
      * @param int $currentyear The year the current course is being teached in.
-     * @return int
+     * @return int The course duration in weeks.
      */
     public function get_course_duration_in_weeks($currentcourseid, $currentyear) {
 
@@ -580,18 +798,27 @@ class database_helper {
      * Queries the week and year start of a course.
      *
      * @param int $courseid The course to query the start week and year of.
+     * @param boolean $historiccourse If the course is historic or not, in order to look for the information in plugin's
+     * historic tables (if true); or to look in core tables (if false).
      * @return array The week number ([1, 52]); the year.
      */
-    public function get_course_start_week_and_year($courseid) {
+    public function get_course_start_week_and_year($courseid, $historiccourse = false) {
         global $DB;
 
-        $sql = 'SELECT course.startdate AS starttimestamp
-                FROM   {course} course
-                WHERE  course.id = ?';
+        $coursetable = '{course}';
 
-        $starttimestamp = $DB->get_record_sql($sql, array($courseid))->starttimestamp;
-        $week = date('W', $starttimestamp);
-        $year = date('Y', $starttimestamp);
+        if ($historiccourse) {
+            $coursetable = '{block_mycourse_hist_course}';
+        }
+
+        $sql = "SELECT *
+                FROM   $coursetable course
+                WHERE  course.id = ?";
+
+        $record = $DB->get_record_sql($sql, array($courseid));
+
+        $week = date('W', $record->startdate);
+        $year = date('Y', $record->startdate);
 
         $weekandyear = array();
         $weekandyear['week'] = intval($week);
@@ -763,5 +990,455 @@ class database_helper {
         $module = $DB->get_record('course_modules', array('course' => $courseid, 'module' => $type, 'instance' => $instance));
 
         return $module->id;
+    }
+
+    /**
+     * Inserts the similarity coefficient between a current user (selected user for receiving recommendations) and
+     * a historic user, for the given week.
+     *
+     * @param int $currentuserid The current user, the one who will receive recommendations later.
+     * @param int $historicuserid The historic user, the candidate to be reference for creating recommendations for
+     * the current user.
+     * @param float $coefficient The similarity coefficient between the two users.
+     * @param int $week The week the coefficient has been calculated at.
+     */
+    public function insert_similarity($currentuserid, $historicuserid, $coefficient, $week) {
+        global $DB;
+
+        $record = new stdClass();
+        $record->current_userid = $currentuserid;
+        $record->historic_userid = $historicuserid;
+        $record->coefficient = $coefficient;
+        $record->week = $week;
+
+        $DB->insert_record('block_mycourse_similarities', $record);
+    }
+
+    /**
+     * Increments in one the number of recommendations views, when the user clicks on the recommendation.
+     *
+     * @param int $recommendationid The recommendation that has been followed.
+     */
+    public function increment_recommendation_view($recommendationid) {
+        global $DB;
+
+        $sql = 'UPDATE {block_mycourse_recs}
+                SET    views = views + 1
+                WHERE  id = ?';
+
+        $DB->execute($sql, array($recommendationid));
+    }
+
+    /**
+     * Inserts the association of a current course with every historic related course.
+     *
+     * @param int $currentcourse The current course, which will receive the recommendations.
+     * @param array $historiccourses The previous course teachings.
+     */
+    public function insert_courses_associations($currentcourse, $historiccourses) {
+        global $DB;
+
+        $sql = 'INSERT INTO {block_mycourse_course_assoc} (current_courseid, historic_courseid)
+                VALUES (:v1, :v2)';
+
+        foreach ($historiccourses as $historiccourse) {
+            $values = ['v1' => $currentcourse, 'v2' => $historiccourse];
+            $DB->execute($sql, $values);
+        }
+    }
+
+    /**
+     * Queries the final grade assigned to an user for a course. It it doesn't have any, 0 is returned. This would not be
+     * the usual case, since this function is going to be used for courses that are known to be finished.
+     *
+     * @param int $userid The user to query the grade of.
+     * @param int $courseid The course to query the grade where.
+     * @return float The final grade (0 if no grade is found).
+     */
+    public function get_users_course_final_grade($userid, $courseid) {
+        global $DB;
+
+        $sql = 'SELECT grades.finalgrade / 10 AS finalgrade
+                FROM   {grade_grades} grades
+                INNER JOIN {grade_items} g_items
+                    ON grades.itemid = g_items.id
+                WHERE g_items.itemtype = \'course\'
+                    AND grades.userid = ?
+                    AND g_items.courseid = ?';
+
+        $record = $DB->get_record_sql($sql, array($userid, $courseid));
+
+        $finalgrade = ($record) ? $record->finalgrade : 0;
+
+        return $finalgrade;
+
+    }
+
+    /**
+     * Dumps the previous given course (identifier of core {course} table) into the plugin's historic table structure,
+     * i.e., the the historic course, its enrolled users, and the logview of each of these for each course.
+     *
+     * @param int $coursetodump The course of core tables that will be dumped into plugin's historic tables.
+     */
+    public function dump_previous_core_info_to_historic_tables($coursetodump) {
+        global $DB;
+
+        $usersids = $this->get_students_from_course($coursetodump);
+
+        $enrolmentsql = 'INSERT INTO {block_mycourse_hist_enrol} (userid, courseid, grade)
+                         VALUES (:v1, :v2, :v3)';
+        $courseinfosql = 'SELECT fullname, shortname, startdate, idnumber, category
+                          FROM   {course} course
+                          WHERE  course.id = ?';
+
+        $courseinfo = $DB->get_record_sql($courseinfosql, array($coursetodump));
+        $coursehistoricid = $DB->insert_record('block_mycourse_hist_course', $courseinfo);
+
+        foreach ($usersids as $userid) {
+            $grade = $this->get_users_course_final_grade($userid, $coursetodump);
+            $DB->execute($enrolmentsql, ['v1' => $userid, 'v2' => $coursehistoricid, 'v3' => $grade]);
+
+            $this->dump_previous_courses_logview_info($coursetodump, $coursehistoricid);
+        }
+    }
+
+    /**
+     * Inserts the logview of each user for the given previous course into the plugin's table of historic data.
+     * Tries to insert the logview. If the unique key is violated (courseid, userid, timestamp, resourceid), then,
+     * looks if the record that is violating the key has more views. If it has, updates the record inserted before,
+     * assuming that is more recent.
+     *
+     * @param int $coursetodump Course identifier in core.
+     * @param int $coursehistoricid Course identifier in historic tables.
+     */
+    public function dump_previous_courses_logview_info($coursetodump, $coursehistoricid) {
+        global $DB;
+
+        $startweek = $this->get_course_start_week_and_year($coursetodump)['week'];
+        $courseyear = $this->get_course_start_week_and_year($coursetodump)['year'];
+        $toweek = $startweek + 52;
+
+        $logviews = $this->query_data($coursetodump, $courseyear, $startweek, $toweek);
+
+        foreach ($logviews as $logview) {
+            $record = new stdClass();
+
+            $record->courseid = $coursehistoricid;
+            $record->userid = $logview->get_userid();
+            $record->resourcename = $logview->get_modulename();
+            $record->views = $logview->get_logviews();
+            $record->resourcetype = $logview->get_moduletype();
+            $record->resourceid = $logview->get_moduleid();
+            $record->timecreated = $logview->get_timestamp();
+
+            try {
+                $DB->insert_record('block_mycourse_hist_data', $record);
+            } catch (\Exception $e) {
+                $existingrecord = $DB->get_record('block_mycourse_hist_data', array('courseid' => $record->courseid,
+                    'userid' => $record->userid, 'resourceid' => $record->resourceid, 'resourcetype' => $record->resourcetype,
+                    'timecreated' => $record->timecreated));
+
+                $moreviews = $record->views > $existingrecord->views;
+
+                if ($moreviews) {
+                    $record->id = $existingrecord->id;
+                    $DB->update_record('block_mycourse_hist_data', $record);
+                }
+            }
+        }
+    }
+
+    /**
+     * Initiates a database transaction. The changes made after calling this function will not be saved until
+     * commit_transaction is called (with the returned object passed as argument), so, this must be used carefully.
+     * The main purpose of this is to try a set of instructions (inserts into different tables, usually) that fulfill the
+     * defined integrity rules, to commit the operations if they fulfill, or to rollback and not save any change if they don't
+     * and an exception has been thrown.
+     * In short, this is though to be used within a try/catch block, where the last instruction of the try would be the
+     * commit_transaction call; and the instruction of the catch would be the rollback_transaction call.
+     *
+     * @return object Transaction object.
+     */
+    public function start_transaction() {
+        global $DB;
+
+        $transaction = $DB->start_delegated_transaction();
+
+        return $transaction;
+    }
+
+    /**
+     * Commits the operation done within the transaction. This function call should be the last instruction of the try/catch block
+     * that handles the database operations.
+     *
+     * @param object $transaction Generated transaction.
+     */
+    public function commit_transaction($transaction) {
+        $transaction->allow_commit();
+    }
+
+    /**
+     * Rollback the operations done within the transaction, saving no changes made. This function call should be the called in the
+     * catch of the try/catch block that handles the database operations.
+     *
+     * @param object $transaction Generated transaction.
+     * @param object $exception The exception generated by an illegal database operation.
+     */
+    public function rollback_transaction($transaction, $exception) {
+        $transaction->rollback($exception);
+    }
+
+    /**
+     * Inserts the course read from the csv. This is being called under the same transaction of insert_historic_user_enrol and
+     * insert_historic_logs.
+     *
+     * @param string $fullname The full name of the course.
+     * @param string $shortname The short name of the course.
+     * @param int $startdate The start date of the course.
+     * @param string $idnumber The id number of the course.
+     * @param string $category The category of the course.
+     * @return int Generated historic course identifier.
+     */
+    public function insert_historic_course($fullname, $shortname, $startdate, $idnumber, $category) {
+        global $DB;
+
+        $record = new stdClass();
+
+        $record->fullname = $fullname;
+        $record->shortname = $shortname;
+        $record->startdate = $startdate;
+        $record->idnumber = $idnumber;
+        $record->category = $category;
+
+        $courseid = $DB->insert_record('block_mycourse_hist_course', $record);
+
+        return $courseid;
+    }
+
+    /**
+     * Inserts the user read from the csv (in a loop, for each row of the csv), with the course identifier generated in
+     * insert_historic_course. This is being called within the same transaction of insert_historic_course and insert_historic_logs.
+     *
+     * @param int $userid The user id.
+     * @param float $grade The final grade the user obtained in the course.
+     * @param int $courseid The course the user is enrolled in, generated in insert_historic_course.
+     */
+    public function insert_historic_user_enrol($userid, $grade, $courseid) {
+        global $DB;
+
+        $sql = 'INSERT INTO {block_mycourse_hist_enrol} (userid, grade, courseid)
+                VALUES (:v1, :v2, :v3)';
+        $values = ['v1' => $userid, 'v2' => $grade, 'v3' => $courseid];
+
+        $DB->execute($sql, $values);
+    }
+
+    /**
+     * Inserts the logs read from the csv (in a loop, for each row of the csv), with the course identifier generated in
+     * insert_historic_course. This is being called within the same transaction of insert_historic_course and insert_historic_logs.
+     *
+     * @param int $userid The user that generated the log view.
+     * @param int $courseid The course the user is enrolled in for this log view, generated in insert_historic_course.
+     * @param string $resourcename The name of the resource that the user viewed.
+     * @param string $resourcetype The resource type of the viewed resource.
+     * @param int $resourceid The id of the viewed resource.
+     * @param int $views The number of views of the resource.
+     * @param int $timecreated The time the resource was viewed at. This is being trunked to the first day of the week the resource
+     * was viewed at, since the log views are currently saved by week.
+     */
+    public function insert_historic_logs($userid, $courseid, $resourcename, $resourcetype, $resourceid, $views, $timecreated) {
+        global $DB;
+
+        $record = new stdClass();
+
+        $record->userid = $userid;
+        $record->courseid = $courseid;
+        $record->resourcename = $resourcename;
+        $record->resourcetype = $resourcetype;
+        $record->resourceid = $resourceid;
+        $record->views = $views;
+        $record->timecreated = $timecreated;
+
+        $DB->insert_record('block_mycourse_hist_data', $record);
+    }
+
+    /**
+     * Checks if the data has to be imported from core tables for the given course. To check this, looks for the associations
+     * table; if there is no row for the given course, means that the cron task has no been executed for this course before to
+     * create the recommendations, so, the data has to be imported. The next time, the given course would have at least a row
+     * int associations table, meaning that that a data import has been done.
+     *
+     * @param int $courseid The course to check if needs to have the importation.
+     * @return boolean If the data for the given course has to be imported or not.
+     */
+    public function has_data_to_be_imported($courseid) {
+        global $DB;
+
+        $count = $DB->count_records('block_mycourse_assoc', array('current_courseid' => $courseid));
+
+        $importdata = ($count === 0) ? true : false;
+
+        return $importdata;
+    }
+
+    /**
+     * Establishes the relation between a current course and its historic. Called after the importation of csv data.
+     *
+     * @param int $currentcourse The current course for the association is being creating for.
+     * @param int $historiccourse The historic course the current course is associated with.
+     */
+    public function associate_current_course_with_historic($currentcourse, $historiccourse) {
+        global $DB;
+
+        $sql = 'INSERT INTO {block_mycourse_course_assoc} (current_courseid, historic_courseid)
+                VALUES (:v1, :v2)';
+        $values = ['v1' => $currentcourse, 'v2' => $historiccourse];
+
+        $DB->execute($sql, $values);
+    }
+
+    /**
+     * Gets the historic courses that have been associated to the given current course.
+     *
+     * @param int $currentcourseid The course for which find associated historic courses.
+     * @return array Index-based array with associated historic course ids.
+     */
+    public function get_associated_courses($currentcourseid) {
+        global $DB;
+
+        $sql = 'SELECT historic_courseid
+                FROM   {block_mycourse_course_assoc}
+                WHERE  current_courseid = ?';
+
+        $records = $DB->get_records_sql($sql, array($currentcourseid));
+        $courses = array();
+
+        foreach ($records as $record) {
+            array_push($courses, $record->historic_courseid);
+        }
+
+        return $courses;
+    }
+
+    /**
+     * Queries the total sum of log views for each resource by each user in a course in the given week interval. The results
+     * are grouped in the sum of views because this result will later be used to associate this resources, by name and type,
+     * with the current resources, so it doesn't make sense to have more than a row per resource.
+     *
+     * @param int $courseid The id of the historic course.
+     * @param int $year The year the course was teached at.
+     * @param int $lowerlimitweek The start week of the course.
+     * @param int $upperlimitweek The week the associations are being calculated at.
+     * @param int $userid The user id to query data of, by default null, so it will be queried for every user.
+     * @return array Each row of the logs.
+     */
+    public function query_historic_course_data_grouped_by_views($courseid, $year, $lowerlimitweek, $upperlimitweek, $userid) {
+        global $DB;
+
+        $sql = "SELECT logs.id,
+                       logs.userid,
+                       logs.resourcename,
+                       logs.resourcetype,
+                       logs.resourceid,
+                       logs.views
+                FROM   {block_mycourse_hist_data} logs
+                INNER JOIN {block_mycourse_hist_course} course
+                    ON logs.courseid = course.id
+                INNER JOIN {block_mycourse_hist_enrol} enrol
+                    ON enrol.courseid = course.id
+                    AND enrol.userid = logs.userid
+                WHERE ((EXTRACT('year' FROM date_trunc('year', to_timestamp(logs.timecreated))) - %year) * 52)
+	                + EXTRACT('week' FROM date_trunc('week', to_timestamp(logs.timecreated)))
+                  BETWEEN %coursestartweek AND %currentweek
+                    AND logs.userid = %userid
+                    AND course.id = %courseid";
+
+        $sql = str_replace('%courseid', $courseid, $sql);
+        $sql = str_replace('%year', $year, $sql);
+        $sql = str_replace('%coursestartweek', $lowerlimitweek, $sql);
+        $sql = str_replace('%currentweek', $upperlimitweek, $sql);
+        $sql = str_replace('%userid', $userid, $sql);
+
+        $records = $DB->get_records_sql($sql);
+
+        $queryresults = array();
+
+        foreach ($records as $record) {
+            $userid = $record->userid;
+            $resourcename = $record->resourcename;
+            $logviews = $record->views;
+            $resourceid = $record->resourceid;
+            $resourcetype = $record->resourcetype;
+
+            $grades = -1; // Is required for the construct of the query result, but not meaningful for this query.
+            array_push($queryresults, new query_result($userid, $courseid, $resourceid, $resourcename,
+                                                       $logviews, $grades, $resourcetype));
+        }
+
+        return $queryresults;
+    }
+
+    /**
+     * Queries the resources that have not been viewed any time by a user in a course, looking at core tables. The results
+     * are grouped by different resources this result will later be used to associate this resources, by name and type,
+     * with the historic resources, so it doesn't make sense to have more than a row per resource.
+     * The way the query is constructed is, uhm, a bit dirty, but for the moment is the faster and easier way.
+     *
+     * @todo Refactor the way the query is being constructed.
+     * @param int $userid The user id for querying its not viewed resources.
+     * @param int $courseid The course the user is enrolled in.
+     * @return array Each row of the logs.
+     */
+    public function query_current_not_viewed_resources($userid, $courseid) {
+        global $DB;
+
+        $sql = $this->sql;
+
+        // For getting the results grouped by resources.
+        $groupby = 'GROUP BY logs.id,
+                    logs.resource_type,
+                    logs.moduleid,
+                    logs.module_name,
+                    logs.userid';
+
+        $sql = str_replace('logs.format,', '', $sql);
+        $sql = str_replace('logs.section,', '', $sql);
+        $sql = str_replace('logs.log_views,', '', $sql);
+        $sql = str_replace('logs.course_week as view_date,', '', $sql);
+        $sql = str_replace('logs.grades', '', $sql);
+        $sql = str_replace('order by logs.userid;', '', $sql);
+        $sql = str_replace('logs.userid,', 'logs.userid', $sql); // The last column before the 'from' clause.
+
+        $sql .= ' ' . $groupby;
+
+        // We ignore the weeks, since we want to get the resources that have not been viewed, in the whole course teaching.
+        $sql = str_replace('and ((extract(YEAR from logs.course_week) - %year) * 52) + extract(WEEK from logs.course_week)',
+            '', $sql);
+        $sql = str_replace('between %coursestartweek and %currentweek', '', $sql);
+
+        // We set the userid and the courseid we want to query.
+        $sql = str_replace('where logs.course = %courseid', "where logs.userid = $userid and logs.course = $courseid ", $sql);
+
+        $records = $DB->get_records_sql($sql);
+
+        $queryresults = array();
+
+        foreach ($records as $record) {
+            $userid = $record->userid;
+            $moduleid = $record->moduleid;
+            $modulename = $record->module_name;
+            $resourcetype = $record->resource_type;
+            // The following data is not relevant for this results.
+            $logviews = -1;
+            $grades = -1;
+            $timestamp = -1;
+
+            $queryresult = new query_result($userid, $courseid, $moduleid, $modulename, $logviews,
+                                            $grades, $resourcetype, $timestamp);
+
+            array_push($queryresults, $queryresult);
+        }
+
+        return $queryresults;
     }
 }

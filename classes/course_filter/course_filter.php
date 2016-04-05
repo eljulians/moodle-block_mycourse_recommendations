@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Course filtering for determination of they "personalizabily".
  *
  * @package    block_mycourse_recommendations
  * @copyright  2016 onwards Julen Pardo & Mondragon Unibertsitatea
@@ -28,6 +29,12 @@ require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/db/databa
 use block_mycourse_recommendations\database_helper;
 
 defined('MOODLE_INTERNAL') || die();
+
+/**
+ * Class course_filter for determining if a course is personalizable or not.
+ *
+ * @package block_mycourse_recommendations
+ */
 
 class course_filter {
 
@@ -91,6 +98,8 @@ class course_filter {
 
     /**
      * Determines if the course has had the minimum previous teachings in the past years.
+     * First, looks into Moodle core tables for existing previous courses. If it doesn't find any, it tries luck in
+     * plugin's historic table. If it doesn't found neither here, means that the course has not previous teachings.
      *
      * @see find_course_previous_teachings_ids($currentcourseid, $currentyear) in database_helper.php.
      * @param int $courseid The course to determine if has had the minimum teachings before.
@@ -99,7 +108,7 @@ class course_filter {
      * @return boolean If the given course has had the minimum teachings before or not.
      */
     public static function meets_minimum_previous_courses($courseid, $currentyear, $db) {
-        $previouscourses = $db->find_course_previous_teachings_ids($courseid, $currentyear);
+        $previouscourses = $db->find_course_previous_teaching_ids_core_tables($courseid, $currentyear);
 
         $minimum = false;
 
@@ -107,18 +116,29 @@ class course_filter {
             $minimum = true;
         }
 
+        if (!$minimum) {
+            $previouscourses = $db->find_course_previous_teachings_ids_historic_tables($courseid, $currentyear);
+
+            if (count($previouscourses) >= self::MINIMUM_PREVIOUS_COURSES) {
+                $minimum = true;
+            }
+        }
+
         return $minimum;
     }
 
     /**
      * Determines if the course has the minimum number of resources.
+     * First, looks into Moodle core tables for existing previous resources. If it doesn't find any, it tries luck in
+     * plugin's historic table. If it doesn't found neither here, means that the course has not previous resources.
      *
      * @param int $courseid The course to determine if meets the minimum modules.
-     * @param database_helper $db The object with deals with database.
+     * @param int $currentyear The year of the given current course.
+     * @param \block_mycourse_recommendations\database_helper $db The object with deals with database.
      * @return boolean If the given course has the minimum resources or not.
      */
     public static function meets_minimum_resources($courseid, $currentyear, $db) {
-        $previousresourcenumber = $db->get_previous_courses_resources_number($courseid, $currentyear);
+        $previousresourcenumber = $db->get_previous_courses_resources_number_core_tables($courseid, $currentyear);
 
         $minimum = false;
 
@@ -126,23 +146,42 @@ class course_filter {
             $minimum = true;
         }
 
+        if (!$minimum) {
+            $previousresourcenumber = $db->get_previous_courses_resources_number_historic_tables($courseid, $currentyear);
+
+            if ($previousresourcenumber >= self::MINIMUM_PREVIOUS_RESOURCES) {
+                $minimum = true;
+            }
+        }
+
         return $minimum;
     }
 
     /**
      * Determines if the course has had the minimum number of students in previous teachings.
+     * First, looks into Moodle core tables for existing previous students. If it doesn't find any, it tries luck in
+     * plugin's historic table. If it doesn't found neither here, means that the course has not previous students.
      *
      * @param int $courseid The course to determine if meets the minimum students.
-     * @param database_helper $db The object with deals with database.
+     * @param int $currentyear The year of the given current course.
+     * @param \block_mycourse_recommendations\database_helper $db The object with deals with database.
      * @return boolean If the given course has the minimum students or not.
      */
     public static function meets_minimum_previous_students($courseid, $currentyear, $db) {
-        $previousstudents = $db->get_previous_courses_students_number($courseid, $currentyear);
+        $previousstudents = $db->get_previous_courses_students_number_core_tables($courseid, $currentyear);
 
         $minimum = false;
 
         if ($previousstudents >= self::MINIMUM_PREVIOUS_STUDENTS) {
             $minimum = true;
+        }
+
+        if (!$minimum) {
+            $previousstudents = $db->get_previous_courses_resources_number_historic_tables($courseid, $currentyear);
+
+            if ($previousstudents >= self::MINIMUM_PREVIOUS_STUDENTS) {
+                $minimum = true;
+            }
         }
 
         return $minimum;

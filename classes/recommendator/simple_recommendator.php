@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Implementation of block_mycourse_recommendations\abstract_recommendator in the simplest way.
  *
  * @package    block_mycourse_recommendations
  * @copyright  2016 onwards Julen Pardo & Mondragon Unibertsitatea
@@ -25,6 +26,7 @@ namespace block_mycourse_recommendations;
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once($CFG->dirroot . '/lib/weblib.php');
 require_once('abstract_recommendator.php');
 require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/db/database_helper.php');
 require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/matrix/abstract_matrix.php');
@@ -32,8 +34,24 @@ require_once($CFG->dirroot . '/blocks/mycourse_recommendations/classes/matrix/ab
 use block_mycourse_recommendations\abstract_recommendator;
 use block_mycourse_recommendations\database_helper;
 
+/**
+ * Class simple_recommendator for implementing the specific methods of association and recommendations creation in
+ * the simplest way.
+ *
+ * @package block_mycourse_recommendations
+ * @copyright  2016 onwards Julen Pardo & Mondragon Unibertsitatea
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 class simple_recommendator extends abstract_recommendator {
 
+    /**
+     * simple_recommendator constructor.
+     *
+     * @param \block_mycourse_recommendations\abstract_associator $associatorinstance The instance implementing the methods
+     * @param \block_mycourse_recommendations\abstract_associator $associatorinstance The instance implementing the methods
+     * for calculating the associations.
+     */
     public function __construct($associatorinstance) {
         parent::__construct($associatorinstance);
         null; // The codechecker will throw a warning if we don't do something more apart from calling parent's constructor...
@@ -56,63 +74,79 @@ class simple_recommendator extends abstract_recommendator {
      * @see insert_recommendations($number, $associationids, $resourcesids, $priorities) in database_helper.php.
      * @param int $courseid
      * @param int $currentweek
+     * @param \text_progress_trace $trace Text output trace.
+     * @return boolean False if any association could be done; true if yes.
      */
-    public function create_recommendations($courseid, $currentweek) {
-        $this->create_associations($courseid, $currentweek);
+    public function create_recommendations($courseid, $currentweek, $trace = null) {
+        $associationscreated = $this->create_associations($courseid, $currentweek, $trace);
 
-        $associations = $this->db->get_associations($courseid, $currentweek);
+        if ($associationscreated) {
+            $associations = $this->db->get_associations($courseid, $currentweek);
 
-        $recommendations = array();
-        $recommendationindex = 0;
+            $recommendations = array();
+            $recommendationindex = 0;
 
-        foreach ($associations as $associationid => $association) {
-            $userid = $association->historic_userid;
-            $previouscourseid = $association->historic_courseid;
-            $year = $this->db->get_course_start_week_and_year($previouscourseid)['year'];
-            $coursestartweek = $this->db->get_course_start_week_and_year($courseid)['week'];
+            foreach ($associations as $associationid => $association) {
+                $trace->output("[mycourse]: Creating recommendations for current user '$association->current_userid', associated"
+                    . " with historic user '$association->historic_userid'.");
 
-            $lowerlimitweek = $currentweek - parent::TIME_WINDOW;
-            $yearchange = $coursestartweek > $currentweek;
+                $userid = $association->historic_userid;
+                $previouscourseid = $association->historic_courseid;
+                $year = $this->db->get_course_start_week_and_year($previouscourseid, true)['year'];
+                $coursestartweek = $this->db->get_course_start_week_and_year($courseid)['week'];
 
-            $upperlimitweek = $currentweek;
-            if ($yearchange) {
-                $upperlimitweek = $currentweek + 52;
+                $lowerlimitweek = $currentweek - parent::TIME_WINDOW;
+                $yearchange = $coursestartweek > $currentweek;
+
+                $upperlimitweek = $currentweek;
+                if ($yearchange) {
+                    $upperlimitweek = $currentweek + 52;
+                }
+                $upperlimitweek += parent::TIME_WINDOW;
+                $previousrecords = $this->db->query_historic_course_data_grouped_by_views($previouscourseid, $year, $lowerlimitweek,
+                                                                                          $upperlimitweek, $userid);
+
+                $currentrecords = $this->db->query_current_not_viewed_resources($association->current_userid, $courseid);
+                $associatedresources = $this->associate_resources($previousrecords, $currentrecords);
+                $previousresources = $associatedresources['previous'];
+                $currentresources = $associatedresources['current'];
+
+                $logviews = $this->save_logviews_by_resource($previousresources, $currentresources);
+
+                $recommendations[$recommendationindex] = new \stdClass();
+                $recommendations[$recommendationindex]->number = count($logviews);
+                $recommendations[$recommendationindex]->associationids = array();
+                $recommendations[$recommendationindex]->resourcesids = array();
+                $recommendations[$recommendationindex]->priorities = array();
+
+                $index = 0;
+                foreach ($logviews as $currentresourceid => $views) {
+                    $recommendations[$recommendationindex]->associationids[$index] = $associationid;
+                    $recommendations[$recommendationindex]->resourcesids[$index] = $currentresourceid;
+                    $recommendations[$recommendationindex]->priorities[$index] = $index;
+
+                    $index++;
+                }
+
+                $recommendationindex++;
             }
-            $upperlimitweek += parent::TIME_WINDOW;
-            $previousrecords = $this->db->query_data($previouscourseid, $year, $lowerlimitweek, $upperlimitweek, $userid);
 
-            $currentyear = $this->db->get_course_start_week_and_year($courseid)['year'];
-            $currentrecords = $this->db->query_data($courseid, $currentyear, $lowerlimitweek, $upperlimitweek,
-                                                    $association->current_userid, true, true);
+            $trace->output('[mycourse]: All the recommendations have been created. Total count of recommendations: '
+                . count($recommendations));
+            $trace->output('[mycourse]: Inserting recommendations into database...');
 
-            $associatedresources = $this->associate_resources($previousrecords, $currentrecords);
-            $previousresources = $associatedresources['previous'];
-            $currentresources = $associatedresources['current'];
-
-            $previousresources = $this->keep_latest_logviews($previousresources);
-            $logviews = $this->save_logviews_by_resource($previousresources, $currentresources);
-
-            $recommendations[$recommendationindex] = new \stdClass();
-            $recommendations[$recommendationindex]->number = count($logviews);
-            $recommendations[$recommendationindex]->associationids = array();
-            $recommendations[$recommendationindex]->resourcesids = array();
-            $recommendations[$recommendationindex]->priorities = array();
-
-            $index = 0;
-            foreach ($logviews as $currentresourceid => $views) {
-                $recommendations[$recommendationindex]->associationids[$index] = $associationid;
-                $recommendations[$recommendationindex]->resourcesids[$index] = $currentresourceid;
-                $recommendations[$recommendationindex]->priorities[$index] = $index;
-
-                $index++;
+            foreach ($recommendations as $index => $recommendation) {
+                $this->db->insert_recommendations($recommendation->number, $recommendation->associationids,
+                    $recommendation->resourcesids, $recommendation->priorities);
             }
 
-            $recommendationindex++;
-        }
+            $trace->output('[mycourse]: The recommendations have been inserted into database.');
 
-        foreach ($recommendations as $index => $recommendation) {
-            $this->db->insert_recommendations($recommendation->number, $recommendation->associationids,
-                                              $recommendation->resourcesids, $recommendation->priorities);
+            return true;
+        } else {
+            $trace->output('[mycourse]: No recommendations will be created because no association could be done.');
+
+            return false;
         }
     }
 
@@ -130,13 +164,23 @@ class simple_recommendator extends abstract_recommendator {
      * @see insert_associations in database_helper.php.
      * @param int $courseid The current course id.
      * @param int $currentweek The current week of the current course.
+     * @param \text_progress_trace $trace Text output trace.
+     * @return boolean False if no association could be done; true if yes.
      */
-    public function create_associations($courseid, $currentweek) {
+    public function create_associations($courseid, $currentweek, $trace = null) {
+        $trace->output('[mycourse]: Creating associations.');
         $selectedusers = $this->db->get_selected_users($courseid);
 
-        $coursedates = $this->db->get_course_start_week_and_year($courseid);
+        $trace->output('[mycourse]: Selected users to receive recommendations:');
+
+        foreach ($selectedusers as $selecteduser) {
+            $trace->output("[mycourse]: \t- $selecteduser");
+        }
+
+        $coursedates = $this->db->get_course_start_week_and_year($courseid, false);
         $startweek = $coursedates['week'];
         $year = $coursedates['year'];
+        $trace->output("[mycourse]: Course start year: $year; start week: $startweek");
 
         $yearchange = $startweek > $currentweek;
         $endweek = $currentweek;
@@ -145,6 +189,8 @@ class simple_recommendator extends abstract_recommendator {
         }
         $endweek += parent::TIME_WINDOW;
 
+        $trace->output("[mycourse]: Log data for course '$courseid' will be queried with the following parameters: year: $year;"
+            . " from start week: $startweek; to end week: $endweek");
         $currentdata = $this->db->query_data($courseid, $year, $startweek, $endweek);
 
         // We keep only the users that are selected to receive the recommendations.
@@ -156,14 +202,19 @@ class simple_recommendator extends abstract_recommendator {
             }
         }
 
-        $previouscourses = $this->db->find_course_previous_teachings_ids($courseid, $year);
-        $previouscourse = max($previouscourses);
+        $previouscourses = $this->db->get_associated_courses($courseid);
 
-        $coursedates = $this->db->get_course_start_week_and_year($previouscourse);
+        $previouscourse = max($previouscourses);
+        $trace->output("[mycourse]: Current course: '$courseid' will use the historic course '$previouscourse'"
+            . " for the associations.");
+
+        $coursedates = $this->db->get_course_start_week_and_year($previouscourse, true);
         $startweek = $coursedates['week'];
         $year = $coursedates['year'];
 
-        $previousdata = $this->db->query_data($previouscourse, $year, $startweek, $endweek);
+        $trace->output("[mycourse]: Log data for course '$previouscourse' will be queried with the following parameters:"
+            . " year: $year; from start week: $startweek; to end week: $endweek");
+        $previousdata = $this->db->query_historic_course_data($previouscourse, $year, $startweek, $endweek, null, true);
 
         $associatedresources = $this->associate_resources($previousdata, $currentselecteddata);
         $previousdata = $associatedresources['previous'];
@@ -171,25 +222,74 @@ class simple_recommendator extends abstract_recommendator {
 
         // We get the association matrix, where the rows will be the current users id; the columns, the previous users;
         // and the values, the simmilarity coefficient.
+        $this->associator->set_currentweek($currentweek);
         $associationmatrix = $this->associator->create_associations_matrix($currentdata, $previousdata);
 
-        $number = count($associationmatrix);
-        $currentusersids = array();
-        $historicusersids = array();
+        if (!empty($associationmatrix)) {
+            $trace->output('[mycourse]: Associations between current and historic users were made successfully.');
 
-        // We have to find the highest coefficient of the relation of each current user with each previous student.
-        foreach ($associationmatrix as $currentuser => $similarities) {
-            $highestsimilarityindex = array_keys($similarities, max($similarities));
+            $number = count($associationmatrix);
+            $currentusersids = array();
+            $historicusersids = array();
 
-            $associatedhistoric = $similarities[$highestsimilarityindex[0]];
+            // We have to find the highest coefficient of the relation of each current user with each previous student.
+            foreach ($associationmatrix as $currentuser => $similarities) {
+                $highestsimilarityindex = array_keys($similarities, max($similarities));
 
-            array_push($currentusersids, $currentuser);
-            // The key, user id, of the highest similarity coefficient, will be the most similar user.
-            array_push($historicusersids, intval($highestsimilarityindex[0]));
+                $associatedhistoric = $similarities[$highestsimilarityindex[0]];
+
+                array_push($currentusersids, $currentuser);
+                // The key, user id, of the highest similarity coefficient, will be the most similar user.
+                array_push($historicusersids, intval($highestsimilarityindex[0]));
+
+                $trace->output("[mycourse]: Current user '$currentuser' has been associated with historic user"
+                    . " '$highestsimilarityindex[0]'.");
+            }
+
+            // Finally, we call the function that will insert the associations into the database.
+            $this->db->insert_associations($number, $currentusersids, $courseid, $historicusersids, $previouscourse, $currentweek);
+
+            $trace->output('[mycourse]: Users associations have been inserted into database.');
+
+            return true;
+        } else {
+            $trace->output("[mycourse]: No associations could be done because the current course '$courseid' and the historic course
+                            '$previouscourse' do not share any resources.");
+            return false;
+        }
+    }
+
+    /**
+     * Removes the repeated resources from the array. Two resources would be considered equals if they have the same name and
+     * resource type.
+     *
+     * @param $data
+     * @return mixed
+     */
+    protected function discard_repeated_resources($data) {
+        $auxdata = $data;
+        $discardedrows = 0;
+
+        for ($index = 0; $index < count($data); $index++) {
+            $referencerow = $data[$index];
+            for ($innerindex = $index + 1; $innerindex < count($data); $innerindex++) {
+                $comparingrow = $data[$innerindex];
+
+                $samename = $referencerow->get_modulename() === $comparingrow->get_modulename();
+                $sametype = $referencerow->get_moduletype() === $comparingrow->get_moduletype();
+
+                if ($samename && $sametype) {
+                    $samenamebutdistinctid = $referencerow->get_moduleid() !== $comparingrow->get_moduleid();
+
+                    if ($samenamebutdistinctid) {
+                        unset($auxdata[$innerindex - $discardedrows]);
+                        $discardedrows--;
+                    }
+                }
+            }
         }
 
-        // Finally, we call the function that will insert the associations into the database.
-        $this->db->insert_associations($number, $currentusersids, $courseid, $historicusersids, $previouscourse, $currentweek);
+        return $auxdata;
     }
 
     /**
@@ -206,20 +306,20 @@ class simple_recommendator extends abstract_recommendator {
     public function associate_resources($previousdata, $currentdata) {
         $previousresources = array();
         $currentresources = array();
-        $currenttransformedindex = 0;
 
         sort($previousdata);
         sort($currentdata);
 
         foreach ($currentdata as $currentindex => $currentresource) {
             foreach ($previousdata as $previousindex => $previousresource) {
-                if ($currentresource->get_modulename() === $previousresource->get_modulename()) {
-                    if (!in_array($previousresource, $previousresources)) {
-                        array_push($previousresources, $previousresource);
-                    }
-                    if (!in_array($currentresource, $currentresources)) {
-                        array_push($currentresources, $currentresource);
-                    }
+                $samename = $currentresource->get_modulename() === $previousresource->get_modulename();
+                $sametype = $currentresource->get_moduletype() === $previousresource->get_moduletype();
+
+                if ($samename && $sametype) {
+                    array_push($previousresources, $previousresource);
+                    array_push($currentresources, $currentresource);
+
+                    continue;
                 }
             }
         }
@@ -235,24 +335,27 @@ class simple_recommendator extends abstract_recommendator {
      * Discards the older results of a query, removing those duplicated rows for a resource that have less views compared with
      * other views of the same resource.
      *
-     * @param blocks_mycourse_recommendations\query_result $previousresources The queried data of the previous course.
-     * @return blocks_mycourse_recommendations\query_result The received queried data, but only with the latest views
-     * of the resources.
+     * @param \block_mycourse_recommendations\query_result $previousresources The queried data of the previous course.
+     * @param \block_mycourse_recommendations\query_result $currentresources The queried data of the current course.
+     * @return array The received queried data, but only with the latest
+     * views of the resources.
      */
-    protected function keep_latest_logviews($previousresources) {
+    protected function keep_latest_logviews($previousresources, $currentresources) {
         $auxpreviousresources = $previousresources;
+        $auxcurrentresources = $currentresources;
 
         foreach ($previousresources as $previousindex => $previousresource) {
             foreach ($auxpreviousresources as $auxindex => $aux) {
                 if ($aux->get_moduleid() === $previousresource->get_moduleid()) {
                     if ($previousresource->get_logviews() > $aux->get_logviews()) {
                         unset($auxpreviousresources[$auxindex]);
+                        unset($auxcurrentresources[$auxindex]);
                     }
                 }
             }
         }
 
-        return array_values($auxpreviousresources);
+        return array('previous' => array_values($auxpreviousresources), 'current' => array_values($auxcurrentresources));
     }
 
     /**

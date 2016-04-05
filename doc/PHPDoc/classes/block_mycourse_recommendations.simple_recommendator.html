@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+    <meta charset="utf-8"/>
+    <title>API Documentation</title>
+    <meta name="author" content=""/>
+    <meta name="description" content=""/>
+
+    <link href="../css/bootstrap-combined.no-icons.min.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/prism.css" rel="stylesheet" media="all"/>
+    <link href="../css/template.css" rel="stylesheet" media="all"/>
+    
+    <!--[if lt IE 9]>
+    <script src="../js/html5.js"></script>
+    <![endif]-->
+    <script src="../js/jquery-1.11.0.min.js"></script>
+    <script src="../js/ui/1.10.4/jquery-ui.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+    <script src="../js/jquery.smooth-scroll.js"></script>
+    <script src="../js/prism.min.js"></script>
+    <!-- TODO: Add http://jscrollpane.kelvinluck.com/ to style the scrollbars for browsers not using webkit-->
+    <script type="text/javascript">
+    function loadExternalCodeSnippets() {
+        Array.prototype.slice.call(document.querySelectorAll('pre[data-src]')).forEach(function (pre) {
+            var src = pre.getAttribute('data-src');
+            var extension = (src.match(/\.(\w+)$/) || [, ''])[1];
+            var language = 'php';
+
+            var code = document.createElement('code');
+            code.className = 'language-' + language;
+
+            pre.textContent = '';
+
+            code.textContent = 'Loading…';
+
+            pre.appendChild(code);
+
+            var xhr = new XMLHttpRequest();
+
+            xhr.open('GET', src, true);
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4) {
+
+                    if (xhr.status < 400 && xhr.responseText) {
+                        code.textContent = xhr.responseText;
+
+                        Prism.highlightElement(code);
+                    }
+                    else if (xhr.status >= 400) {
+                        code.textContent = '✖ Error ' + xhr.status + ' while fetching file: ' + xhr.statusText;
+                    }
+                    else {
+                        code.textContent = '✖ Error: File does not exist or is empty';
+                    }
+                }
+            };
+
+            xhr.send(null);
+        });
+    }
+
+    $(document).ready(function(){
+        loadExternalCodeSnippets();
+    });
+    $('#source-view').on('shown', function () {
+        loadExternalCodeSnippets();
+    })
+</script>
+
+    <link rel="shortcut icon" href="../images/favicon.ico"/>
+    <link rel="apple-touch-icon" href="../images/apple-touch-icon.png"/>
+    <link rel="apple-touch-icon" sizes="72x72" href="../images/apple-touch-icon-72x72.png"/>
+    <link rel="apple-touch-icon" sizes="114x114" href="../images/apple-touch-icon-114x114.png"/>
+</head>
+<body>
+
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <i class="icon-ellipsis-vertical"></i>
+            </a>
+            <a class="brand" href="../index.html">API Documentation</a>
+
+            <div class="nav-collapse">
+                <ul class="nav pull-right">
+                                        <li class="dropdown">
+                        <a href="../index.html" class="dropdown-toggle" data-toggle="dropdown">
+                            API Documentation <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                                                        <li><a href="../namespaces/block_mycourse_recommendations.html">\block_mycourse_recommendations</a></li>
+                                                    </ul>
+                    </li>
+                                        <li class="dropdown" id="charts-menu">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            Charts <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="../graphs/class.html">
+                                    <i class="icon-list-alt"></i>&#160;Class hierarchy diagram
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="dropdown" id="reports-menu">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            Reports <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="../reports/errors.html">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">0</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="../reports/markers.html">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Markers <span class="label label-info pull-right">1</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="../reports/deprecated.html">
+                                                                                                            <i class="icon-list-alt"></i>&#160;Deprecated <span class="label label-info pull-right">0</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!--<div class="go_to_top">-->
+    <!--<a href="#___" style="color: inherit">Back to top&#160;&#160;<i class="icon-upload icon-white"></i></a>-->
+    <!--</div>-->
+</div>
+
+<div id="___" class="container-fluid">
+        <section class="row-fluid">
+        <div class="span2 sidebar">
+                                <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-398618476"></a>
+                                <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
+            </div>
+            <div id="namespace-398618476" class="accordion-body collapse in">
+                <div class="accordion-inner">
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-435919455"></a>
+                                <a href="../namespaces/block_mycourse_recommendations.html" style="margin-left: 30px; padding-left: 0">block_mycourse_recommendations</a>
+            </div>
+            <div id="namespace-435919455" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1766842528"></a>
+                                <a href="../namespaces/block_mycourse_recommendations.task.html" style="margin-left: 30px; padding-left: 0">task</a>
+            </div>
+            <div id="namespace-1766842528" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/block_mycourse_recommendations.task.create_recommendations_task.html">create_recommendations_task</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                    
+                    <ul>
+                                                    <li class="interface"><a href="../classes/block_mycourse_recommendations.abstract_associator.html">abstract_associator</a></li>
+                                                    <li class="interface"><a href="../classes/block_mycourse_recommendations.abstract_matrix.html">abstract_matrix</a></li>
+                                                                                                    <li class="class"><a href="../classes/block_mycourse_recommendations.abstract_recommendator.html">abstract_recommendator</a></li>
+                                                    <li class="class"><a href="../classes/block_mycourse_recommendations.cosine_similarity_associator.html">cosine_similarity_associator</a></li>
+                                                    <li class="class"><a href="../classes/block_mycourse_recommendations.course_filter.html">course_filter</a></li>
+                                                    <li class="class"><a href="../classes/block_mycourse_recommendations.csv_importer.html">csv_importer</a></li>
+                                                    <li class="class"><a href="../classes/block_mycourse_recommendations.database_helper.html">database_helper</a></li>
+                                                    <li class="class"><a href="../classes/block_mycourse_recommendations.decimal_matrix.html">decimal_matrix</a></li>
+                                                    <li class="class"><a href="../classes/block_mycourse_recommendations.import_form.html">import_form</a></li>
+                                                    <li class="class"><a href="../classes/block_mycourse_recommendations.query_result.html">query_result</a></li>
+                                                    <li class="class"><a href="../classes/block_mycourse_recommendations.recommendations_renderer.html">recommendations_renderer</a></li>
+                                                    <li class="class"><a href="../classes/block_mycourse_recommendations.simple_recommendator.html">simple_recommendator</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                    
+                    <ul>
+                                                                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        </div>
+    </section>
+    <section class="row-fluid">
+        <div class="span10 offset2">
+            <div class="row-fluid">
+                <div class="span8 content class">
+                    <nav>
+                                                <a href="../namespaces/block_mycourse_recommendations.html">\block_mycourse_recommendations</a> <i class="icon-level-up"></i>
+                                            </nav>
+                    <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal"><i class="icon-code"></i></a>
+
+                    <h1><small>\block_mycourse_recommendations</small>simple_recommendator</h1>
+                    <p><em>Class simple_recommendator for implementing the specific methods of association and recommendations creation in
+the simplest way.</em></p>
+                    
+                    
+                                        
+                    <section id="summary">
+                        <h2>Summary</h2>
+                        <section class="row-fluid heading">
+                            <section class="span4">
+                                <a href="#methods">Methods</a>
+                            </section>
+                            <section class="span4">
+                                <a href="#properties">Properties</a>
+                            </section>
+                            <section class="span4">
+                                <a href="#constants">Constants</a>
+                            </section>
+                        </section>
+                        <section class="row-fluid public">
+                            <section class="span4">
+                                                                    <a href="../classes/block_mycourse_recommendations.simple_recommendator.html#method___construct" class="">__construct()</a><br />
+                                                                    <a href="../classes/block_mycourse_recommendations.simple_recommendator.html#method_create_recommendations" class="">create_recommendations()</a><br />
+                                                                    <a href="../classes/block_mycourse_recommendations.simple_recommendator.html#method_create_associations" class="">create_associations()</a><br />
+                                                                    <a href="../classes/block_mycourse_recommendations.abstract_recommendator.html#method_select_students" class="">select_students()</a><br />
+                                                                    <a href="../classes/block_mycourse_recommendations.simple_recommendator.html#method_associate_resources" class="">associate_resources()</a><br />
+                                                            </section>
+                            <section class="span4">
+                                                                    <em>No public properties found</em>
+                                                            </section>
+                            <section class="span4">
+                                                                    <a href="../classes/block_mycourse_recommendations.abstract_recommendator.html#constant_TIME_WINDOW" class="">TIME_WINDOW</a><br />
+                                                            </section>
+                        </section>
+                        <section class="row-fluid protected">
+                            <section class="span4">
+                                                                    <a href="../classes/block_mycourse_recommendations.simple_recommendator.html#method_discard_repeated_resources" class="">discard_repeated_resources()</a><br />
+                                                                    <a href="../classes/block_mycourse_recommendations.simple_recommendator.html#method_keep_latest_logviews" class="">keep_latest_logviews()</a><br />
+                                                                    <a href="../classes/block_mycourse_recommendations.simple_recommendator.html#method_save_logviews_by_resource" class="">save_logviews_by_resource()</a><br />
+                                                            </section>
+                            <section class="span4">
+                                                                    <a href="../classes/block_mycourse_recommendations.abstract_recommendator.html#property_db" class="">$db</a><br />
+                                                                    <a href="../classes/block_mycourse_recommendations.abstract_recommendator.html#property_associator" class="">$associator</a><br />
+                                                            </section>
+                            <section class="span4">
+                                <em>N/A</em>
+                            </section>
+                        </section>
+                        <section class="row-fluid private">
+                            <section class="span4">
+                                                                    <em>No private methods found</em>
+                                                            </section>
+                            <section class="span4">
+                                                                    <em>No private properties found</em>
+                                                            </section>
+                            <section class="span4">
+                                <em>N/A</em>
+                            </section>
+                        </section>
+                    </section>
+                </div>
+                <aside class="span4 detailsbar">
+                                        
+                    
+                    <dl>
+                        <dt>File</dt>
+                            <dd><a href="../files/recommendator.simple_recommendator.html"><div class="path-wrapper">recommendator/simple_recommendator.php</div></a></dd>
+                                                <dt>Package</dt>
+                            <dd><div class="namespace-wrapper">block_mycourse_recommendations</div></dd>
+                                                <dt>Class hierarchy</dt>
+                            <dd class="hierarchy">
+                                                                                                                                                                                                                                                                                                
+                                        <div class="namespace-wrapper"><a href="../classes/block_mycourse_recommendations.abstract_recommendator.html">\block_mycourse_recommendations\abstract_recommendator</a></div>
+                                                                                                    <div class="namespace-wrapper">\block_mycourse_recommendations\simple_recommendator</div>
+                            </dd>
+
+                        
+                        
+                        
+                        
+                                                                        </dl>
+                    <h2>Tags</h2>
+                    <table class="table table-condensed">
+                                            <tr>
+                            <th>
+                                copyright
+                            </th>
+                            <td>
+                                                                    <p>2016 onwards Julen Pardo &amp; Mondragon Unibertsitatea</p>
+                                                            </td>
+                        </tr>
+                                            <tr>
+                            <th>
+                                license
+                            </th>
+                            <td>
+                                                                    <p><a href="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</a> GNU GPL v3 or later</p>
+                                                            </td>
+                        </tr>
+                                        </table>
+                </aside>
+            </div>
+
+                                    <a id="constants" name="constants"></a>
+            <div class="row-fluid">
+                <div class="span8 content class">
+                    <h2>Constants</h2>
+                </div>
+                <aside class="span4 detailsbar"></aside>
+            </div>
+
+                                <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="constant_TIME_WINDOW" name="constant_TIME_WINDOW" class="anchor"></a>
+            <article id="constant_TIME_WINDOW" class="constant">
+                <h3 class="">TIME_WINDOW</h3>
+                <pre class="signature">TIME_WINDOW</pre>
+                <p><em>Determines how many weeks to look after the current one, when finding associations and resources to
+recommend. For example, if the current week is the 4th, and the value of the constant is 1, the data
+will be queried from the beginning to the 5th week.</em></p>
+                
+            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="../classes/block_mycourse_recommendations.abstract_recommendator.html"><div class="path-wrapper">\block_mycourse_recommendations\abstract_recommendator</div></a></dd>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                            
+                                    <a id="properties" name="properties"></a>
+            <div class="row-fluid">
+                <div class="span8 content class">
+                    <h2>Properties</h2>
+                </div>
+                <aside class="span4 detailsbar"></aside>
+            </div>
+
+                                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_db" name="property_db" class="anchor"></a>
+            <article class="property">
+                <h3 class="protected ">$db</h3>
+                <pre class="signature">$db : \block_mycourse_recommendations\database_helper</pre>
+                <p><em>Database helper, to perform actions with the database.</em></p>
+                
+
+                                <h4>Type</h4>
+                <a href="../classes/block_mycourse_recommendations.database_helper.html">\block_mycourse_recommendations\database_helper</a>
+                                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                    <dt>Inherited from</dt>
+                    <dd><a href="../classes/block_mycourse_recommendations.abstract_recommendator.html"><div class="path-wrapper">\block_mycourse_recommendations\abstract_recommendator</div></a></dd>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_associator" name="property_associator" class="anchor"></a>
+            <article class="property">
+                <h3 class="protected ">$associator</h3>
+                <pre class="signature">$associator : \block_mycourse_recommendations\abstract_associator</pre>
+                <p><em>The interface for generating associations, whose implementation will be the concrete class implementing
+the methods.</em></p>
+                
+
+                                <h4>Type</h4>
+                <a href="../classes/block_mycourse_recommendations.abstract_associator.html">\block_mycourse_recommendations\abstract_associator</a>
+                                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                    <dt>Inherited from</dt>
+                    <dd><a href="../classes/block_mycourse_recommendations.abstract_recommendator.html"><div class="path-wrapper">\block_mycourse_recommendations\abstract_recommendator</div></a></dd>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                            
+                                    <a id="methods" name="methods"></a>
+            <div class="row-fluid">
+                <div class="span8 content class"><h2>Methods</h2></div>
+                <aside class="span4 detailsbar"></aside>
+            </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method___construct" name="method___construct" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">__construct()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">__construct(\block_mycourse_recommendations\abstract_associator  <span class="argument">$associatorinstance</span>) </pre>
+                <p><em>simple_recommendator constructor.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td><a href="../classes/block_mycourse_recommendations.abstract_associator.html">\block_mycourse_recommendations\abstract_associator</a></td>
+                                <td>$associatorinstance </td>
+                                <td><p>The instance implementing the methods
+for calculating the associations.</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_create_recommendations" name="method_create_recommendations" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">create_recommendations()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">create_recommendations(integer  <span class="argument">$courseid</span>, integer  <span class="argument">$currentweek</span>, \text_progress_trace  <span class="argument">$trace = null</span>) : boolean</pre>
+                <p><em>Creates the recommendations for the current course and week, first, creating and retrieving the associations
+between the current and previous users; second, for each association, querying the logviews of the resources
+of the previous associated user; third, stablishing a priority order of these resources by views, being 0 the
+most viewed and thereforo the one with most priority; and fourth, defining the data structure to make the
+insertion into the database.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$courseid </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$currentweek </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>\text_progress_trace</td>
+                                <td>$trace </td>
+                                <td><p>Text output trace.</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    boolean
+                                            &mdash; <p>False if any association could be done; true if yes.</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                                            <dt>See also</dt>
+                                                                <dd><a href=""><span class="namespace-wrapper">$currentweek).</span></a></dd>
+                                            <dd><a href=""><span class="namespace-wrapper">$currentweek) in database_helper.php.</span></a></dd>
+                                            <dd><a href=""><span class="namespace-wrapper">in database_helper.php.</span></a></dd>
+                                            <dd><a href=""><span class="namespace-wrapper">$year, $coursestartweek, $currentweek, $userid = null, $ignoreweeks = false,
+$onlyunviewed = false).</span></a></dd>
+                                            <dd><a href=""><span class="namespace-wrapper"></span></a></dd>
+                                            <dd><a href=""><span class="namespace-wrapper">$currentresources).</span></a></dd>
+                                            <dd><a href=""><span class="namespace-wrapper">$associationids, $resourcesids, $priorities) in database_helper.php.</span></a></dd>
+                                                                </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_create_associations" name="method_create_associations" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">create_associations()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">create_associations(integer  <span class="argument">$courseid</span>, integer  <span class="argument">$currentweek</span>, \text_progress_trace  <span class="argument">$trace = null</span>) : boolean</pre>
+                <p><em>Creates the associations between the current users and historic users. In this simple_recommendator implementation,
+each current user is associated with a UNIQUE previous user.</em></p>
+                <p>If $currentweek is the week of the year after the course start, we have to add 52 to $currentweek, otherwise, the
+query won't return results, because $currentweek will be lower than the start week.</p>
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$courseid </td>
+                                <td><p>The current course id.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$currentweek </td>
+                                <td><p>The current week of the current course.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>\text_progress_trace</td>
+                                <td>$trace </td>
+                                <td><p>Text output trace.</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    boolean
+                                            &mdash; <p>False if no association could be done; true if yes.</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                                            <dt>See also</dt>
+                                                                <dd><a href=""><span class="namespace-wrapper">in database_helper.php.</span></a></dd>
+                                            <dd><a href=""><span class="namespace-wrapper">in database_helper.php.</span></a></dd>
+                                            <dd><a href=""><span class="namespace-wrapper">$year, $startweek, $currentweek) in database_helper.php.</span></a></dd>
+                                            <dd><a href=""><span class="namespace-wrapper">$year) in database_helper.php.</span></a></dd>
+                                            <dd><a href=""><span class="namespace-wrapper">in abstract_associator.php.</span></a></dd>
+                                            <dd><a href=""><span class="namespace-wrapper">in database_helper.php.</span></a></dd>
+                                                                </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_select_students" name="method_select_students" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">select_students()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">select_students(integer  <span class="argument">$courseid</span>, integer  <span class="argument">$year</span>) </pre>
+                <p><em>Given the course identificator, selects, randomly, 50% of the students enrolled in the course,
+who will be the ones receiving the personalized recommendations.</em></p>
+                <p>&quot;array_rand&quot; function returns the randomly selected keys, not values, so, we have to construct
+manually the array with random users.</p>
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$courseid </td>
+                                <td><p>The course to select students from.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$year </td>
+                                <td><p>The year the given course belongs to.</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="../classes/block_mycourse_recommendations.abstract_recommendator.html"><div class="path-wrapper">\block_mycourse_recommendations\abstract_recommendator</div></a></dd>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_associate_resources" name="method_associate_resources" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">associate_resources()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">associate_resources(\block_mycourse_recommendations\query_result  <span class="argument">$previousdata</span>, \block_mycourse_recommendations\query_result  <span class="argument">$currentdata</span>) : array</pre>
+                <p><em>Makes the relations between the resources of current and previous courses. To determine the association between two
+resources, the name is used. So, the names must match exactly to consider the association.</em></p>
+                <p>Current resources are iterated, finding the relation with previous. The result is the same received data, but with the
+associated resources aligned in the arrays; in the same position.</p>
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td><a href="../classes/block_mycourse_recommendations.query_result.html">\block_mycourse_recommendations\query_result</a></td>
+                                <td>$previousdata </td>
+                                <td><p>The data of previous course retrieved from database.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td><a href="../classes/block_mycourse_recommendations.query_result.html">\block_mycourse_recommendations\query_result</a></td>
+                                <td>$currentdata </td>
+                                <td><p>The data of current course retrieved from database.</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    array
+                                            &mdash; <p>An array with the transformation of the received arrays. Since PHP 5.4 the pass of arguments by reference
+is not allowed, so this is the only way to return the two arrays :( .</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_discard_repeated_resources" name="method_discard_repeated_resources" class="anchor"></a>
+            <article class="method">
+                <h3 class="protected ">discard_repeated_resources()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">discard_repeated_resources(  <span class="argument">$data</span>) : mixed</pre>
+                <p><em>Removes the repeated resources from the array. Two resources would be considered equals if they have the same name and
+resource type.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td></td>
+                                <td>$data </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    mixed
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_keep_latest_logviews" name="method_keep_latest_logviews" class="anchor"></a>
+            <article class="method">
+                <h3 class="protected ">keep_latest_logviews()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">keep_latest_logviews(\block_mycourse_recommendations\query_result  <span class="argument">$previousresources</span>, \block_mycourse_recommendations\query_result  <span class="argument">$currentresources</span>) : array</pre>
+                <p><em>Discards the older results of a query, removing those duplicated rows for a resource that have less views compared with
+other views of the same resource.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td><a href="../classes/block_mycourse_recommendations.query_result.html">\block_mycourse_recommendations\query_result</a></td>
+                                <td>$previousresources </td>
+                                <td><p>The queried data of the previous course.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td><a href="../classes/block_mycourse_recommendations.query_result.html">\block_mycourse_recommendations\query_result</a></td>
+                                <td>$currentresources </td>
+                                <td><p>The queried data of the current course.</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    array
+                                            &mdash; <p>The received queried data, but only with the latest
+views of the resources.</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_save_logviews_by_resource" name="method_save_logviews_by_resource" class="anchor"></a>
+            <article class="method">
+                <h3 class="protected ">save_logviews_by_resource()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">save_logviews_by_resource(\block_mycourse_recommendations\blocks_mycourse_recommendations\query_result  <span class="argument">$previousresources</span>,   <span class="argument">$currentresources</span>) : array</pre>
+                <p><em>Saves the views of each resource in an associative array with the resourceid as key, sorted descendently, only if it
+has been seen at least once.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>\block_mycourse_recommendations\blocks_mycourse_recommendations\query_result</td>
+                                <td>$previousresources </td>
+                                <td><p>The queried data of the previous course.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td></td>
+                                <td>$currentresources </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    array
+                                            &mdash; <p>The logviews of each resource.</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                                    </div>
+    </section>
+
+    <div id="source-view" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="source-view-label" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="source-view-label">simple_recommendator.php</h3>
+        </div>
+        <div class="modal-body">
+            <pre data-src="../files/recommendator/simple_recommendator.php.txt" class="language-php line-numbers"></pre>
+        </div>
+    </div>
+
+    <footer class="row-fluid">
+        <section class="span10 offset2">
+            <section class="row-fluid">
+                <section class="span10 offset1">
+                    <section class="row-fluid footer-sections">
+                        <section class="span4">
+                                                        <h1><i class="icon-code"></i></h1>
+                            <div>
+                                <ul>
+                                                                            <li><a href="../namespaces/block_mycourse_recommendations.html">\block_mycourse_recommendations</a></li>
+                                                                    </ul>
+                            </div>
+                        </section>
+                        <section class="span4">
+                                                        <h1><i class="icon-bar-chart"></i></h1>
+                            <div>
+                                <ul>
+                                    <li><a href="../graphs/class.html">Class Hierarchy Diagram</a></li>
+                                </ul>
+                            </div>
+                        </section>
+                        <section class="span4">
+                                                        <h1><i class="icon-pushpin"></i></h1>
+                            <div>
+                                <ul>
+                                    <li><a href="../reports/errors.html">Errors</a></li>
+                                    <li><a href="../reports/markers.html">Markers</a></li>
+                                </ul>
+                            </div>
+                        </section>
+                    </section>
+                </section>
+            </section>
+            <section class="row-fluid">
+                <section class="span10 offset1">
+                    <hr />
+                    Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
+                    on April 5th, 2016 at 19:12.
+                </section>
+            </section>
+        </section>
+    </footer>
+</div>
+
+</body>
+</html>

@@ -80,6 +80,31 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
         return $courses;
     }
 
+    protected function insert_previous_courses_in_historic_data($previouscourses) {
+        global $DB;
+
+        foreach ($previouscourses as $previouscourse) {
+            $record = new stdClass();
+            $record->fullname = $previouscourse->fullname;
+            $record->shortname = $previouscourse->shortname;
+            $record->startdate = $previouscourse->startdate;
+            $record->idnumber = $previouscourse->idnumber;
+            $record->category = $previouscourse->category;
+
+            $DB->insert_record('block_mycourse_hist_course', $record);
+        }
+
+        $createdids = array();
+
+        $records = $DB->get_records('block_mycourse_hist_course');
+
+        foreach ($records as $record) {
+            array_push($createdids, $record->id);
+        }
+
+        return $createdids;
+    }
+
     /**
      * Creates n number of students (roleid = 5) for the given course.
      *
@@ -123,6 +148,46 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
         return $createdresources;
     }
 
+    protected function insert_previous_resources_in_historic_data($resources, $courseid) {
+        global $DB;
+
+        foreach ($resources as $index => $resource) {
+            $record = new stdClass();
+
+            $record->courseid = $courseid;
+            $record->resourcename = (string)$index; // The value is irrelevant, but it must be unique.
+            $record->resourcetype = 'page'; // Whatever.
+            $record->userid = $index; // Whatever.
+            $record->views = $index; // Whatever.
+            $record->timecreated = time(); // Whatever.
+
+            $DB->insert_record('block_mycourse_hist_data', $record);
+        }
+    }
+
+    protected function insert_previous_users_in_historic_data($users, $courseid) {
+        global $DB;
+
+        foreach ($users as $user) {
+            $sql = 'INSERT INTO {block_mycourse_hist_enrol} (userid, courseid)
+                    VALUES (:v1, :v2)';
+            $values = ['v1' => $user->id, 'v2' => $courseid];
+
+            $DB->execute($sql, $values);
+        }
+    }
+
+    private function generate_footer_import_url($courseid) {
+        $importurl = new \moodle_url("/blocks/mycourse_recommendations/import_csv.php",
+                                     array('courseid' => $courseid));
+        $string = get_string('importfromcsv', 'block_mycourse_recommendations');
+
+        $url = '<hr>';
+        $url .= "<a href='$importurl'>$string</a>";
+
+        return $url;
+    }
+
     public function test_get_content_firstinstance_nopersonalizable() {
         global $COURSE;
 
@@ -133,9 +198,13 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
         $course = $this->create_courses(array(), 1)[0];
         $COURSE = $course;
 
+        // We need the students because the function that selects the students for creating recommendations is called even if the
+        // course is not personalizable.
+        $this->create_and_enrol_students($course->id, 10);
+
         $expected = new stdClass();
         $expected->text = get_string('notpersonalizable', 'block_mycourse_recommendations');
-        $expected->footer = '';
+        $expected->footer = $this->generate_footer_import_url($COURSE->id);;
         $actual = $this->block->get_content();
 
         $this->assertEquals($expected, $actual);
@@ -160,7 +229,7 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
 
         $expected = new stdClass();
         $expected->text = get_string('notpersonalizable', 'block_mycourse_recommendations');
-        $expected->footer = '';
+        $expected->footer = $this->generate_footer_import_url($COURSE->id);;
         $actual = $this->block->get_content();
 
         $this->assertEquals($expected, $actual);
@@ -186,7 +255,7 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
 
         $expected = new stdClass();
         $expected->text = get_string('inactive', 'block_mycourse_recommendations');
-        $expected->footer = '';
+        $expected->footer = $this->generate_footer_import_url($COURSE->id);
         $actual = $this->block->get_content();
 
         $this->assertEquals($expected, $actual);
@@ -277,17 +346,29 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
             $records[$index]->resourceid = $resources[$index]->id;
             $records[$index]->priority = $index;
         }
+
         $DB->insert_records('block_mycourse_recs', $records);
+        // We have to know the recommendations ids, because they are used to create the Moodle url, so we need it for the
+        // assertion.
+        $lastinsertedid = $DB->get_record_sql('SELECT MAX(id) as lastinserted from {block_mycourse_recs}')->lastinserted;
+        $firstinsertedid = $lastinsertedid - count($records) + 1;
 
         // We create the expected block output.
         $expected = new stdClass();
         $expected->footer = '';
         $expected->text = '<ol>';
 
+        $currentrecommendationid = $firstinsertedid;
         for ($index = 0; $index < recommendations_renderer::MAX_RECOMMENDATIONS; $index++) {
+            $url = new \moodle_url('/blocks/mycourse_recommendations/redirect_to_resource.php',
+                array('recommendationid' => $currentrecommendationid, 'modname' => 'page', 'moduleid' => $resources[$index]->cmid));
             $expected->text .= '<li>';
+            $expected->text .= "<a href='$url' target='_blank'>";
             $expected->text .= $resources[$index]->name;
+            $expected->text .= '</a>';
             $expected->text .= '</li>';
+
+            $currentrecommendationid++;
         }
         $expected->text .= '</ol>';
 
@@ -316,11 +397,12 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
         $USER = $user;
 
         // We create the previous minimum courses...
-        $previouscourse = $this->create_courses(array('fullname' => $coursesname, 'startdate' => $previouscoursestart),
-                                                course_filter::MINIMUM_PREVIOUS_COURSES)[0];
+        $previouscourses = $this->create_courses(array('fullname' => $coursesname, 'startdate' => $previouscoursestart),
+                                                course_filter::MINIMUM_PREVIOUS_COURSES);
+        $previouscourse = $previouscourses[0];
 
         // We create the previous minimum students...
-        $this->create_and_enrol_students($previouscourse->id, course_filter::MINIMUM_PREVIOUS_STUDENTS);
+        $users = $this->create_and_enrol_students($previouscourse->id, course_filter::MINIMUM_PREVIOUS_STUDENTS);
 
         // We create the previous minimum weeks...
         $resourcesnames = array();
@@ -328,7 +410,7 @@ class block_mycourse_recommendations_testcase extends advanced_testcase {
             array_push($resourcesnames, 'whatever resource');
         }
         $resources[$previouscourse->id]['mod_page'] = count($resourcesnames);
-        $this->create_resources($resources, $resourcesnames);
+        $resources = $this->create_resources($resources, $resourcesnames);
 
         $actual = $this->block->get_content();
 
