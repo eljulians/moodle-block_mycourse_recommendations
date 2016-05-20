@@ -257,7 +257,7 @@ class simple_recommendator extends abstract_recommendator {
         $trace->output('[mycourse ' . date('d/m/Y H:i:s') . ']: Starting association matrix creation, where each current user '
             . ' will be associated with the most similar previous user.');
 
-        $associationmatrix = $this->associator->create_associations_matrix($currentdata, $previousdata);
+        $associationmatrix = $this->associator->create_associations_matrix($currentdata, $previousdata , $trace);
 
         $trace->output('[mycourse ' . date('d/m/Y H:i:s') . ']: Association matrix creation ended.');
 
