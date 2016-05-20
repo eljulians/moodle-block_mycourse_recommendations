@@ -163,7 +163,8 @@ class simple_recommendator extends abstract_recommendator {
 
             return true;
         } else {
-            $trace->output('[mycourse ' . date('d/m/Y H:i:s') . ']: No recommendations will be created because no association could be done.');
+            $trace->output('[mycourse ' . date('d/m/Y H:i:s') . ']: No recommendations will be created because no association '
+                . 'could be done.');
 
             return false;
         }
