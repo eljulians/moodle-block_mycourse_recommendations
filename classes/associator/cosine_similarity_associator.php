@@ -80,13 +80,21 @@ class cosine_similarity_associator implements abstract_associator {
      * @see cosine_similarity($vector1, $vector2).
      * @param array $currentdata A 2D array.
      * @param array $historicdata A 2D array.
+     * @param \text_progress_trace $trace Text output trace.
      * @return array The association matrix; empty if no association could be made.
      */
-    public function create_associations_matrix($currentdata, $historicdata) {
+    public function create_associations_matrix($currentdata, $historicdata, $trace) {
         $db = new database_helper();
+
+        $trace->output("[mycourse " . date('d/m/Y H:i:s') . "]: Starting creation of associations matrix.");
+
+        $trace->output("[mycourse " . date('d/m/Y H:i:s') . "]: Transforming receiving data to get a matrix of users x resources. "
+            ." with the views as values.");
 
         $currenttransformeddata = $this->matrix->transform_queried_data($currentdata);
         $historictransformeddata = $this->matrix->transform_queried_data($historicdata);
+
+        $trace->output('[mycourse ' . date('d/m/Y H:i:s') . ']: Both historic and current data have been transformed.');
 
         $currentusers = array_keys($currenttransformeddata);
         $historicusers = array_keys($historictransformeddata);
@@ -94,13 +102,24 @@ class cosine_similarity_associator implements abstract_associator {
         $matrix = array();
 
         foreach ($currentusers as $currentuser) {
+            $trace->output('[mycourse ' . date('d/m/Y H:i:s') . "]: Starting calculating associations for current user "
+                . "$currentuser.");
+
             $currentviewsvector = $currenttransformeddata[$currentuser];
 
             $similarities = null;
             foreach ($historicusers as $historicuser) {
                 $historicviewsvector = $historictransformeddata[$historicuser];
 
+                $trace->output('[mycourse ' . date('d/m/Y H:i:s') . "]: Starting calculating cosine similarity between a vector "
+                    . "of " . count($currentviewsvector) ." elements with a vector of " . count ($historicviewsvector)
+                    . " elements.");
+
                 $similarity = $this->cosine_similarity($currentviewsvector, $historicviewsvector);
+
+                $trace->output('[mycourse ' . date('d/m/Y H:i:s') . ']: Cosine similarity between those vectors has been '
+                    . 'calculated.');
+
                 $similarity = round($similarity, 4);
                 $similarities[$historicuser] = $similarity;
 
@@ -108,6 +127,9 @@ class cosine_similarity_associator implements abstract_associator {
             }
 
             $matrix[$currentuser] = $similarities;
+
+            $trace->output('[mycourse ' . date('d/m/Y H:i:s') . "]: Similarities for current user $currentuser have been "
+                . "calculated.");
         }
 
         return $matrix;

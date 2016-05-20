@@ -40,7 +40,8 @@ interface abstract_associator {
      *
      * @param array $currentdata Current users' views.
      * @param array $historicdata Historic users' views.
+     * @param \text_progress_trace $trace Text output trace.
      * @return array The association matrix.
      */
-    public function create_associations_matrix($currentdata, $historicdata);
+    public function create_associations_matrix($currentdata, $historicdata, $trace);
 }
