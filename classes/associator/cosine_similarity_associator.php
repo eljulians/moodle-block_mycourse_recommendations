@@ -128,7 +128,8 @@ class cosine_similarity_associator implements abstract_associator {
 
             $matrix[$currentuser] = $similarities;
 
-            $trace->output('[mycourse ' . date('d/m/Y H:i:s') . "]: Similarities for current user $currentuser have been calculated.");
+            $trace->output('[mycourse ' . date('d/m/Y H:i:s') . "]: Similarities for current user $currentuser have been "
+                . "calculated.");
         }
 
         return $matrix;
