@@ -1335,23 +1335,28 @@ class database_helper {
     public function query_historic_course_data_grouped_by_views($courseid, $year, $lowerlimitweek, $upperlimitweek, $userid) {
         global $DB;
 
-        $sql = "SELECT logs.id,
-                       logs.userid,
+        $sql = "SELECT logs.userid,
                        logs.resourcename,
                        logs.resourcetype,
                        logs.resourceid,
-                       logs.views
+                       SUM(logs.views) AS views
                 FROM   {block_mycourse_hist_data} logs
                 INNER JOIN {block_mycourse_hist_course} course
                     ON logs.courseid = course.id
                 INNER JOIN {block_mycourse_hist_enrol} enrol
                     ON enrol.courseid = course.id
                     AND enrol.userid = logs.userid
+
                 WHERE ((EXTRACT('year' FROM date_trunc('year', to_timestamp(logs.timecreated))) - %year) * 52)
 	                + EXTRACT('week' FROM date_trunc('week', to_timestamp(logs.timecreated)))
                   BETWEEN %coursestartweek AND %currentweek
                     AND logs.userid = %userid
-                    AND course.id = %courseid";
+                    AND course.id = %courseid
+
+                GROUP BY logs.userid,
+                         logs.resourcename,
+                         logs.resourcetype,
+                         logs.resourceid";
 
         $sql = str_replace('%courseid', $courseid, $sql);
         $sql = str_replace('%year', $year, $sql);
@@ -1359,11 +1364,11 @@ class database_helper {
         $sql = str_replace('%currentweek', $upperlimitweek, $sql);
         $sql = str_replace('%userid', $userid, $sql);
 
-        $records = $DB->get_records_sql($sql);
+        $recordset = $DB->get_recordset_sql($sql);
 
         $queryresults = array();
 
-        foreach ($records as $record) {
+        foreach ($recordset as $record) {
             $userid = $record->userid;
             $resourcename = $record->resourcename;
             $logviews = $record->views;
@@ -1374,6 +1379,8 @@ class database_helper {
             array_push($queryresults, new query_result($userid, $courseid, $resourceid, $resourcename,
                                                        $logviews, $grades, $resourcetype));
         }
+
+        $recordset->close();
 
         return $queryresults;
     }
@@ -1395,12 +1402,12 @@ class database_helper {
         $sql = $this->sql;
 
         // For getting the results grouped by resources.
-        $groupby = 'GROUP BY logs.id,
-                    logs.resource_type,
-                    logs.moduleid,
-                    logs.module_name,
-                    logs.userid';
+        $groupby = 'GROUP BY logs.resource_type,
+                             logs.moduleid,
+                             logs.module_name,
+                             logs.userid';
 
+        $sql = str_replace('logs.id,', '', $sql);
         $sql = str_replace('logs.format,', '', $sql);
         $sql = str_replace('logs.section,', '', $sql);
         $sql = str_replace('logs.log_views,', '', $sql);
@@ -1419,11 +1426,11 @@ class database_helper {
         // We set the userid and the courseid we want to query.
         $sql = str_replace('where logs.course = %courseid', "where logs.userid = $userid and logs.course = $courseid ", $sql);
 
-        $records = $DB->get_records_sql($sql);
+        $recordset = $DB->get_recordset_sql($sql);
 
         $queryresults = array();
 
-        foreach ($records as $record) {
+        foreach ($recordset as $record) {
             $userid = $record->userid;
             $moduleid = $record->moduleid;
             $modulename = $record->module_name;
@@ -1438,6 +1445,8 @@ class database_helper {
 
             array_push($queryresults, $queryresult);
         }
+
+        $recordset->close();
 
         return $queryresults;
     }
