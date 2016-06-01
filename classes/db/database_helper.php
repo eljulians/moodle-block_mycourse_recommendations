@@ -1548,7 +1548,7 @@ class database_helper {
         $queryresults = array();
 
         foreach ($recordset as $record) {
-            $resourceid = $record->id;
+            $resourceid = $record->resourceid;
             $resourcename = $record->resourcename;
             $resourcetype = $record->resourcetype;
 
