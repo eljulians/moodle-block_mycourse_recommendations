@@ -331,7 +331,7 @@ class database_helper {
             $grades = -1;
 
             if ($onlyrecommendable) {
-                if (!is_resource_recommendable($resourcename, $resourcetype, $recommendableresources)) {
+                if (!$this->is_resource_recommendable($resourcename, $resourcetype, $recommendableresources)) {
                     continue;
                 }
             }
