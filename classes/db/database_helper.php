@@ -258,7 +258,7 @@ class database_helper {
             $timestamp = strtotime($record->view_date) + 3600;
 
             $queryresults[$index] = new query_result($userid, $courseid, $moduleid, $modulename, $logviews,
-                                                     $grades, $resourcetype, $timestamp);
+                $grades, $resourcetype, $timestamp);
             $index++;
         }
 
@@ -279,7 +279,8 @@ class database_helper {
      * @return array Each row of the logs.
      */
     public function query_historic_course_data($courseid, $year, $coursestartweek, $currentweek,
-                                               $userid = null, $gradepass = false) {
+                                               $userid = null, $gradepass = false, $onlyrecommendable = false,
+                                               $recommendableresources = array()) {
         global $DB;
 
         $sql = "SELECT logs.id,
@@ -295,7 +296,7 @@ class database_helper {
                     ON enrol.courseid = course.id
                     AND enrol.userid = logs.userid
                 WHERE ((EXTRACT('year' FROM date_trunc('year', to_timestamp(logs.timecreated))) - %year) * 52)
-	                + EXTRACT('week' FROM date_trunc('week', to_timestamp(logs.timecreated)))
+                    + EXTRACT('week' FROM date_trunc('week', to_timestamp(logs.timecreated)))
                   BETWEEN %coursestartweek AND %currentweek
                     AND logs.userid = %userid
                     AND course.id = %courseid
@@ -329,11 +330,32 @@ class database_helper {
             // This is irrelevant but required for the constructor.
             $grades = -1;
 
+            if ($onlyrecommendable) {
+                if (!is_resource_recommendable($resourcename, $resourcetype, $recommendableresources)) {
+                    continue;
+                }
+            }
+
             array_push($queryresults, new query_result($userid, $courseid, $moduleid, $resourcename,
-                                                       $logviews, $grades, $resourcetype));
+                $logviews, $grades, $resourcetype));
         }
 
         return $queryresults;
+    }
+
+    protected function is_resource_recommendable($resourcename, $resourcetype, $recommendableresources) {
+        $isrecommendable = false;
+
+        foreach ($recommendableresources as $recommendableresource) {
+            $isrecommendable = $recommendableresource->get_modulename() === $resourcename
+                && $recommendableresource->get_moduletype() === $resourcetype;
+
+            if ($isrecommendable) {
+                break;
+            }
+        }
+
+        return $isrecommendable;
     }
 
     /**
@@ -1346,13 +1368,11 @@ class database_helper {
                 INNER JOIN {block_mycourse_hist_enrol} enrol
                     ON enrol.courseid = course.id
                     AND enrol.userid = logs.userid
-
                 WHERE ((EXTRACT('year' FROM date_trunc('year', to_timestamp(logs.timecreated))) - %year) * 52)
 	                + EXTRACT('week' FROM date_trunc('week', to_timestamp(logs.timecreated)))
                   BETWEEN %coursestartweek AND %currentweek
                     AND logs.userid = %userid
                     AND course.id = %courseid
-
                 GROUP BY logs.userid,
                          logs.resourcename,
                          logs.resourcetype,
@@ -1365,7 +1385,6 @@ class database_helper {
         $sql = str_replace('%userid', $userid, $sql);
 
         $recordset = $DB->get_recordset_sql($sql);
-
         $queryresults = array();
 
         foreach ($recordset as $record) {
@@ -1374,10 +1393,10 @@ class database_helper {
             $logviews = $record->views;
             $resourceid = $record->resourceid;
             $resourcetype = $record->resourcetype;
-
             $grades = -1; // Is required for the construct of the query result, but not meaningful for this query.
+
             array_push($queryresults, new query_result($userid, $courseid, $resourceid, $resourcename,
-                                                       $logviews, $grades, $resourcetype));
+                $logviews, $grades, $resourcetype));
         }
 
         $recordset->close();
@@ -1402,12 +1421,12 @@ class database_helper {
         $sql = $this->sql;
 
         // For getting the results grouped by resources.
-        $groupby = 'GROUP BY logs.resource_type,
-                             logs.moduleid,
-                             logs.module_name,
-                             logs.userid';
+        $groupby = 'GROUP BY logs.id,
+                    logs.resource_type,
+                    logs.moduleid,
+                    logs.module_name,
+                    logs.userid';
 
-        $sql = str_replace('logs.id,', '', $sql);
         $sql = str_replace('logs.format,', '', $sql);
         $sql = str_replace('logs.section,', '', $sql);
         $sql = str_replace('logs.log_views,', '', $sql);
@@ -1426,11 +1445,11 @@ class database_helper {
         // We set the userid and the courseid we want to query.
         $sql = str_replace('where logs.course = %courseid', "where logs.userid = $userid and logs.course = $courseid ", $sql);
 
-        $recordset = $DB->get_recordset_sql($sql);
+        $records = $DB->get_records_sql($sql);
 
         $queryresults = array();
 
-        foreach ($recordset as $record) {
+        foreach ($records as $record) {
             $userid = $record->userid;
             $moduleid = $record->moduleid;
             $modulename = $record->module_name;
@@ -1441,7 +1460,69 @@ class database_helper {
             $timestamp = -1;
 
             $queryresult = new query_result($userid, $courseid, $moduleid, $modulename, $logviews,
-                                            $grades, $resourcetype, $timestamp);
+                $grades, $resourcetype, $timestamp);
+
+            array_push($queryresults, $queryresult);
+        }
+
+        return $queryresults;
+    }
+
+    public function query_current_resources_info($courseid) {
+        global $DB;
+
+        $sql = "SELECT resources.id,
+                       resources.name AS resource_name,
+                       modules.name AS resource_type
+                  FROM {course_modules} course_modules
+                 INNER JOIN {modules} modules
+                    ON course_modules.module = modules.id
+                 INNER JOIN (SELECT m.name AS resource_type,
+                                    m.id   AS resourcetypeid,
+                                    course,
+                                    p.id,
+                                    p.name
+                               FROM {page} p, {modules} m
+                              WHERE m.name = 'page'
+                             UNION
+                             SELECT m.name, m.id AS resourcetypeid, course, r.id, r.name
+                               FROM {resource} r, {modules} m
+                              WHERE m.name = 'resource'
+                             UNION
+                             SELECT m.name, m.id AS resourcetypeid, course, u.id, u.name
+                               FROM {url} u, {modules} m
+                              WHERE m.name = 'url'
+                             UNION
+                             SELECT m.name, m.id AS resourcetypeid, course, f.id, f.name
+                               FROM {folder} f, {modules} m
+                              WHERE m.name = 'folder'
+                             UNION
+                             SELECT m.name, m.id AS resourcetypeid, course, b.id, b.name
+                               FROM {book} b, {modules} m
+                              WHERE m.name = 'book'
+                             UNION
+                             SELECT m.name, m.id AS resourcetypeid, course, f.id, f.name
+                               FROM {forum} f, {modules} m
+                              WHERE m.name = 'forum'
+                             UNION
+                             SELECT m.name, m.id AS resourcetypeid, course, a.id, a.name
+                               FROM {assign} a, {modules} m
+                              WHERE m.name = 'assign') resources
+                    ON resources.resource_type = modules.name
+                   AND resources.id = course_modules.instance
+                   AND resources.course = course_modules.course
+                 WHERE course_modules.course = ?;";
+
+        $recordset = $DB->get_recordset_sql($sql, array($courseid));
+        $queryresults = array();
+
+        foreach ($recordset as $record) {
+            $resourceid = $record->id;
+            $resourcename = $record->resource_name;
+            $resourcetype = $record->resource_type;
+
+            // The userid, logviews and grades properties are ignored for this.
+            $queryresult = new query_result(0, $courseid, $resourceid, $resourcename, 0, 0, $resourcetype);
 
             array_push($queryresults, $queryresult);
         }
@@ -1450,4 +1531,36 @@ class database_helper {
 
         return $queryresults;
     }
+
+    public function query_historic_resources_info($courseid) {
+        global $DB;
+
+        $sql = 'SELECT resourceid,
+                       resourcename,
+                       resourcetype
+                FROM   m_block_mycourse_hist_data data
+                WHERE  data.courseid = ?
+                GROUP BY resourceid,
+                         resourcename,
+                         resourcetype;';
+
+        $recordset = $DB->get_recordset_sql($sql, array($courseid));
+        $queryresults = array();
+
+        foreach ($recordset as $record) {
+            $resourceid = $record->id;
+            $resourcename = $record->resourcename;
+            $resourcetype = $record->resourcetype;
+
+            // The userid, logviews and grades properties are ignored for this.
+            $queryresult = new query_result(0, $courseid, $resourceid, $resourcename, 0, 0, $resourcetype);
+
+            array_push($queryresults, $queryresult);
+        }
+
+        $recordset->close();
+
+        return $queryresults;
+    }
+
 }

@@ -234,21 +234,21 @@ class simple_recommendator extends abstract_recommendator {
         $startweek = $coursedates['week'];
         $year = $coursedates['year'];
 
-        $trace->output("[mycourse " . date('d/m/Y H:i:s') . "]: Log data for course '$previouscourse' will be queried with the "
-            . "following parameters: year: $year; from start week: $startweek; to end week: $endweek");
-        $previousdata = $this->db->query_historic_course_data($previouscourse, $year, $startweek, $endweek, null, true);
-
-        $trace->output('[mycourse ' . date('d/m/Y H:i:s') . ']: Previous query has finished.');
+        $previousresources = $this->db->query_historic_resources_info($previouscourse);
 
         $trace->output('[mycourse ' . date('d/m/Y H:i:s') . ']: Starting the association of common resources in both '
             . 'years, to determine which resources of previous year correspond to current\'s, to decide which can be candidate '
             . 'to be recommended.');
 
-        $associatedresources = $this->associate_resources($previousdata, $currentselecteddata);
-        $previousdata = $associatedresources['previous'];
+        $associatedresources = $this->associate_resources($previousresources, $currentselecteddata);
+        $previousresources = $associatedresources['previous'];
         $currentdata = $associatedresources['current'];
 
         $trace->output('[mycourse ' . date('d/m/Y H:i:s') . ']: Resource association ended.');
+
+        $onlyrecommendable = true;
+        $previousdata = $this->db->query_historic_course_data($previouscourse, $year, $startweek, $endweek, null, true,
+            $onlyrecommendable, $previousresources);
 
         // We get the association matrix, where the rows will be the current users id; the columns, the previous users;
         // and the values, the simmilarity coefficient.
