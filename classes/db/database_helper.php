@@ -1538,7 +1538,7 @@ class database_helper {
         $sql = 'SELECT resourceid,
                        resourcename,
                        resourcetype
-                FROM   m_block_mycourse_hist_data data
+                FROM   {block_mycourse_hist_data} data
                 WHERE  data.courseid = ?
                 GROUP BY resourceid,
                          resourcename,
