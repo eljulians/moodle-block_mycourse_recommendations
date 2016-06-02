@@ -198,11 +198,11 @@ class simple_recommendator extends abstract_recommendator {
         }
 
         $coursedates = $this->db->get_course_start_week_and_year($courseid, false);
-        $startweek = $coursedates['week'];
-        $year = $coursedates['year'];
-        $trace->output("[mycourse " . date('d/m/Y H:i:s') . "]: Course start year: $year; start week: $startweek");
+        $currentstartweek = $coursedates['week'];
+        $currentyear = $coursedates['year'];
+        $trace->output("[mycourse " . date('d/m/Y H:i:s') . "]: Course start year: $currentyear; start week: $currentstartweek");
 
-        $yearchange = $startweek > $currentweek;
+        $yearchange = $currentstartweek > $currentweek;
         $endweek = $currentweek;
         if ($yearchange) {
             $endweek = $currentweek + 52;
@@ -239,7 +239,7 @@ class simple_recommendator extends abstract_recommendator {
 
         $trace->output("[mycourse " . date('d/m/Y H:i:s') . "]: Log data for course '$courseid' will be queried with the "
             . "followingparameters: year: $year; from start week: $startweek; to end week: $endweek");
-        $currentdata = $this->db->query_data($courseid, $year, $startweek, $endweek, null, false, false,
+        $currentdata = $this->db->query_data($courseid, $currentyear, $currentstartweek, $endweek, null, false, false,
             $onlyrecommendable, $currentresources);
 
         $trace->output('[mycourse ' . date('d/m/Y H:i:s') . ']: Previous query has finished.');
