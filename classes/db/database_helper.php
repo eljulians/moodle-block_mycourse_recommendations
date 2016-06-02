@@ -217,7 +217,8 @@ class database_helper {
      * @return array An object for each record in recordset.
      */
     public function query_data($courseid, $year, $coursestartweek, $currentweek, $userid = null,
-                               $ignoreweeks = false, $onlyunviewed = false) {
+                               $ignoreweeks = false, $onlyunviewed = false, $onlyrecommendable = false,
+                               $recommendableresources = array()) {
         global $DB;
 
         $sql = $this->sql;
@@ -256,6 +257,12 @@ class database_helper {
 
             // The date is comming in yyyy-mm-dd hh:mm:ss+01, so, we add that hour manually, because strtotime doesn't do it.
             $timestamp = strtotime($record->view_date) + 3600;
+
+            if ($onlyrecommendable) {
+                if (!$this->is_resource_recommendable($modulename, $resourcetype, $recommendableresources)) {
+                    continue;
+                }
+            }
 
             $queryresults[$index] = new query_result($userid, $courseid, $moduleid, $modulename, $logviews,
                 $grades, $resourcetype, $timestamp);

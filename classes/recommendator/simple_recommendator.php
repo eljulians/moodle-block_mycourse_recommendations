@@ -209,21 +209,6 @@ class simple_recommendator extends abstract_recommendator {
         }
         $endweek += parent::TIME_WINDOW;
 
-        $trace->output("[mycourse " . date('d/m/Y H:i:s') . "]: Log data for course '$courseid' will be queried with the "
-            . "followingparameters: year: $year; from start week: $startweek; to end week: $endweek");
-        $currentdata = $this->db->query_data($courseid, $year, $startweek, $endweek);
-
-        $trace->output('[mycourse ' . date('d/m/Y H:i:s') . ']: Previous query has finished.');
-
-        // We keep only the users that are selected to receive the recommendations.
-        $currentselecteddata = array();
-        foreach ($currentdata as $currentuserrow) {
-            $isselecteduser = in_array($currentuserrow->get_userid(), $selectedusers);
-            if ($isselecteduser) {
-                array_push($currentselecteddata, $currentuserrow);
-            }
-        }
-
         $previouscourses = $this->db->get_associated_courses($courseid);
 
         $previouscourse = max($previouscourses);
@@ -240,15 +225,33 @@ class simple_recommendator extends abstract_recommendator {
             . 'years, to determine which resources of previous year correspond to current\'s, to decide which can be candidate '
             . 'to be recommended.');
 
-        $associatedresources = $this->associate_resources($previousresources, $currentselecteddata);
+        $currentresources = $this->db->query_current_resources_info($courseid);
+
+        $associatedresources = $this->associate_resources($previousresources, $currentresources);
         $previousresources = $associatedresources['previous'];
-        $currentdata = $associatedresources['current'];
+        $currentresources = $associatedresources['current'];
 
         $trace->output('[mycourse ' . date('d/m/Y H:i:s') . ']: Resource association ended.');
 
         $onlyrecommendable = true;
         $previousdata = $this->db->query_historic_course_data($previouscourse, $year, $startweek, $endweek, null, true,
             $onlyrecommendable, $previousresources);
+
+        $trace->output("[mycourse " . date('d/m/Y H:i:s') . "]: Log data for course '$courseid' will be queried with the "
+            . "followingparameters: year: $year; from start week: $startweek; to end week: $endweek");
+        $currentdata = $this->db->query_data($courseid, $year, $startweek, $endweek, null, false, false,
+            $onlyrecommendable, $currentresources);
+
+        $trace->output('[mycourse ' . date('d/m/Y H:i:s') . ']: Previous query has finished.');
+
+        // We keep only the users that are selected to receive the recommendations.
+        $currentselecteddata = array();
+        foreach ($currentdata as $currentuserrow) {
+            $isselecteduser = in_array($currentuserrow->get_userid(), $selectedusers);
+            if ($isselecteduser) {
+                array_push($currentselecteddata, $currentuserrow);
+            }
+        }
 
         // We get the association matrix, where the rows will be the current users id; the columns, the previous users;
         // and the values, the simmilarity coefficient.
