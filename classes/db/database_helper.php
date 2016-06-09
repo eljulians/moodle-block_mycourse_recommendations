@@ -1518,7 +1518,8 @@ class database_helper {
                     ON resources.resource_type = modules.name
                    AND resources.id = course_modules.instance
                    AND resources.course = course_modules.course
-                 WHERE course_modules.course = ?;";
+                 WHERE course_modules.course = ?
+                 ORDER BY resources.id";
 
         $recordset = $DB->get_recordset_sql($sql, array($courseid));
         $queryresults = array();
@@ -1549,7 +1550,8 @@ class database_helper {
                 WHERE  data.courseid = ?
                 GROUP BY resourceid,
                          resourcename,
-                         resourcetype;';
+                         resourcetype
+                ORDER BY resourceid';
 
         $recordset = $DB->get_recordset_sql($sql, array($courseid));
         $queryresults = array();

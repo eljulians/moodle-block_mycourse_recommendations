@@ -359,7 +359,7 @@ class simple_recommendator extends abstract_recommendator {
                     array_push($previousresources, $previousresource);
                     array_push($currentresources, $currentresource);
 
-                    continue;
+                    continue 2;
                 }
             }
         }
