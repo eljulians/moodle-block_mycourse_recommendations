@@ -307,7 +307,6 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         $this->assertEquals($expectedrowcount, $actualrowcount);
 
         // We query the actual values, and we store them in an index-based array beginning from 0, not using the ids as keys.
-        $actuals = array();
         $records = $DB->get_records('block_mycourse_assoc');
         $actuals = array_values($records);
 
@@ -325,14 +324,14 @@ class block_mycourse_recommendations_simple_recommendator_testcase extends advan
         $expecteds[0]->current_courseid = $currentcourses[0]->id;
         $expecteds[0]->historic_userid = $previoususers[2]->id;
         $expecteds[0]->historic_courseid = $previouscoursesids[0];
-        $expecteds[0]->week = 2;
+        $expecteds[0]->week = '2';
 
         $expecteds[1] = new stdClass();
         $expecteds[1]->current_userid = $currentusers[1]->id;
         $expecteds[1]->current_courseid = $currentcourses[0]->id;
-        $expecteds[1]->historic_userid = $previoususers[0]->id;
+        $expecteds[1]->historic_userid = $previoususers[2]->id;
         $expecteds[1]->historic_courseid = $previouscoursesids[0];
-        $expecteds[1]->week = "2";
+        $expecteds[1]->week = '2';
 
         // Probably asserting each object, instead of the whole arrays of objects, will cause less trouble.
         foreach (array_keys($actuals) as $index) {
